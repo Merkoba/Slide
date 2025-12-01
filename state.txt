@@ -1,1 +1,0 @@
-Strudel is a code-based music creation tool that allows users to generate music using simple commands for sounds, sequences, notes, and effects. Users can define drum patterns, melodies, and manipulate audio with filters, delays, and modulation, making it a versatile environment for creating electronic music.
