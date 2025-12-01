@@ -18,10 +18,13 @@ The aim is to automate the beat changes, building upon the last section, alterna
 leaving that run for an indefinite amount of time for the user to listen to,
 as some sort of ambient sound machine.
 On each prompt you will receive the last 3 beats, and you will be asked to produce the followup.
+There might be no history yet, in that case a starting point must be generated.
 Try to keep a progression that makes sense.
 Try to make pleasant beats, in the vein of lo-fi hip-hop and experimental (futurebeats).
 The beats should be pleasant, not rough, avoid overpowered screeching/highs.
-The response should be only the code of the new beat, ready to be used in strudel.
+The response should ONLY be the code of the new beat, ready to be used in strudel,
+because it's going to be plugged in directly as raw text.
+Don't use backticks or any sort of markdown.
 """
 
 MINUTES = 1
@@ -41,7 +44,7 @@ app = Flask(__name__)
 stop_event = threading.Event()
 answer_lock = threading.Lock()
 worker_thread: Optional[threading.Thread] = None
-latest_answer = DEFAULT_ANSWER
+LATEST_ANSWER = DEFAULT_ANSWER
 HISTORY: List[str] = []
 
 
@@ -101,6 +104,8 @@ def load_instructions() -> str:
 def load_cached_answer() -> str:
 	"""Return the cached AI response from disk if available."""
 
+	global LATEST_ANSWER
+
 	state_path = Path(STATE_FILE)
 
 	try:
@@ -114,7 +119,8 @@ def load_cached_answer() -> str:
 	if not cached:
 		return DEFAULT_ANSWER
 
-	return cached
+	LATEST_ANSWER = cached
+	record_history(cached)
 
 
 def persist_answer(answer: str) -> None:
@@ -200,7 +206,7 @@ def run_ai_prompt() -> str:
 def background_worker() -> None:
 	"""Continuously refresh the cached answer on a fixed cadence."""
 
-	global latest_answer
+	global LATEST_ANSWER
 
 	interval_seconds = REQUEST_INTERVAL_MINUTES * 60
 
@@ -212,7 +218,7 @@ def background_worker() -> None:
 			answer = f"Error collecting answer: {exc}"
 
 		with answer_lock:
-			latest_answer = answer
+			LATEST_ANSWER = answer
 			record_history(answer)
 
 		persist_answer(answer)
@@ -233,7 +239,7 @@ def get_state() -> Response:
 	"""Expose the most recent AI answer as plain text."""
 
 	with answer_lock:
-		answer = latest_answer
+		answer = LATEST_ANSWER
 
 	return Response(answer, mimetype="text/plain")
 
@@ -253,8 +259,7 @@ def shutdown_worker() -> None:
 def main() -> None:
 	load_api_key()
 	load_instructions()
-	latest_answer = load_cached_answer()
-	record_history(latest_answer)
+	load_cached_answer()
 	start_worker_if_needed()
 	atexit.register(shutdown_worker)
 	app.run(host="0.0.0.0", port=PORT, debug=False)
