@@ -1,0 +1,360 @@
+# Sounds
+
+sound("casio")
+casio is one of many standard sounds.
+Try out a few other sounds:
+insect wind jazz metal east crow casio space numbers
+One Sound can contain multiple samples (audio files).
+sound("casio:1")
+Try different sound / sample number combinations.
+Not adding a number is like doing :0
+
+# Drum Sounds
+
+By default, Strudel comes with a wide selection of drum sounds:
+
+sound("bd hh sd oh")
+
+bd = bass drum
+sd = snare drum
+rim = rimshot
+hh = hihat
+oh = open hihat
+lt = low tom
+mt = middle tom
+ht = high tom
+rd = ride cymbal
+cr = crash cymbal
+
+To change the sound character of our drums, we can use bank to change the drum machine:
+
+sound("bd hh sd oh").bank("RolandTR909")
+
+Try changing RolandTR909 to one of:
+
+AkaiLinn
+RhythmAce
+RolandTR808
+RolandTR707
+ViscoSpaceDrum
+
+# Sequences
+
+sound("bd bd hh bd rim bd hh bd")
+The content of a sequence will be squished into what’s called a cycle. A cycle is 2s long by default.
+
+Here is the same sequence, but this time sourrounded with < .. > (angle brackets):
+sound("<bd bd hh bd rim bd hh bd>")
+This will play only one sound per cycle. With these brackets, the tempo doesn’t change when we add or remove elements!
+Because this is now very slow, we can speed it up again like this:
+sound("<bd bd hh bd rim bd hh bd>*8")
+Here, the *8 means we make the whole thing 8 times faster.
+
+Changing the tempo with setcpm:
+setcpm(90/4)
+sound("<bd hh rim hh>*8")
+cpm = cycles per minute
+By default, the tempo is 30 cycles per minute = 120/4 = 1 cycle every 2 seconds
+In western music terms, you could say the above are 8ths notes at 90bpm in 4/4 time.
+
+Add a rests in a sequence with ’-’ or ’~’
+sound("bd hh - rim - bd hh rim")
+Sub-Sequences with [brackets]
+sound("bd [hh hh] sd [hh bd] bd - [hh sd] cp")
+Similar to the whole sequence, the content of a sub-sequence will be squished to its own length.
+
+Multiplication: Speed things up:
+sound("bd hh*2 rim hh*3 bd [- hh*2] rim hh*2")
+
+Multiplication: Speed up subsequences:
+sound("bd [hh rim]*2 bd [hh rim]*1.5")
+
+Multiplication: Speeeeeeeeed things up:
+sound("bd hh*32 rim hh*16")
+
+Sub-Sub-Sequences with [[brackets]]
+sound("bd [[rim rim] hh] bd cp")
+
+Play sequences in parallel with comma
+sound("hh hh hh, bd casio")
+You can use as many commas as you want:
+sound("hh hh hh, bd bd, - casio")
+Commas can also be used inside sub-sequences:
+sound("hh hh hh, bd [bd,casio]")
+
+Multiple Lines with backticks:
+sound(`bd*2, - cp,
+- - - oh, hh*4,
+[- casio]*2`)
+
+Selecting sample numbers separately
+We can also use the n function to make it shorter and more readable:
+n("0 1 [4 2] 3*2").sound("jazz")
+
+# Notes
+
+Play notes with numbers:
+note("48 52 55 59").sound("piano")
+
+Play notes with letters:
+note("c e g b").sound("piano")
+
+Add flats or sharps to play the black keys:
+note("db eb gb ab bb").sound("piano")
+note("c# d# f# g# a#").sound("piano")
+note("c2 e3 g4 b5").sound("piano")
+
+Just like with unpitched sounds, we can change the sound of our notes with sound:
+note("36 43, 52 59 62 64").sound("piano")
+
+Try out different sounds:
+
+gm_electric_guitar_muted
+gm_acoustic_bass
+gm_voice_oohs
+gm_blown_bottle
+sawtooth
+square
+triangle
+how about bd, sd or hh?
+remove .sound('...') completely
+
+Switch between sounds:
+note("48 67 63 [62, 58]")
+.sound("piano gm_electric_guitar_muted")
+
+Stack multiple sounds:
+note("48 67 63 [62, 58]")
+.sound("piano, gm_electric_guitar_muted")
+
+# Longer Sequences
+
+Divide sequences with / to slow them down:
+note("[36 34 41 39]/4").sound("gm_acoustic_bass")
+The /4 plays the sequence in brackets over 4 cycles (=8s).
+So each of the 4 notes is 2s long.
+
+Play one per cycle with < ... >
+The angle brackets are actually just a shortcut:
+<a b c> = [a b c]/3
+<a b c d> = [a b c d]/4
+
+Play one sequence per cycle:
+We can combine the 2 types of brackets in all sorts of different ways. Here is an example of a repetitive bassline:
+note("<[36 48]*4 [34 46]*4 [41 53]*4 [39 51]*4>")
+.sound("gm_acoustic_bass")
+
+Alternate between multiple things:
+note("60 <63 62 65 63>")
+.sound("gm_xylophone")
+
+This is also useful for unpitched sounds:
+sound("bd*4, [~ <sd cp>]*2, [~ hh]*4")
+.bank("RolandTR909")
+
+# Scales
+
+setcpm(60)
+n("0 2 4 <[6,8] [7,9]>")
+.scale("C:minor").sound("piano")
+Try out different numbers. Any number should sound good!
+Try out different scales:
+
+C:major
+A2:minor
+D:dorian
+G:mixolydian
+A2:minor:pentatonic
+F:major:pentatonic
+
+Automate scales:
+setcpm(60)
+n("<0 -3>, 2 4 <[6,8] [7,9]>")
+.scale("<C:major D:mixolydian>/4")
+.sound("piano")
+
+# Repeat & Elongate
+
+note("c@3 eb").sound("gm_acoustic_bass")
+Not using @ is like using @1. In the above example, c is 3 units long and eb is 1 unit long.
+
+Elongate within sub-sequences:
+setcpm(60)
+n("<[4@2 4] [5@2 5] [6@2 6] [5@2 5]>*2")
+.scale("<C2:mixolydian F2:mixolydian>/4")
+.sound("gm_acoustic_bass")
+
+Replicate:
+setcpm(60)
+note("c!2 [eb,<g a bb a>]").sound("piano")
+
+# Effects
+
+Low-pass filter:
+
+note("<[c2 c3]*4 [bb1 bb2]*4 [f2 f3]*4 [eb2 eb3]*4>")
+.sound("sawtooth").lpf(800)
+
+Pattern the filter:
+note("<[c2 c3]*4 [bb1 bb2]*4 [f2 f3]*4 [eb2 eb3]*4>")
+.sound("sawtooth").lpf("200 1000 200 1000")
+
+Vowel:
+note("<[c3,g3,e4] [bb2,f3,d4] [a2,f3,c4] [bb2,g3,eb4]>")
+.sound("sawtooth").vowel("<a e i o>")
+
+Gain:
+$: sound("hh*16").gain("[.25 1]*4")
+$: sound("bd*4,[~ sd:1]*2")
+
+Shape the sound with an adsr envelope:
+
+note("c3 bb2 f3 eb3")
+.sound("sawtooth").lpf(600)
+.attack(.1)
+.decay(.1)
+.sustain(.25)
+.release(.2)
+
+Try to find out what the numbers do.. Compare the following
+
+attack: .5 vs 0
+decay: .5 vs 0
+sustain: 1 vs .25 vs 0
+release: 0 vs .5 vs 1
+
+adsr short notation:
+note("c3 bb2 f3 eb3")
+.sound("sawtooth").lpf(600)
+.adsr(".1:.1:.5:.2")
+
+Delay:
+$: note("[~ [<[d3,a3,f4]!2 [d3,bb3,g4]!2> ~]]*2")
+.sound("gm_electric_guitar_muted").delay(.5)
+$: sound("bd rim").bank("RolandTR707").delay(".5")
+
+Room aka reverb:
+n("<4 [3@3 4] [<2 0> ~@16] ~>")
+.scale("D4:minor").sound("gm_accordion:2")
+.room(2)
+
+Pan:
+sound("numbers:1 numbers:2 numbers:3 numbers:4")
+.pan("0 0.3 .6 1")
+
+Speed:
+sound("bd rim [~ bd] rim").speed("<1 2 -1 -2>").room(.2)
+
+Fast and slow:
+sound("bd*4,~ rim ~ cp").slow(2)
+Inside Mini-Notation, fast is * and slow is /:
+sound("[bd*4,~ rim ~ cp]*<1 [2 4]>")
+
+# Modulation with signals
+
+Instead of changing values stepwise, we can also control them with signals:
+sound("hh*16").gain(sine)
+
+Setting a range:
+sound("hh*16").lpf(saw.range(500, 2000))
+
+We can change the modulation speed with slow / fast:
+note("<[c2 c3]*4 [bb1 bb2]*4 [f2 f3]*4 [eb2 eb3]*4>")
+.sound("sawtooth")
+.lpf(sine.range(100, 2000).slow(4))
+
+# Pattern Effects:
+
+Reverse patterns with rev:
+n("0 1 [4 3] 2 0 2 [~ 3] 4").sound("jazz").rev()
+
+Play pattern left and modify it right with jux:
+n("0 1 [4 3] 2 0 2 [~ 3] 4").sound("jazz").jux(rev)
+This is the same as:
+$: n("0 1 [4 3] 2 0 2 [~ 3] 4").sound("jazz").pan(0)
+$: n("0 1 [4 3] 2 0 2 [~ 3] 4").sound("jazz").pan(1).rev()
+
+Multiple tempos:
+note("c2, eb3 g3 [bb3 c4]").sound("piano").slow("0.5,1,1.5")
+This is like doing:
+$: note("c2, eb3 g3 [bb3 c4]").s("piano").slow(0.5).color('cyan')
+$: note("c2, eb3 g3 [bb3 c4]").s("piano").slow(1).color('magenta')
+$: note("c2, eb3 g3 [bb3 c4]").s("piano").slow(1.5).color('yellow')
+
+Add:
+setcpm(60)
+note("c2 [eb3,g3] ".add("<0 <1 -1>>"))
+.color("<cyan <magenta yellow>>").adsr("[.1 0]:.2:[1 0]")
+.sound("gm_acoustic_bass").room(.5)
+
+We can add as often as we like:
+setcpm(60)
+note("c2 [eb3,g3]".add("<0 <1 -1>>").add("0,7"))
+.color("<cyan <magenta yellow>>").adsr("[.1 0]:.2:[1 0]")
+.sound("gm_acoustic_bass").room(.5)
+
+Add with scale:
+n("0 [2 4] <3 5> [~ <4 1>]".add("<0 [0,2,4]>"))
+.scale("C5:minor").release(.5)
+.sound("gm_xylophone").room(.5)
+
+Time to stack:
+$: n("0 [2 4] <3 5> [~ <4 1>]".add("<0 [0,2,4]>"))
+.scale("C5:minor")
+.sound("gm_xylophone")
+.room(.4).delay(.125)
+$: note("c2 [eb3,g3]".add("<0 <1 -1>>"))
+.adsr("[.1 0]:.2:[1 0]")
+.sound("gm_acoustic_bass")
+.room(.5)
+$: n("0 1 [2 3] 2").sound("jazz").jux(rev)
+
+Ply:
+sound("hh hh, bd rim [~ cp] rim").bank("RolandTR707").ply(2)
+This is like writing:
+sound("hh*2 hh*2, bd*2 rim*2 [~ cp*2] rim*2").bank("RolandTR707")
+
+Off:
+n("0 [4 <3 2>] <2 3> [~ 1]"
+.off(1/16, x=>x.add(4))
+//.off(1/8, x=>x.add(7))
+).scale("<C5:minor Db5:mixolydian>/2")
+.s("triangle").room(.5).dec(.1)
+
+In the notation .off(1/16, x=>x.add(4)), says:
+take the original pattern named as x
+modify x with .add(4), and
+play it offset to the original pattern by 1/16 of a cycle.
+
+Off is also useful for modifying other sounds, and can even be nested:
+s("bd sd [rim bd] sd,[~ hh]*4").bank("CasioRZ1")
+.off(2/16, x=>x.speed(1.5).gain(.25)
+.off(3/16, y=>y.vowel("<a e i o>*8")))
+
+# Default Samples
+
+By default, strudel comes with a built-in “sample map”, providing a solid base to play with.
+s("bd sd [~ bd] sd,hh*16, misc")
+
+Strudel uses the comprehensive tidal-drum-machines library, with the following naming convention:
+
+Bass drum, Kick drum	bd
+Snare drum	sd
+Rimshot	rim
+Clap	cp
+Closed hi-hat	hh
+Open hi-hat	oh
+Crash	cr
+Ride	rd
+High tom	ht
+Medium tom	mt
+Low tom
+
+More percussive sounds:
+
+Shakers (and maracas, cabasas, etc)	sh
+Cowbell	cb
+Tambourine	tb
+Other percussions	perc
+Miscellaneous samples	misc
+Effects
