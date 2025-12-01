@@ -24,13 +24,14 @@ The beats should be pleasant, not rough, avoid overpowered screeching/highs.
 The response should be only the code of the new beat, ready to be used in strudel.
 """
 
-MINUTES = 10
+MINUTES = 1
 DEFAULT_MODEL = os.getenv("LITELLM_MODEL", "gemini/gemini-2.0-flash")
 API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "api_key.txt")
 STATE_FILE = os.getenv("STATE_FILE", "state.txt")
+INSTRUCTIONS = ""
 INSTRUCTIONS_FILE = os.getenv("INSTRUCTIONS_FILE", "instructions.txt")
 REQUEST_INTERVAL_MINUTES = max(1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{MINUTES}")))
-DEFAULT_ANSWER = "Awaiting first AI response."
+DEFAULT_ANSWER = ""
 PORT = 4242
 MAX_HISTORY = 3
 
@@ -58,11 +59,10 @@ def resolve_model_name(raw_name: str) -> str:
 	return name
 
 
-MODEL_NAME = resolve_model_name(DEFAULT_MODEL)
-
-
 def load_api_key() -> str:
 	"""Load the provider key from api_key.txt, raising if it cannot be read."""
+
+	global API_KEY
 
 	key_path = Path(API_KEY_FILE)
 
@@ -74,14 +74,13 @@ def load_api_key() -> str:
 	if not key:
 		raise RuntimeError(f"API key file is empty: {key_path}")
 
-	return key
+	API_KEY = key
 
 
-API_KEY = load_api_key()
-
-
-def load_prompt_instructions() -> str:
+def load_instructions() -> str:
 	"""Load customizable instructions used to build the AI prompt."""
+
+	global INSTRUCTIONS
 
 	instructions_path = Path(INSTRUCTIONS_FILE)
 
@@ -92,6 +91,11 @@ def load_prompt_instructions() -> str:
 	except OSError as exc:
 		logging.warning("Failed to read instructions file %s: %s", instructions_path, exc)
 		return PROMPT.strip()
+
+	if not instructions:
+		raise RuntimeError(f"Instructions file is empty: {key_path}")
+
+	INSTRUCTIONS = instructions
 
 
 def load_cached_answer() -> str:
@@ -136,13 +140,10 @@ def record_history(entry: str) -> None:
 		del HISTORY[:-MAX_HISTORY]
 
 
-latest_answer = load_cached_answer()
-record_history(latest_answer)
-
-
 def get_beats() -> str:
 	with answer_lock:
 		beats = list(HISTORY[-MAX_HISTORY:])
+
 	s = ""
 
 	for i, beat in enumerate(beats):
@@ -153,7 +154,9 @@ def get_beats() -> str:
 
 
 def get_prompt() -> str:
-	INSTRUCTIONS = load_prompt_instructions()
+	global PROMPT
+	global INSTRUCTIONS
+
 	PROMPT = f"""{PROMPT}\n\n
 	Here are the last 3 beats (from older to newer):
 
@@ -171,13 +174,16 @@ def run_ai_prompt() -> str:
 	"""Send the hardcoded prompt through LiteLLM and capture the text body."""
 
 	print("Getting answer")
+	model = resolve_model_name(DEFAULT_MODEL)
+
+	messages = [
+		{"role": "system", "content": "Respond with clear, user-friendly summaries."},
+		{"role": "user", "content": get_prompt()},
+	]
 
 	response = completion(
-		model=MODEL_NAME,
-		messages=[
-			{"role": "system", "content": "Respond with clear, user-friendly summaries."},
-			{"role": "user", "content": get_prompt()},
-		],
+		model=model,
+		messages=messages,
 		api_key=API_KEY,
 		timeout=30,
 	)
@@ -244,9 +250,15 @@ def shutdown_worker() -> None:
 		worker_thread.join(timeout=2)
 
 
-start_worker_if_needed()
-atexit.register(shutdown_worker)
+def main() -> None:
+	load_api_key()
+	load_instructions()
+	latest_answer = load_cached_answer()
+	record_history(latest_answer)
+	start_worker_if_needed()
+	atexit.register(shutdown_worker)
+	app.run(host="0.0.0.0", port=PORT, debug=False)
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=PORT, debug=False)
+	main()
