@@ -93,11 +93,6 @@ def load_prompt_instructions() -> str:
 		logging.warning("Failed to read instructions file %s: %s", instructions_path, exc)
 		return PROMPT.strip()
 
-	if not instructions:
-		return PROMPT.strip()
-
-	return instructions
-
 
 def load_cached_answer() -> str:
 	"""Return the cached AI response from disk if available."""
