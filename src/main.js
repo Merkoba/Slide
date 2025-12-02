@@ -469,6 +469,14 @@ App.segment_code = (code) => {
         }
     }
 
+    if ((segments.length <= 1) && normalized.includes(`\n`)) {
+        const fallback = normalized.split(/\n+/g).map((line) => line.trim()).filter(Boolean)
+
+        if (fallback.length > 1) {
+            return fallback
+        }
+    }
+
     return segments
 }
 
