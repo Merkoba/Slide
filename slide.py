@@ -23,7 +23,11 @@ The beats should be pleasant, not rough, avoid overpowered screeching/highs.
 MINUTES = 1
 PORT = 4242
 MAX_HISTORY = 3
-DEFAULT_MODEL = os.getenv("LITELLM_MODEL", "gemini/gemini-2.0-flash")
+
+GOOGLE_MODEL = "gemini/gemini-2.0-flash"
+CLAUDE_MODEL = "claude/claude-sonnet-4-20250514"
+MODEL = os.getenv("LITELLM_MODEL", CLAUDE_MODEL)
+
 GOOGLE_API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "keys/google_api_key.txt")
 CLAUDE_API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "keys/claude_api_key.txt")
 STATE_FILE = os.getenv("STATE_FILE", "status.txt")
@@ -184,7 +188,7 @@ def run_ai_prompt() -> str:
 	"""Send the hardcoded prompt through LiteLLM and capture the text body."""
 
 	print("Getting answer")
-	model = resolve_model_name(DEFAULT_MODEL)
+	model = resolve_model_name(MODEL)
 
 	messages = [
 		{"role": "system", "content": "Respond with clear, user-friendly summaries."},
@@ -248,7 +252,11 @@ def strudel_files(path: str) -> Response:
 def get_status() -> Response:
 	"""Expose the most recent status as plain text."""
 
-	status = HISTORY[-1]
+	if (len(HISTORY)):
+		status = HISTORY[-1]
+	else:
+		status = ""
+
 	return Response(status, mimetype="text/plain")
 
 @app.route("/dist/<path:filename>")
