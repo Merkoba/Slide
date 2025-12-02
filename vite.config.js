@@ -26,13 +26,13 @@ module.exports = defineConfig(async () => {
 				entry: path.resolve(project_root, `src/main.js`),
 				name: `SlideBundle`,
 				formats: [`iife`],
-				fileName: () => `slide.bundle.js`,
+				fileName: () => `strudel.bundle.js`,
 			},
 			rollupOptions: {
 				output: {
 					inlineDynamicImports: true,
 					manualChunks: undefined,
-					entryFileNames: `slide.bundle.js`,
+					entryFileNames: `strudel.bundle.js`,
 				},
 			},
 			cssCodeSplit: false,

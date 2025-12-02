@@ -11,7 +11,18 @@ import { webaudioRepl } from '@strudel.cycles/webaudio'
 
 const { evaluate } = webaudioRepl()
 
+let App = window.App
+
+if (!App) {
+    App = {}
+    window.App = App
+}
+
 let scopePromise
+
+let statusPollTimer
+let lastStatusCode
+let statusPollInFlight = false
 
 const ensureStrudelScope = () => {
     if (!scopePromise) {
@@ -71,3 +82,69 @@ window.strudel_update = (code) => {
 window.strudel_stop = () => {
     evaluate(`hush`)
 }
+
+App.fetchStatusCode = async () => {
+    const response = await fetch(`/status`, { cache: `no-store` })
+
+    if (!response.ok) {
+        throw new Error(`Status endpoint returned ${response.status}`)
+    }
+
+    return response.text()
+}
+
+App.strudel_watchStatus = (minutes) => {
+    if (!minutes || minutes <= 0) {
+        console.warn(`Provide a polling interval in minutes greater than zero`)
+        return
+    }
+
+    const intervalMs = minutes * 60 * 1000
+
+    const pollStatus = async () => {
+        if (statusPollInFlight) {
+            return
+        }
+
+        if (!audioStarted) {
+            console.warn(`Audio not started yet. Call strudel_init() before strudel_watchStatus().`)
+            return
+        }
+
+        statusPollInFlight = true
+
+        try {
+            const code = await App.fetchStatusCode()
+            const nextCode = code.trim()
+
+            if (!nextCode) {
+                return
+            }
+
+            if (nextCode === lastStatusCode) {
+                return
+            }
+
+            lastStatusCode = nextCode
+            window.strudel_update(nextCode)
+        }
+        catch (err) {
+            console.error(`Failed to update Strudel status`, err)
+        }
+        finally {
+            statusPollInFlight = false
+        }
+    }
+
+    if (statusPollTimer) {
+        clearInterval(statusPollTimer)
+    }
+
+    pollStatus()
+
+    statusPollTimer = setInterval(() => {
+        pollStatus()
+    }, intervalMs)
+}
+
+window.strudel_watchStatus = App.strudel_watchStatus
