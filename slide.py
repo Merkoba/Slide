@@ -8,7 +8,7 @@ from flask import Flask, Response, send_from_directory
 from litellm import completion
 
 PROMPT = """
-This is a program that writes strudel.cc code to compose musical beats.
+This is a program that writes strudel.cc patterns using the strudel syntax (or tidal notation).
 Each beat should be around 3-5 seconds in length.
 The aim is to automate the beat changes, building upon the last section, altering it a bit,
 leaving that run for an indefinite amount of time for the user to listen to,
@@ -17,10 +17,10 @@ Please try to keep a progression that makes sense.
 Please try to make pleasant beats, in the vein of lo-fi hip-hop and experimental (futurebeats).
 Don't try overly complex beats, to avoid syntax errors (this is important).
 The beats shouldn't be too rough, avoid overpowered screeching/highs.
-Response format: Just the raw code (no introduction comment or markdown)
+Response format: Just the raw syntax.
 """.strip()
 
-MINUTES = 1
+MINUTES = 100
 PORT = 4242
 MAX_HISTORY = 3
 
@@ -44,6 +44,18 @@ stop_event = threading.Event()
 answer_lock = threading.Lock()
 worker_thread: Optional[threading.Thread] = None
 HISTORY: List[str] = []
+
+def strip_markdown_code_fences(text: str) -> str:
+	"""Remove triple-backtick markdown fences that may wrap code blocks."""
+
+	if not text:
+		return text
+
+	lines = text.strip().splitlines()
+	cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
+
+	cleaned = "\n".join(cleaned_lines).strip()
+	return cleaned if cleaned else text.strip()
 
 def resolve_model_name(raw_name: str) -> str:
 	"""Normalize user-provided identifiers to LiteLLM's provider format."""
@@ -105,23 +117,30 @@ def load_instructions() -> str:
 
 	INSTRUCTIONS = instructions
 
-def load_status() -> str:
-	"""Return the cached AI response from disk if available."""
+def read_status_file() -> str:
+	"""Read the raw status text from disk, falling back to DEFAULT_ANSWER."""
 
 	status_path = Path(STATE_FILE)
 
 	try:
-		cached = status_path.read_text(encoding="utf-8")
+		return status_path.read_text(encoding="utf-8")
 	except FileNotFoundError:
 		return DEFAULT_ANSWER
 	except OSError as exc:
 		logging.warning("Failed to read status file %s: %s", status_path, exc)
 		return DEFAULT_ANSWER
 
+
+def load_status() -> str:
+	"""Return the cached AI response from disk if available."""
+
+	cached = read_status_file()
+
 	if not cached:
 		return DEFAULT_ANSWER
 
 	record_history(cached)
+	return cached
 
 def persist_answer(answer: str) -> None:
 	"""Persist the latest answer so it can be served without a fresh fetch."""
@@ -209,7 +228,7 @@ def run_ai_prompt() -> str:
 	content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
 
 	if content:
-		return content.strip()
+		return strip_markdown_code_fences(content)
 
 	return "Received empty response from model."
 
@@ -263,10 +282,10 @@ def strudel_files(path: str) -> Response:
 def get_status() -> Response:
 	"""Expose the most recent status as plain text."""
 
-	if (len(HISTORY)):
+	status = read_status_file()
+
+	if status == DEFAULT_ANSWER and len(HISTORY):
 		status = HISTORY[-1]
-	else:
-		status = ""
 
 	return Response(status, mimetype="text/plain")
 

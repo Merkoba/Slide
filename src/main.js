@@ -8,10 +8,23 @@ import {webaudioRepl} from "@strudel.cycles/webaudio"
 const {evalScope} = strudelCore
 const App = {}
 
+App.last_eval_error = ``
+
+App.handle_eval_error = (err) => {
+    App.has_error = true
+    App.last_eval_error = err?.message || `${err}`
+
+    if (typeof App.set_status === `function`) {
+        App.set_status(App.last_eval_error)
+    }
+    else {
+        console.error(`Strudel evaluation error`, App.last_eval_error)
+    }
+}
+
 const {evaluate} = webaudioRepl({
     onEvalError: (err) => {
-        App.has_error = true
-        App.set_status(err)
+        App.handle_eval_error(err)
     }
 })
 
@@ -226,21 +239,21 @@ App.strudel_update = async (code) => {
     }
 
     console.info(`Updating 💨`)
-    App.has_error = false
+    const fullResult = await App.run_eval(code)
 
-    try {
-        await evaluate(code)
-
-        if (App.has_error) {
-            return
-        }
-
+    if (fullResult.ok) {
         App.set_input(code)
         App.playing()
+        return
     }
-    catch (err) {
-        App.set_status(err)
+
+    const partialApplied = await App.apply_partial_update(code)
+
+    if (partialApplied) {
+        return
     }
+
+    App.report_eval_failure(fullResult.error)
 }
 
 App.set_input = (code) => {
@@ -326,6 +339,174 @@ App.set_status = (status) => {
     status_el.innerText = status
 }
 
+App.reset_eval_state = () => {
+    App.has_error = false
+}
+
+App.report_eval_failure = (error) => {
+    const message = error?.message || App.last_eval_error || `Failed to evaluate Strudel code`
+    App.last_eval_error = message
+    App.set_status(message)
+}
+
+App.run_eval = async (snippet) => {
+    App.reset_eval_state()
+
+    try {
+        await evaluate(snippet)
+    }
+    catch (err) {
+        return {ok: false, error: err}
+    }
+
+    if (App.has_error) {
+        return {ok: false, error: new Error(App.last_eval_error || `Evaluation error`)}
+    }
+
+    return {ok: true}
+}
+
+App.normalize_code = (code = ``) => {
+    return code.replace(/\r\n/g, `\n`).trim()
+}
+
+App.split_by_newlines = (block) => {
+    let buffer = ``
+    let quote = null
+    let round = 0
+    let square = 0
+    let curly = 0
+    const parts = []
+
+    const flush = () => {
+        const trimmed = buffer.trim()
+
+        if (trimmed) {
+            parts.push(trimmed)
+        }
+
+        buffer = ``
+    }
+
+    for (let i = 0; i < block.length; i += 1) {
+        const char = block[i]
+        const prev = block[i - 1]
+        buffer += char
+
+        if (quote) {
+            if ((char === quote) && (prev !== `\\`)) {
+                quote = null
+            }
+
+            continue
+        }
+
+        if ((char === `"`) || (char === `'`) || (char === "`")) {
+            quote = char
+            continue
+        }
+
+        if (char === `(`) {
+            round += 1
+        }
+        else if (char === `)`) {
+            round = Math.max(0, round - 1)
+        }
+        else if (char === `[`) {
+            square += 1
+        }
+        else if (char === `]`) {
+            square = Math.max(0, square - 1)
+        }
+        else if (char === `{`) {
+            curly += 1
+        }
+        else if (char === `}`) {
+            curly = Math.max(0, curly - 1)
+        }
+
+        if (char !== `\n`) {
+            continue
+        }
+
+        const nextChar = block[i + 1]
+        const depthClear = (round === 0) && (square === 0) && (curly === 0)
+        const nextIsIndent = (nextChar === ` `) || (nextChar === `\t`)
+        const nextIsNewline = (nextChar === `\n`)
+
+        if (depthClear && !nextIsIndent && !nextIsNewline) {
+            flush()
+        }
+    }
+
+    flush()
+    return parts
+}
+
+App.segment_code = (code) => {
+    const normalized = App.normalize_code(code)
+
+    if (!normalized) {
+        return []
+    }
+
+    const coarse = normalized.split(/\n{2,}/g).map((block) => block.trim()).filter(Boolean)
+    const segments = []
+
+    for (const block of coarse) {
+        if (!block.includes(`\n`)) {
+            segments.push(block)
+            continue
+        }
+
+        const refined = App.split_by_newlines(block)
+
+        if (refined.length) {
+            segments.push(...refined)
+        }
+        else {
+            segments.push(block)
+        }
+    }
+
+    return segments
+}
+
+App.apply_partial_update = async (code) => {
+    const segments = App.segment_code(code)
+
+    if (!segments.length) {
+        return false
+    }
+
+    const applied = []
+    let skipped = 0
+
+    for (const segment of segments) {
+        const result = await App.run_eval(segment)
+
+        if (result.ok) {
+            applied.push(segment)
+            continue
+        }
+
+        skipped += 1
+        console.warn(`Skipping segment due to error`, result.error)
+    }
+
+    if (!applied.length) {
+        return false
+    }
+
+    const sanitized = applied.join(`\n\n`)
+    App.set_input(sanitized)
+
+    const summary = `Applied ${applied.length} of ${segments.length} Strudel segment(s).${skipped ? ` Skipped ${skipped} segment(s) due to errors.` : ``}`
+    App.set_status(summary.trim())
+
+    return true
+}
+
 App.ensure_strudel_ready = async () => {
     if (!window.strudel_init) {
         App.set_status(`Bundle not loaded. Check console for errors`)
@@ -352,8 +533,7 @@ App.update_action = async () => {
     const code = code_input.value
 
     try {
-        App.strudel_update(code)
-        App.playing()
+        await App.strudel_update(code)
     } catch (e) {
         App.set_status(`Error: ${e.message}`)
     }
