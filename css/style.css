@@ -51,9 +51,12 @@ body {
     color: #0f0;
     border: 1px solid #444;
     padding: 10px;
-    min-height: 50px;
-    min-width: 200px;
+    min-height: 80px;
+    min-width: 500px;
     font-size: 1.2rem;
+    max-width: 96%;
+    max-height: 660px;
+    outline: none;
 }
 
 button {
