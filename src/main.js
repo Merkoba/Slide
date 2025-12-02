@@ -92,7 +92,7 @@ App.strudel_update = async (code) => {
 }
 
 App.set_input = (code) => {
-    const code_input = document.getElementById(`code-input`)
+    const code_input = App.get_input()
     code_input.value = code
 }
 
@@ -174,20 +174,54 @@ App.set_status = (status) => {
     status_el.innerText = status
 }
 
-App.start_events = () => {
-    const code_input = document.getElementById(`code-input`)
-
-    const ensure_strudel_ready = async () => {
-        if (!window.strudel_init) {
-            App.set_status(`Bundle not loaded. Check console for errors`)
-            console.error(`strudel.bundle.js is missing or failed to load`)
-            return false
-        }
-
-        await window.strudel_init()
-        return true
+App.ensure_strudel_ready = async () => {
+    if (!window.strudel_init) {
+        App.set_status(`Bundle not loaded. Check console for errors`)
+        console.error(`strudel.bundle.js is missing or failed to load`)
+        return false
     }
 
+    await window.strudel_init()
+    return true
+}
+
+App.get_input = () => {
+    return document.getElementById(`code-input`)
+}
+
+App.update_action = async () => {
+    const code_input = App.get_input()
+    const ready = await App.ensure_strudel_ready()
+
+    if (!ready) {
+        return
+    }
+
+    const code = code_input.value
+
+    try {
+        App.strudel_update(code)
+        App.playing()
+    } catch (e) {
+        App.set_status(`Error: ${e.message}`)
+    }
+}
+
+App.stop_action = () => {
+    if (!window.strudel_stop) {
+        App.set_status(`Bundle not loaded. Cannot stop audio`)
+        return
+    }
+
+    if (window.strudel_stopStatusWatch) {
+        window.strudel_stopStatusWatch()
+    }
+
+    window.strudel_stop()
+    App.set_status(`Stopped`)
+}
+
+App.start_action = async () => {
     const start_status_watch = () => {
         if (!window.strudel_watchStatus) {
             console.warn(`Polling function missing. Did strudel bundle load?`)
@@ -198,46 +232,27 @@ App.start_events = () => {
         window.strudel_watchStatus(minutes)
     }
 
+    const ready = await App.ensure_strudel_ready()
+
+    if (!ready) {
+        return
+    }
+
+    start_status_watch()
+    App.update_action()
+}
+
+App.start_events = () => {
     document.getElementById(`btn-start`).addEventListener(`click`, async () => {
-        const ready = await ensure_strudel_ready()
-
-        if (!ready) {
-            return
-        }
-
-        App.set_status(`Audio Ready! Click Update to play`)
-        start_status_watch()
+        App.start_action()
     })
 
     document.getElementById(`btn-update`).addEventListener(`click`, async () => {
-        const ready = await ensure_strudel_ready()
-
-        if (!ready) {
-            return
-        }
-
-        const code = code_input.value
-
-        try {
-            App.strudel_update(code)
-            App.playing()
-        } catch (e) {
-            App.set_status(`Error: ${e.message}`)
-        }
+        App.update_action()
     })
 
     document.getElementById(`btn-stop`).addEventListener(`click`, () => {
-        if (!window.strudel_stop) {
-            App.set_status(`Bundle not loaded. Cannot stop audio`)
-            return
-        }
-
-        if (window.strudel_stopStatusWatch) {
-            window.strudel_stopStatusWatch()
-        }
-
-        window.strudel_stop()
-        App.set_status(`Stopped`)
+        App.stop_action()
     })
 }
 

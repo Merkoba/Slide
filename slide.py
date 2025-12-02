@@ -198,7 +198,7 @@ def run_ai_prompt() -> str:
 	response = completion(
 		model=model,
 		messages=messages,
-		api_key=API_KEY,
+		api_key=get_api_key(),
 		timeout=30,
 	)
 
@@ -209,6 +209,14 @@ def run_ai_prompt() -> str:
 		return content.strip()
 
 	return "Received empty response from model."
+
+def get_api_key():
+	if "gemini" in MODEL:
+		return GOOGLE_API_KEY
+	elif "claude" in MODEL:
+		return CLAUDE_API_KEY
+
+	return ""
 
 def background_worker() -> None:
 	"""Continuously refresh the cached answer on a fixed cadence."""
