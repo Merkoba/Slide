@@ -22,9 +22,10 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.9rem;
     margin-bottom: 0.5rem;
+    width: 100%;
 }
 
 #image {
@@ -42,6 +43,26 @@ body {
     font-size: 2rem;
     text-shadow: 0 0 0.18rem currentcolor;
     user-select: none;
+}
+
+#volume-control {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    margin-left: 1.2rem;
+    user-select: none;
+}
+
+#volume-slider {
+    width: 10rem;
+    accent-color: #7bc67b;
+}
+
+#volume-value {
+    min-width: 3rem;
+    text-align: left;
+    color: #ccc;
 }
 
 #code-input {
