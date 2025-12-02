@@ -1,5 +1,3 @@
-"""Background AI polling service with a tiny Flask surface."""
-
 import atexit
 import logging
 import os
@@ -9,7 +7,6 @@ from typing import Dict, Optional, List
 
 from flask import Flask, Response, send_from_directory
 from litellm import completion
-
 
 PROMPT = """
 Response format: Just the raw code (no introduction comment or markdown)
@@ -23,16 +20,16 @@ Try to make pleasant beats, in the vein of lo-fi hip-hop and experimental (futur
 The beats should be pleasant, not rough, avoid overpowered screeching/highs.
 """.strip()
 
-MINUTES = 20
+MINUTES = 60
+PORT = 4242
+MAX_HISTORY = 3
 DEFAULT_MODEL = os.getenv("LITELLM_MODEL", "gemini/gemini-2.0-flash")
 API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "api_key.txt")
-STATE_FILE = os.getenv("STATE_FILE", "state.txt")
+STATE_FILE = os.getenv("STATE_FILE", "status.txt")
 INSTRUCTIONS = ""
 INSTRUCTIONS_FILE = os.getenv("INSTRUCTIONS_FILE", "instructions.txt")
 REQUEST_INTERVAL_MINUTES = max(1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{MINUTES}")))
 DEFAULT_ANSWER = ""
-PORT = 4242
-MAX_HISTORY = 3
 USE_INSTRUCTIONS = False
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -41,9 +38,7 @@ app = Flask(__name__)
 stop_event = threading.Event()
 answer_lock = threading.Lock()
 worker_thread: Optional[threading.Thread] = None
-LATEST_ANSWER = DEFAULT_ANSWER
 HISTORY: List[str] = []
-
 
 def resolve_model_name(raw_name: str) -> str:
 	"""Normalize user-provided identifiers to LiteLLM's provider format."""
@@ -57,7 +52,6 @@ def resolve_model_name(raw_name: str) -> str:
 		return f"gemini/{name}"
 
 	return name
-
 
 def load_api_key() -> str:
 	"""Load the provider key from api_key.txt, raising if it cannot be read."""
@@ -75,7 +69,6 @@ def load_api_key() -> str:
 		raise RuntimeError(f"API key file is empty: {key_path}")
 
 	API_KEY = key
-
 
 def load_instructions() -> str:
 	"""Load customizable instructions used to build the AI prompt."""
@@ -97,39 +90,33 @@ def load_instructions() -> str:
 
 	INSTRUCTIONS = instructions
 
-
-def load_cached_answer() -> str:
+def load_status() -> str:
 	"""Return the cached AI response from disk if available."""
 
-	global LATEST_ANSWER
-
-	state_path = Path(STATE_FILE)
+	status_path = Path(STATE_FILE)
 
 	try:
-		cached = state_path.read_text(encoding="utf-8")
+		cached = status_path.read_text(encoding="utf-8")
 	except FileNotFoundError:
 		return DEFAULT_ANSWER
 	except OSError as exc:
-		logging.warning("Failed to read state file %s: %s", state_path, exc)
+		logging.warning("Failed to read status file %s: %s", status_path, exc)
 		return DEFAULT_ANSWER
 
 	if not cached:
 		return DEFAULT_ANSWER
 
-	LATEST_ANSWER = cached
 	record_history(cached)
-
 
 def persist_answer(answer: str) -> None:
 	"""Persist the latest answer so it can be served without a fresh fetch."""
 
-	state_path = Path(STATE_FILE)
+	status_path = Path(STATE_FILE)
 
 	try:
-		state_path.write_text(answer, encoding="utf-8")
+		status_path.write_text(answer, encoding="utf-8")
 	except OSError as exc:
-		logging.warning("Failed to write state file %s: %s", state_path, exc)
-
+		logging.warning("Failed to write status file %s: %s", status_path, exc)
 
 def record_history(entry: str) -> None:
 	"""Keep a bounded, in-memory sequence of recent beats.
@@ -145,7 +132,6 @@ def record_history(entry: str) -> None:
 	if len(HISTORY) > MAX_HISTORY:
 		del HISTORY[:-MAX_HISTORY]
 
-
 def get_beats() -> str:
 	with answer_lock:
 		beats = list(HISTORY[-MAX_HISTORY:])
@@ -157,7 +143,6 @@ def get_beats() -> str:
 		s += beat
 
 	return s.strip()
-
 
 def make_prompt() -> str:
 	global PROMPT
@@ -183,7 +168,6 @@ def make_prompt() -> str:
 
 	PROMPT = "\n\n".join(items).strip()
 	return PROMPT
-
 
 def run_ai_prompt() -> str:
 	"""Send the hardcoded prompt through LiteLLM and capture the text body."""
@@ -211,11 +195,8 @@ def run_ai_prompt() -> str:
 
 	return "Received empty response from model."
 
-
 def background_worker() -> None:
 	"""Continuously refresh the cached answer on a fixed cadence."""
-
-	global LATEST_ANSWER
 
 	interval_seconds = REQUEST_INTERVAL_MINUTES * 60
 
@@ -227,11 +208,9 @@ def background_worker() -> None:
 			answer = f"Error collecting answer: {exc}"
 
 		with answer_lock:
-			LATEST_ANSWER = answer
 			record_history(answer)
 
 		persist_answer(answer)
-
 
 def start_worker_if_needed() -> None:
 	global worker_thread
@@ -242,13 +221,11 @@ def start_worker_if_needed() -> None:
 	worker_thread = threading.Thread(target=background_worker, name="ai-poller", daemon=True)
 	worker_thread.start()
 
-
 @app.get("/")
 def index() -> Response:
 	"""Serve the main HTML page."""
 
 	return send_from_directory(".", "index.html")
-
 
 @app.get("/strudel/<path:path>")
 def strudel_files(path: str) -> Response:
@@ -256,26 +233,20 @@ def strudel_files(path: str) -> Response:
 
 	return send_from_directory("strudel", path)
 
+@app.get("/status")
+def get_status() -> Response:
+	"""Expose the most recent status as plain text."""
 
-@app.get("/state")
-def get_state() -> Response:
-	"""Expose the most recent AI answer as plain text."""
-
-	with answer_lock:
-		answer = LATEST_ANSWER
-
-	return Response(answer, mimetype="text/plain")
-
+	status = HISTORY[-1]
+	return Response(status, mimetype="text/plain")
 
 @app.get("/healthz")
 def get_health() -> Dict[str, str]:
 	return {"status": "ok"}
 
-
 @app.route("/dist/<path:filename>")
 def dist_assets(filename):
     return send_from_directory("dist", filename)
-
 
 def shutdown_worker() -> None:
 	stop_event.set()
@@ -283,16 +254,13 @@ def shutdown_worker() -> None:
 	if worker_thread:
 		worker_thread.join(timeout=2)
 
-
 def main() -> None:
 	load_api_key()
 	load_instructions()
-	load_cached_answer()
+	load_status()
 	start_worker_if_needed()
-	print(make_prompt())
 	atexit.register(shutdown_worker)
 	app.run(host="0.0.0.0", port=PORT, debug=False)
-
 
 if __name__ == "__main__":
 	main()

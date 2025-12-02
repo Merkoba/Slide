@@ -80,8 +80,8 @@ App.strudel_stop = () => {
     evaluate(`hush`)
 }
 
-App.fetchStatusCode = async () => {
-    const response = await fetch(`/state`, { cache: `no-store` })
+App.fetch_status_code = async () => {
+    const response = await fetch(`/status`, { cache: `no-store` })
 
     if (!response.ok) {
         throw new Error(`Status endpoint returned ${response.status}`)
@@ -119,7 +119,7 @@ App.strudel_watch_status = (minutes) => {
         App.poll_in_flight = true
 
         try {
-            const code = await App.fetchStatusCode()
+            const code = await App.fetch_status_code()
             const nextCode = code.trim()
 
             if (!nextCode) {
