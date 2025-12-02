@@ -6,8 +6,11 @@ import {initAudio, samples} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 
 const {evalScope} = strudelCore
-const {evaluate} = webaudioRepl()
 const App = {}
+
+const {evaluate} = webaudioRepl({
+    onEvalError: (err) => App.set_status(err)
+})
 
 App.poll_minutes = 1
 App.audio_started = false
@@ -53,7 +56,7 @@ App.strudel_init = async () => {
         strudelMini.miniAllStrings()
 
         // Load default samples
-        await samples('github:tidalcycles/dirt-samples')
+        await samples(`github:tidalcycles/dirt-samples`)
 
         App.audio_started = true
         App.strudel_watch_status()
@@ -66,14 +69,20 @@ App.strudel_init = async () => {
 }
 
 // 2. Export the update function
-App.strudel_update = (code) => {
+App.strudel_update = async (code) => {
     if (!App.audio_started) {
         console.warn(`Audio not started yet. Call strudel_init() first.`)
         return
     }
 
-    console.info(`Running:`, code)
-    evaluate(code)
+    console.info(`Updating 💨`)
+
+    try {
+        await evaluate(code)
+    }
+    catch (err) {
+        App.set_status(err)
+    }
 }
 
 // 3. Export stop
@@ -118,18 +127,18 @@ App.strudel_watch_status = () => {
 
         try {
             const code = await App.fetch_status_code()
-            const nextCode = code.trim()
+            const next_code = code.trim()
 
-            if (!nextCode) {
+            if (!next_code) {
                 return
             }
 
-            if (nextCode === App.last_status) {
+            if (next_code === App.last_status) {
                 return
             }
 
-            App.last_status = nextCode
-            window.strudel_update(nextCode)
+            App.last_status = next_code
+            App.strudel_update(next_code)
         }
         catch (err) {
             console.error(`Failed to update Strudel status`, err)
@@ -147,6 +156,11 @@ App.strudel_watch_status = () => {
     }, interval_ms)
 
     console.info(`Interval started.`)
+}
+
+App.set_status = (status) => {
+    let status_el = document.getElementById(`status`)
+    status_el.innerText = status
 }
 
 // Export functions to window for use in HTML

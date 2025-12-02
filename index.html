@@ -27,13 +27,12 @@
     <script src="/dist/strudel.bundle.js"></script>
 
     <script>
-        const statusEl = document.getElementById('status')
-        const codeInput = document.getElementById('code-input')
+        const code_input = document.getElementById(`code-input`)
 
-        const ensureStrudelReady = async () => {
+        const ensure_strudel_ready = async () => {
             if (!window.strudel_init) {
-                statusEl.innerText = 'Bundle not loaded. Check console for errors.'
-                console.error('strudel.bundle.js is missing or failed to load')
+                App.set_status(`Bundle not loaded. Check console for errors.`)
+                console.error(`strudel.bundle.js is missing or failed to load`)
                 return false
             }
 
@@ -41,9 +40,9 @@
             return true
         }
 
-        const startStatusWatch = () => {
+        const start_status_watch = () => {
             if (!window.strudel_watchStatus) {
-                console.warn('Polling function missing. Did strudel bundle load?')
+                console.warn(`Polling function missing. Did strudel bundle load?`)
                 return
             }
 
@@ -51,37 +50,37 @@
             window.strudel_watchStatus(minutes)
         }
 
-        document.getElementById('btn-start').addEventListener('click', async () => {
-            const ready = await ensureStrudelReady()
+        document.getElementById(`btn-start`).addEventListener(`click`, async () => {
+            const ready = await ensure_strudel_ready()
 
             if (!ready) {
                 return
             }
 
-            statusEl.innerText = 'Audio Ready! Click Update to play.'
-            startStatusWatch()
+            App.set_status(`Audio Ready! Click Update to play.`)
+            start_status_watch()
         })
 
-        document.getElementById('btn-update').addEventListener('click', async () => {
-            const ready = await ensureStrudelReady()
+        document.getElementById(`btn-update`).addEventListener(`click`, async () => {
+            const ready = await ensure_strudel_ready()
 
             if (!ready) {
                 return
             }
 
-            const code = codeInput.value
+            const code = code_input.value
 
             try {
-                window.strudel_update(code)
-                statusEl.innerText = `Playing 🥁`
+                App.strudel_update(code)
+                App.set_status(`Playing 🥁`)
             } catch (e) {
-                statusEl.innerText = `Error: ${e.message}`
+                App.set_status(`Error: ${e.message}`)
             }
         })
 
-        document.getElementById('btn-stop').addEventListener('click', () => {
+        document.getElementById(`btn-stop`).addEventListener(`click`, () => {
             if (!window.strudel_stop) {
-                statusEl.innerText = 'Bundle not loaded. Cannot stop audio.'
+                App.set_status(`Bundle not loaded. Cannot stop audio.`)
                 return
             }
 
@@ -90,7 +89,7 @@
             }
 
             window.strudel_stop()
-            statusEl.innerText = 'Stopped.'
+            App.set_status(`Stopped.`)
         })
     </script>
 </body>
