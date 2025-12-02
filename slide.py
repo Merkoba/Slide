@@ -248,6 +248,10 @@ def dist_assets(filename):
 def css_assets(filename):
     return send_from_directory("css", filename)
 
+@app.route("/img/<path:filename>")
+def img_assets(filename):
+    return send_from_directory("img", filename)
+
 def shutdown_worker() -> None:
 	stop_event.set()
 
