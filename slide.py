@@ -168,7 +168,7 @@ def make_prompt() -> str:
 	if USE_INSTRUCTIONS:
 		instructions = f"""Here are the instructions on how to write strudel code:
 
-		{INSTRUCTIONS}
+{INSTRUCTIONS}
 		""".strip()
 
 		items.append(instructions)
@@ -176,7 +176,8 @@ def make_prompt() -> str:
 	if len(HISTORY) > 0:
 		beats = f"""Here are the last {len(HISTORY)} beats (from older to newer):
 
-		{get_beats()}""".strip()
+{get_beats()}
+		""".strip()
 
 		items.append(beats)
 
