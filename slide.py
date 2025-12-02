@@ -25,7 +25,7 @@ PORT = 4242
 MAX_HISTORY = 3
 
 GOOGLE_MODEL = "gemini/gemini-2.0-flash"
-CLAUDE_MODEL = "claude/claude-sonnet-4-20250514"
+CLAUDE_MODEL = "anthropic/claude-sonnet-4-20250514"
 MODEL = os.getenv("LITELLM_MODEL", CLAUDE_MODEL)
 
 GOOGLE_API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "keys/google_api_key.txt")
