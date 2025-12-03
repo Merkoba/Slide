@@ -33,13 +33,20 @@ App.audio_started = false
 App.poll_in_flight = false
 App.volume_percent = 100
 App.volume_storage_key = `slide.volumePercent`
-App.tempo_cpm = 60
+App.default_cpm = 60
+App.tempo_cpm = App.default_cpm
 App.tempo_storage_key = `slide.tempoCpm`
 App.tempo_debounce_timer = undefined
 App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
-App.cycle_colors = [`#94dd94`, `rgb(197, 187, 106)`, `rgb(222, 143, 143)`, `rgb(127, 155, 210)`]
+
+App.cycle_colors = [
+    `#94dd94`,
+    `rgb(197, 187, 106)`,
+    `rgb(222, 143, 143)`,
+    `rgb(127, 155, 210)`,
+]
 
 App.clear_status_watch = () => {
     if (!App.poll_timer) {
@@ -383,6 +390,14 @@ App.init_tempo_controls = () => {
         App.update_tempo(event.target.value)
     })
 
+    slider.addEventListener(`auxclick`, (event) => {
+        if (event.button === 1) {
+            event.target.value = App.default_cpm
+            App.update_tempo(App.default_cpm)
+            App.update_action()
+        }
+    })
+
     slider.addEventListener(`change`, (event) => {
         App.update_tempo(event.target.value)
 
@@ -586,6 +601,13 @@ App.normalize_code = (code = ``) => {
     return code.replace(/\r\n/g, `\n`).trim()
 }
 
+App.strip_set_cpm = (code) => {
+    return code
+        .split(`\n`)
+        .filter((line) => !line.trim().match(/^setCpm\s*\(/))
+        .join(`\n`)
+}
+
 App.split_by_newlines = (block) => {
     let buffer = ``
     let quote = null
@@ -747,19 +769,21 @@ App.get_input = () => {
 }
 
 App.update_action = async () => {
-    const code_input = App.get_input()
-    const ready = await App.ensure_strudel_ready()
+    let code_input = App.get_input()
+    let ready = await App.ensure_strudel_ready()
 
     if (!ready) {
         return
     }
 
-    const code = code_input.value
+    let code = code_input.value
+    code = App.strip_set_cpm(code)
     code = `setCpm(${App.tempo_cpm})\n\n${code}`
 
     try {
         await App.strudel_update(code)
-    } catch (e) {
+    }
+    catch (e) {
         App.set_status(`Error: ${e.message}`)
     }
 }
