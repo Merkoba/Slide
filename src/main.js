@@ -3,32 +3,30 @@ import * as strudelCore from "@strudel.cycles/core"
 import * as strudelMini from "@strudel.cycles/mini"
 import * as strudelWebAudio from "@strudel.cycles/webaudio"
 import * as strudelTonal from "@strudel.cycles/tonal"
-import * as strudelDraw from "@strudel.cycles/draw"
 import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
-import {cleanupDraw} from "@strudel.cycles/draw"
 import {Pattern} from "@strudel.cycles/core"
 
 const {evalScope} = strudelCore
 const App = {}
 
-// Register widget methods for pianoroll, punchcard, spiral, scope
+// No-op visualization function
 Pattern.prototype._pianoroll = function (options = {}) {
-  return this.pianoroll({fold: 1, ...options})
+  return this
 }
 
 Pattern.prototype._punchcard = function (options = {}) {
-  return this.punchcard({fold: 1, ...options})
+  return this
 }
 
 Pattern.prototype._spiral = function (options = {}) {
-  return this.spiral({fold: 1, ...options})
+  return this
 }
 
 Pattern.prototype._scope = function (options = {}) {
-  return this.scope({fold: 1, ...options})
+  return this
 }
 
 App.last_eval_error = ``
@@ -473,7 +471,7 @@ App.init_tempo_controls = () => {
 
 App.ensure_scope = () => {
     if (!App.scope_promise) {
-        App.scope_promise = evalScope(strudelCore, strudelMini, strudelWebAudio, strudelTonal, strudelDraw).catch((err) => {
+        App.scope_promise = evalScope(strudelCore, strudelMini, strudelWebAudio, strudelTonal).catch((err) => {
             App.scope_promise = undefined
             console.error(`Strudel scope failed to load`, err)
             throw err
@@ -583,12 +581,7 @@ App.set_input = (code) => {
 }
 
 App.clear_draw_context = () => {
-    try {
-        cleanupDraw(true)
-    }
-    catch (err) {
-        console.warn(`Failed to clear draw context`, err)
-    }
+    // No-op: draw context not used
 }
 
 // 3. Export stop
