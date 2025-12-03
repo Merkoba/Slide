@@ -8,7 +8,7 @@ import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
 import {Pattern} from "@strudel.cycles/core"
-import {getDrawContext, cleanupDraw} from "@strudel.cycles/draw"
+import {cleanupDraw} from "@strudel.cycles/draw"
 
 const {evalScope} = strudelCore
 const App = {}
@@ -23,6 +23,9 @@ App.filter_code = (code) => {
 
   // Remove setcpm() calls with any arguments
   code = code.replace(/setcpm\s*\([^)]*\)/gi, ``)
+
+  // Remove .cpm() calls with any arguments
+  code = code.replace(/\.cpm\s*\([^)]*\)/gi, ``)
 
   // Replace multiple empty lines with single empty line
   code = code.replace(/\n\s*\n\s*\n+/g, `\n\n`)
