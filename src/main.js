@@ -3,6 +3,7 @@ import * as strudelCore from "@strudel.cycles/core"
 import * as strudelMini from "@strudel.cycles/mini"
 import * as strudelWebAudio from "@strudel.cycles/webaudio"
 import * as strudelTonal from "@strudel.cycles/tonal"
+import * as strudelDraw from "@strudel.cycles/draw"
 import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
@@ -453,7 +454,7 @@ App.init_tempo_controls = () => {
 
 App.ensure_scope = () => {
     if (!App.scope_promise) {
-        App.scope_promise = evalScope(strudelCore, strudelMini, strudelWebAudio, strudelTonal).catch((err) => {
+        App.scope_promise = evalScope(strudelCore, strudelMini, strudelWebAudio, strudelTonal, strudelDraw).catch((err) => {
             App.scope_promise = undefined
             console.error(`Strudel scope failed to load`, err)
             throw err
