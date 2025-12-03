@@ -350,6 +350,24 @@ def css_assets(filename):
 def img_assets(filename):
     return send_from_directory("img", filename)
 
+@app.route("/songs/list")
+def list_songs() -> Response:
+	"""Return list of song files without extension."""
+	songs_dir = Path("songs")
+
+	if not songs_dir.exists():
+		return Response("[]", mimetype="application/json")
+
+	song_files = [f.stem for f in songs_dir.glob("*.js")]
+	song_files.sort()
+
+	import json
+	return Response(json.dumps(song_files), mimetype="application/json")
+
+@app.route("/songs/<path:filename>")
+def songs_assets(filename):
+	return send_from_directory("songs", filename)
+
 def shutdown_worker() -> None:
 	stop_event.set()
 	stop_status_watcher()

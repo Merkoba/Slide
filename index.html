@@ -32,7 +32,20 @@
             <div id="controls">
                 <button id="btn-play">Play</button>
                 <button id="btn-stop">Stop</button>
+                <button id="btn-songs">Songs</button>
                 <div id="status">Not started</div>
+            </div>
+
+            <div id="songs-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div id="song_picker_title">Select a Song</div>
+                        <button id="modal-close">&times;</button>
+                    </div>
+                    <div id="songs-list" class="songs-list">
+                        <div class="loading">Loading songs...</div>
+                    </div>
+                </div>
             </div>
         </div>
 

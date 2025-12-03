@@ -877,6 +877,82 @@ App.start_status_watch = () => {
     window.strudel_watchStatus(minutes)
 }
 
+App.fetch_songs_list = async () => {
+    try {
+        let response = await fetch(`/songs/list`)
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch songs list`)
+        }
+
+        return await response.json()
+    }
+    catch (err) {
+        console.error(`Error fetching songs`, err)
+        return []
+    }
+}
+
+App.fetch_song_content = async (song_name) => {
+    try {
+        let response = await fetch(`/songs/${song_name}.js`)
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch song ${song_name}`)
+        }
+
+        return await response.text()
+    }
+    catch (err) {
+        console.error(`Error fetching song content`, err)
+        throw err
+    }
+}
+
+App.open_songs_modal = async () => {
+    let modal = document.getElementById(`songs-modal`)
+    let songs_list = document.getElementById(`songs-list`)
+
+    modal.classList.add(`active`)
+    songs_list.innerHTML = `<div class="loading">Loading songs...</div>`
+
+    let songs = await App.fetch_songs_list()
+
+    if (!songs.length) {
+        songs_list.innerHTML = `<div class="loading">No songs found</div>`
+        return
+    }
+
+    songs_list.innerHTML = ``
+
+    for (let song of songs) {
+        let item = document.createElement(`div`)
+        item.className = `song-item`
+        item.textContent = song
+        item.addEventListener(`click`, () => App.load_song(song))
+        songs_list.appendChild(item)
+    }
+}
+
+App.close_songs_modal = () => {
+    let modal = document.getElementById(`songs-modal`)
+    modal.classList.remove(`active`)
+}
+
+App.load_song = async (song_name) => {
+    App.close_songs_modal()
+
+    try {
+        let content = await App.fetch_song_content(song_name)
+        App.stop_status_watch()
+        await App.play_action(content)
+        App.set_status(`Playing: ${song_name}`)
+    }
+    catch (err) {
+        App.set_status(`Failed to load song: ${err.message}`)
+    }
+}
+
 App.start_events = () => {
     document.getElementById(`btn-play`).addEventListener(`click`, async () => {
         App.play_action()
@@ -885,6 +961,20 @@ App.start_events = () => {
 
     document.getElementById(`btn-stop`).addEventListener(`click`, () => {
         App.stop_action()
+    })
+
+    document.getElementById(`btn-songs`).addEventListener(`click`, () => {
+        App.open_songs_modal()
+    })
+
+    document.getElementById(`modal-close`).addEventListener(`click`, () => {
+        App.close_songs_modal()
+    })
+
+    document.getElementById(`songs-modal`).addEventListener(`click`, (event) => {
+        if (event.target.id === `songs-modal`) {
+            App.close_songs_modal()
+        }
     })
 
     App.init_volume_controls()
