@@ -89,6 +89,7 @@ App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
 App.scope_enabled = false
+App.scope_color = `rgba(204, 198, 239, 1)`
 
 App.cycle_colors = [
     `#94dd94`,
@@ -210,10 +211,6 @@ App.clear_scope_canvas = () => {
     App.scope_canvas_ctx.fillRect(0, 0, width, height)
 }
 
-App.get_scope_color = () => {
-    return App.cycle_colors[App.color_index] || App.cycle_colors[0]
-}
-
 App.ensure_scope_waveform = () => {
     if (!App.scope_analyser) {
         return undefined
@@ -310,10 +307,10 @@ App.draw_scope_frame = () => {
         return
     }
 
-    App.scope_canvas_ctx.fillStyle = `rgba(0, 0, 0, 0.33)`
+    App.scope_canvas_ctx.fillStyle = `rgba(21, 21, 21, 0.33)`
     App.scope_canvas_ctx.fillRect(0, 0, width, height)
 
-    App.scope_canvas_ctx.strokeStyle = App.get_scope_color()
+    App.scope_canvas_ctx.strokeStyle = App.scope_color
     App.scope_canvas_ctx.lineWidth = 2
     App.scope_canvas_ctx.beginPath()
 
@@ -467,13 +464,15 @@ App.apply_color = (color, index) => {
         image_el.style.filter = `drop-shadow(0 0 0.15rem ${color})`
     }
 
+    let scolor = App.scope_color
+
     if (scope_container) {
-        scope_container.style.borderColor = color
-        scope_container.style.boxShadow = `0 0 0.35rem ${color}33`
+        scope_container.style.borderColor = scolor
+        scope_container.style.boxShadow = `0 0 0.35rem ${scolor}33`
     }
 
     if (scope_canvas) {
-        scope_canvas.style.boxShadow = `inset 0 0 0.4rem ${color}1a`
+        scope_canvas.style.boxShadow = `inset 0 0 0.4rem ${scolor}1a`
     }
 }
 
