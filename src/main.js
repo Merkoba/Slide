@@ -36,7 +36,7 @@ App.volume_storage_key = `slide.volumePercent`
 App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
-App.cycle_colors = [`#0f0`, `#ff0`, `#f00`, `#4af`]
+App.cycle_colors = [`#94dd94`, `rgb(197, 187, 106)`, `rgb(222, 143, 143)`, `rgb(127, 155, 210)`]
 
 App.clear_status_watch = () => {
     if (!App.poll_timer) {
@@ -47,11 +47,12 @@ App.clear_status_watch = () => {
     App.poll_timer = undefined
 }
 
-App.apply_color = (color) => {
+App.apply_color = (color, index) => {
     let code_input = document.getElementById(`code-input`)
     let volume_value = document.getElementById(`volume-value`)
     let volume_slider = document.getElementById(`volume-slider`)
     let status_el = document.getElementById(`status`)
+    let image_el = document.getElementById(`image`)
 
     if (code_input) {
         code_input.style.color = color
@@ -68,6 +69,10 @@ App.apply_color = (color) => {
     if (status_el) {
         status_el.style.color = color
     }
+
+    if (image_el) {
+        image_el.style.filter = `drop-shadow(0 0 0.15rem ${color})`
+    }
 }
 
 App.start_color_cycle = () => {
@@ -77,11 +82,11 @@ App.start_color_cycle = () => {
 
     App.is_playing = true
     App.color_index = 0
-    App.apply_color(App.cycle_colors[0])
+    App.apply_color(App.cycle_colors[0], 0)
 
     App.color_cycle_timer = setInterval(() => {
         App.color_index = (App.color_index + 1) % App.cycle_colors.length
-        App.apply_color(App.cycle_colors[App.color_index])
+        App.apply_color(App.cycle_colors[App.color_index], App.color_index)
     }, 3 * 1000)
 }
 
@@ -93,7 +98,33 @@ App.stop_color_cycle = () => {
 
     App.is_playing = false
     App.color_index = 0
-    App.apply_color(App.cycle_colors[0])
+
+    let color = App.cycle_colors[0]
+    let code_input = document.getElementById(`code-input`)
+    let volume_value = document.getElementById(`volume-value`)
+    let volume_slider = document.getElementById(`volume-slider`)
+    let status_el = document.getElementById(`status`)
+    let image_el = document.getElementById(`image`)
+
+    if (code_input) {
+        code_input.style.color = color
+    }
+
+    if (volume_value) {
+        volume_value.style.color = color
+    }
+
+    if (volume_slider) {
+        volume_slider.style.accentColor = color
+    }
+
+    if (status_el) {
+        status_el.style.color = color
+    }
+
+    if (image_el) {
+        image_el.style.filter = ``
+    }
 }
 
 App.get_volume_slider = () => {

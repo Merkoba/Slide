@@ -1,3 +1,7 @@
+:root {
+  --green: #94dd94;
+}
+
 body {
     font-family: monospace;
     padding: 20px;
@@ -23,24 +27,20 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.9rem;
+    gap: 0.8rem;
     margin-bottom: 0.5rem;
     width: 100%;
 }
 
 #image {
-    width: 3.3rem;
+    width: 3.1rem;
     border-radius: 25%;
-    box-shadow: 0 0 0.18rem rgb(98, 170, 98);
     user-select: none;
-}
-
-#image:hover {
-    box-shadow: 0 0 0.18rem rgb(126, 206, 126);
+    transition: filter 3s ease;
 }
 
 #title {
-    font-size: 2rem;
+    font-size: 1.9rem;
     text-shadow: 0 0 0.18rem currentcolor;
     user-select: none;
 }
@@ -56,14 +56,14 @@ body {
 
 #volume-slider {
     width: 10rem;
-    accent-color: #0f0;
+    accent-color: var(--green);
     transition: accent-color 3s ease;
 }
 
 #volume-value {
     min-width: 3rem;
     text-align: left;
-    color: #0f0;
+    color: var(--green);
     transition: color 3s ease;
 }
 
@@ -71,7 +71,7 @@ body {
     width: 90%;
     height: 250px;
     background: #111;
-    color: #0f0;
+    color: var(--green);
     border: 1px solid #444;
     padding: 10px;
     min-height: 80px;
@@ -112,7 +112,7 @@ button:hover {
 }
 
 #status {
-    color: #0f0;
+    color: var(--green);
     margin-left: 0.1rem;
     display: flex;
     align-items: center;
@@ -121,4 +121,5 @@ button:hover {
     font-size: 1.2rem;
     margin-left: 0.5rem;
     transition: color 3s ease;
+    max-width: 30rem;
 }
