@@ -23,7 +23,7 @@ module.exports = defineConfig(async () => {
 		],
 		build: {
 			lib: {
-				entry: path.resolve(project_root, `src/main.js`),
+				entry: path.resolve(project_root, `src/entry.js`),
 				name: `SlideBundle`,
 				formats: [`iife`],
 				fileName: () => `strudel.bundle.js`,
