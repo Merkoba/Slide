@@ -8,7 +8,7 @@ import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds} f
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
-import {getDrawContext, cleanupDraw} from "@strudel.cycles/draw"
+import {cleanupDraw} from "@strudel.cycles/draw"
 
 const {evalScope} = strudelCore
 const App = {}
@@ -34,9 +34,9 @@ const {evaluate, scheduler} = webaudioRepl({
     }
 })
 
-App.poll_minutes = 0.2
+App.fetch_delay = 0.2
 App.audio_started = false
-App.poll_in_flight = false
+App.fetch_in_flight = false
 App.volume_percent = 100
 App.volume_storage_key = `slide.volumePercent`
 App.default_cpm = 60
@@ -56,12 +56,12 @@ App.cycle_colors = [
 ]
 
 App.clear_status_watch = () => {
-    if (!App.poll_timer) {
+    if (!App.fetch_timer) {
         return
     }
 
-    clearInterval(App.poll_timer)
-    App.poll_timer = undefined
+    clearInterval(App.fetch_timer)
+    App.fetch_timer = undefined
 }
 
 App.apply_color = (color, index) => {
@@ -590,32 +590,28 @@ App.stop_status_watch = () => {
 }
 
 App.strudel_watch_status = () => {
-    if (App.poll_timer) {
+    if (App.fetch_timer) {
         return
     }
 
-    if (!App.poll_minutes || (App.poll_minutes <= 0)) {
-        console.error(`Provide a polling interval in minutes greater than zero`)
+    if (!App.fetch_delay || (App.fetch_delay <= 0)) {
+        console.error(`Provide a fetch interval in minutes greater than zero`)
         return
     }
 
-    const interval_ms = App.poll_minutes * 60 * 1000
+    const interval_ms = App.fetch_delay * 60 * 1000
 
-    const poll_status = async () => {
-        if (App.poll_in_flight) {
+    const fetch_status = async () => {
+        if (App.fetch_in_flight) {
             return
         }
 
-        if (!App.audio_started) {
-            console.warn(`Audio not started yet.`)
-            return
-        }
-
-        App.poll_in_flight = true
+        App.fetch_in_flight = true
 
         try {
             const code = await App.fetch_status_code()
             const next_code = code.trim()
+            console.log(next_code.length)
 
             if (!next_code) {
                 return
@@ -627,15 +623,15 @@ App.strudel_watch_status = () => {
             console.error(`Failed to update Strudel status`, err)
         }
         finally {
-            App.poll_in_flight = false
+            App.fetch_in_flight = false
         }
     }
 
     App.clear_status_watch()
-    poll_status()
+    fetch_status()
 
-    App.poll_timer = setInterval(() => {
-        poll_status()
+    App.fetch_timer = setInterval(() => {
+        fetch_status()
     }, interval_ms)
 
     console.info(`Interval started.`)
@@ -660,7 +656,6 @@ App.run_eval = async (snippet) => {
     App.reset_eval_state()
 
     try {
-        console.log(snippet)
         await evaluate(snippet)
     }
     catch (err) {
@@ -841,9 +836,7 @@ App.ensure_strudel_ready = async () => {
         return false
     }
 
-    console.log(`Calling strudel_init, audio_started:`, App.audio_started)
     await window.strudel_init()
-    console.log(`After strudel_init, audio_started:`, App.audio_started)
     return true
 }
 
@@ -899,13 +892,13 @@ App.stop_action = () => {
 }
 
 App.start_status_watch = () => {
-    if (!window.strudel_watchStatus) {
+    if (!App.strudel_watch_status) {
         console.warn(`Polling function missing. Did strudel bundle load?`)
         return
     }
 
     let minutes = (window.App && window.App.statusPollMinutes) || 1
-    window.strudel_watchStatus(minutes)
+    App.strudel_watch_status(minutes)
 }
 
 App.fetch_songs_list = async () => {
@@ -1021,7 +1014,7 @@ App.start_events = () => {
 window.strudel_init = App.strudel_init
 window.strudel_update = App.strudel_update
 window.strudel_stop = App.strudel_stop
-window.strudel_watchStatus = App.strudel_watch_status
+window.strudel_watch_status = App.strudel_watch_status
 window.strudel_stopStatusWatch = App.stop_status_watch
 window.App = App
 
