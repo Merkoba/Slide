@@ -395,8 +395,7 @@ App.on_tempo_change = (event) => {
 
     App.tempo_debounce_timer = setTimeout(() => {
         App.tempo_debounce_timer = undefined
-        scheduler.setCpm(App.tempo_cpm)
-        App.play_action()
+        App.set_tempo()
     }, 10)
 }
 
@@ -424,7 +423,7 @@ App.init_tempo_controls = () => {
         if (event.button === 1) {
             event.target.value = App.default_cpm
             App.update_tempo(App.default_cpm)
-            App.update_action()
+            App.set_tempo()
         }
     })
 
@@ -505,6 +504,10 @@ App.playing = (extra) => {
     App.set_status(msg)
 }
 
+App.set_tempo = () => {
+    scheduler.setCps(App.tempo_cpm / 60)
+}
+
 // 2. Export the update function
 App.strudel_update = async (code) => {
     if (!App.audio_started) {
@@ -513,6 +516,7 @@ App.strudel_update = async (code) => {
     }
 
     console.info(`Updating 💨`)
+    App.set_tempo()
     const full_result = await App.run_eval(code)
 
     if (full_result.ok) {
@@ -830,6 +834,11 @@ App.play_action = async (code = ``) => {
         return
     }
 
+    if (code === App.last_code) {
+        return
+    }
+
+    App.last_code = code
     App.start_color_cycle()
 
     try {
