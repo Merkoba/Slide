@@ -2,7 +2,7 @@ import "./process-env.js"
 import * as strudelCore from "@strudel.cycles/core"
 import * as strudelMini from "@strudel.cycles/mini"
 import * as strudelWebAudio from "@strudel.cycles/webaudio"
-import {getSuperdoughAudioController, initAudio, samples} from "superdough"
+import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 
 const {evalScope} = strudelCore
@@ -22,7 +22,7 @@ App.handle_eval_error = (err) => {
     }
 }
 
-const {evaluate} = webaudioRepl({
+const {evaluate, scheduler} = webaudioRepl({
     onEvalError: (err) => {
         App.handle_eval_error(err)
     }
@@ -395,6 +395,7 @@ App.on_tempo_change = (event) => {
 
     App.tempo_debounce_timer = setTimeout(() => {
         App.tempo_debounce_timer = undefined
+        scheduler.setCpm(App.tempo_cpm)
         App.play_action()
     }, 10)
 }
@@ -476,6 +477,9 @@ App.strudel_init = async () => {
 
         // Enable mini-notation for strings
         strudelMini.miniAllStrings()
+
+        // Register synth sounds (triangle, square, sawtooth, sine)
+        await registerSynthSounds()
 
         // Load default samples
         await samples(`github:tidalcycles/dirt-samples`)
@@ -621,6 +625,7 @@ App.run_eval = async (snippet) => {
     App.reset_eval_state()
 
     try {
+        console.log(snippet)
         await evaluate(snippet)
     }
     catch (err) {
@@ -825,8 +830,6 @@ App.play_action = async (code = ``) => {
         return
     }
 
-    // code = App.strip_set_cpm(code)
-    code = `setCpm(${App.tempo_cpm})\n\n${code}`
     App.start_color_cycle()
 
     try {
