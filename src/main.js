@@ -1,15 +1,13 @@
+const App = {}
+
 import "./process-env.js"
-import * as strudelCore from "@strudel.cycles/core"
 import * as strudelMini from "@strudel.cycles/mini"
-import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds, getAudioContext} from "superdough"
+import {getSuperdoughAudioController, initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
 import {Pattern} from "@strudel.cycles/core"
 import {cleanupDraw} from "@strudel.cycles/draw"
-
-const {evalScope} = strudelCore
-const App = {}
 
 // Generic code filter to remove or neutralize unwanted calls
 App.filter_code = (code) => {
