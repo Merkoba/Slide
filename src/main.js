@@ -9,9 +9,27 @@ import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
 import {cleanupDraw} from "@strudel.cycles/draw"
+import {Pattern} from "@strudel.cycles/core"
 
 const {evalScope} = strudelCore
 const App = {}
+
+// Register widget methods for pianoroll, punchcard, spiral, scope
+Pattern.prototype._pianoroll = function (options = {}) {
+  return this.pianoroll({fold: 1, ...options})
+}
+
+Pattern.prototype._punchcard = function (options = {}) {
+  return this.punchcard({fold: 1, ...options})
+}
+
+Pattern.prototype._spiral = function (options = {}) {
+  return this.spiral({fold: 1, ...options})
+}
+
+Pattern.prototype._scope = function (options = {}) {
+  return this.scope({fold: 1, ...options})
+}
 
 App.last_eval_error = ``
 
@@ -491,6 +509,7 @@ App.strudel_init = async () => {
         const ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
 
         console.info(`Loading samples and soundfonts...`)
+
         await Promise.all([
             registerSynthSounds(),
             registerSoundfonts(),
@@ -501,6 +520,11 @@ App.strudel_init = async () => {
         App.audio_started = true
         App.apply_volume()
         console.info(`Audio Ready.`)
+
+        if (App.code_to_play) {
+            App.play_action(App.code_to_play)
+            App.code_to_play = ``
+        }
     }
     catch (err) {
         console.error(`Audio Failed:`, err)
@@ -611,13 +635,17 @@ App.strudel_watch_status = () => {
         try {
             const code = await App.fetch_status_code()
             const next_code = code.trim()
-            console.log(next_code.length)
 
             if (!next_code) {
                 return
             }
 
-            await App.play_action(next_code)
+            if (!App.audio_started) {
+                App.code_to_play = next_code
+            }
+            else {
+                await App.play_action(next_code)
+            }
         }
         catch (err) {
             console.error(`Failed to update Strudel status`, err)
