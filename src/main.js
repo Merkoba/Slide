@@ -918,16 +918,17 @@ App.play_action = async (code = ``) => {
 }
 
 App.stop_action = () => {
-    if (!window.strudel_stop) {
+    if (!App.strudel_stop) {
         App.set_status(`Bundle not loaded. Cannot stop audio`)
         return
     }
 
-    if (window.strudel_stopStatusWatch) {
-        window.strudel_stopStatusWatch()
+    if (App.strudel_stop_status_watch) {
+        App.strudel_stop_status_watch()
     }
 
-    window.strudel_stop()
+    App.strudel_stop()
+    App.last_code = null
     App.clear_draw_context()
     App.set_status(`Stopped`)
 }
@@ -1056,7 +1057,7 @@ window.strudel_init = App.strudel_init
 window.strudel_update = App.strudel_update
 window.strudel_stop = App.strudel_stop
 window.strudel_watch_status = App.strudel_watch_status
-window.strudel_stopStatusWatch = App.stop_status_watch
+window.strudel_stop_status_watch = App.stop_status_watch
 window.App = App
 
 App.start_events()
