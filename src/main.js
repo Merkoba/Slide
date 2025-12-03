@@ -456,8 +456,14 @@ App.strudel_init = async () => {
     }
 }
 
-App.playing = () => {
-    App.set_status(`Playing 🥁`)
+App.playing = (extra) => {
+    let msg = `Playing 🥁`
+
+    if (extra) {
+        msg = `${msg}. ${extra}`.trim()
+    }
+
+    App.set_status(msg)
 }
 
 // 2. Export the update function
@@ -476,9 +482,9 @@ App.strudel_update = async (code) => {
         return
     }
 
-    const partialApplied = await App.apply_partial_update(code)
+    const partial_applied = await App.apply_partial_update(code)
 
-    if (partialApplied) {
+    if (partial_applied) {
         return
     }
 
@@ -746,8 +752,9 @@ App.apply_partial_update = async (code) => {
     const sanitized = applied.join(`\n\n`)
     App.set_input(sanitized)
 
-    const summary = `Applied ${applied.length} of ${segments.length} Strudel segment(s).${skipped ? ` Skipped ${skipped} segment(s) due to errors.` : ``}`
-    App.set_status(summary.trim())
+    if (applied.length < segments.length) {
+        App.playing(`Skipped ${skipped} segment(s)`)
+    }
 
     return true
 }
