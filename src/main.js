@@ -350,21 +350,6 @@ App.load_saved_tempo = () => {
     }
 }
 
-App.apply_tempo = async () => {
-    if (!App.is_playing) {
-        return
-    }
-
-    let code_input = App.get_input()
-    let code = code_input?.value || ``
-
-    if (!code.trim()) {
-        return
-    }
-
-    await App.eval_code(code)
-}
-
 App.update_tempo = (cpm) => {
     let next_value = parseInt(cpm, 10)
 
@@ -407,8 +392,8 @@ App.init_tempo_controls = () => {
 
         App.tempo_debounce_timer = setTimeout(() => {
             App.tempo_debounce_timer = undefined
-            App.apply_tempo()
-        }, 500)
+            App.update_action()
+        }, 10)
     })
 }
 
@@ -770,6 +755,7 @@ App.update_action = async () => {
     }
 
     const code = code_input.value
+    code = `setCpm(${App.tempo_cpm})\n\n${code}`
 
     try {
         await App.strudel_update(code)
