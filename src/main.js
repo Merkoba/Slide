@@ -27,6 +27,9 @@ App.filter_code = (code) => {
   // Remove .cpm() calls with any arguments
   code = code.replace(/\.cpm\s*\([^)]*\)/gi, ``)
 
+  // Remove .cpm() calls with any arguments
+  code = code.replace(/\.scope\s*\([^)]*\)/gi, ``)
+
   // Replace multiple empty lines with single empty line
   code = code.replace(/\n\s*\n\s*\n+/g, `\n\n`)
 
@@ -88,7 +91,7 @@ App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
-App.scope_enabled = false
+App.scope_enabled = true
 App.scope_color = `rgba(204, 198, 239, 1)`
 
 App.cycle_colors = [
@@ -207,7 +210,7 @@ App.clear_scope_canvas = () => {
         return
     }
 
-    App.scope_canvas_ctx.fillStyle = `rgba(0, 0, 0, 0.75)`
+    App.scope_canvas_ctx.fillStyle = `rgba(21, 21, 21, 0.75)`
     App.scope_canvas_ctx.fillRect(0, 0, width, height)
 }
 
@@ -835,7 +838,13 @@ App.init_scope_checkbox = () => {
     }
 
     checkbox.checked = App.scope_enabled
-    App.set_scope_visibility(App.scope_enabled)
+
+    if (App.scope_enabled) {
+        App.enable_scope_visualizer()
+    }
+    else {
+        App.set_scope_visibility(false)
+    }
 
     checkbox.addEventListener(`change`, (event) => {
         if (event.target.checked) {
