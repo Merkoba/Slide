@@ -376,11 +376,11 @@ def shutdown_worker() -> None:
 		worker_thread.join(timeout=2)
 
 def main() -> None:
-	load_api_key()
-	load_instructions()
 	load_status()
 
 	if ENABLE_AI_INTERVAL:
+		load_api_key()
+		load_instructions()
 		start_worker_if_needed()
 	else:
 		logging.info("AI interval disabled; worker not started")
