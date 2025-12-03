@@ -22,10 +22,11 @@ The beats shouldn't be too rough, avoid overpowered screeching/highs.
 Response format: Just the raw syntax.
 """.strip()
 
-MINUTES = 100
+MINUTES = 5
 PORT = 4242
 MAX_HISTORY = 3
 USE_INSTRUCTIONS = False
+ENABLE_AI_INTERVAL = False
 
 GOOGLE_MODEL = "gemini/gemini-2.0-flash"
 CLAUDE_MODEL = "anthropic/claude-sonnet-4-20250514"
@@ -378,7 +379,12 @@ def main() -> None:
 	load_api_key()
 	load_instructions()
 	load_status()
-	start_worker_if_needed()
+
+	if ENABLE_AI_INTERVAL:
+		start_worker_if_needed()
+	else:
+		logging.info("AI interval disabled; worker not started")
+
 	start_status_watcher()
 	atexit.register(shutdown_worker)
 	app.run(host="0.0.0.0", port=PORT, debug=False)

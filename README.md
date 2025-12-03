@@ -31,6 +31,7 @@ MINUTES = 5
 PORT = 4242
 MAX_HISTORY = 3
 USE_INSTRUCTIONS = False
+ENABLE_AI_INTERVAL = False
 ```
 
 ---
@@ -40,6 +41,8 @@ MINUTES = Is the interval delay for pattern regeneration.
 PORT = The application port -> http://localhost:4242
 
 MAX_HISTORY = The amount of saved pattern history, used for context when generating the new one.
+
+ENABLE_AI_INTERVAL = Enable the periodic prompting to the AI to update the beat.
 
 ---
 
