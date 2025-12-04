@@ -177,6 +177,25 @@ App.init_code_input_controls = () => {
         })
     }
 
+    let max_button = DOM.el(`#code-input-max`)
+
+    if (max_button) {
+        DOM.ev(max_button, `click`, (event) => {
+            let style = getComputedStyle(document.documentElement)
+            let height = parseInt(style.getPropertyValue(`--input_height`))
+            let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
+            let cheight = code_input.offsetHeight
+
+            if (Math.abs(cheight - max_height) > 2) {
+                code_input.style.height = `${max_height}px`
+            }
+            else {
+                code_input.style.height = `${height}px`
+            }
+
+        })
+    }
+
     if (code_input) {
         DOM.ev(code_input, `pointerdown`, (event) => {
             if (!App.code_scroll_active) {
