@@ -387,7 +387,7 @@ App.init_scope_checkbox = () => {
         App.set_scope_visibility(false)
     }
 
-    checkbox.addEventListener(`change`, (event) => {
+    DOM.ev(checkbox, `change`, (event) => {
         if (event.target.checked) {
             App.enable_scope_visualizer()
         }

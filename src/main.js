@@ -46,6 +46,7 @@ App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
+App.status_endpoint = `/status`
 
 App.cycle_colors = [
     `#94dd94`,
@@ -298,7 +299,7 @@ App.strudel_stop = () => {
 }
 
 App.fetch_status_code = async () => {
-    const response = await fetch(`/status`, { cache: `no-store` })
+    const response = await fetch(App.status_endpoint, { cache: `no-store` })
 
     if (!response.ok) {
         throw new Error(`Status endpoint returned ${response.status}`)
@@ -668,6 +669,61 @@ App.close_about_modal = () => {
     modal.classList.remove(`active`)
 }
 
+App.open_endpoint_modal = () => {
+    let modal = DOM.el(`#endpoint-modal`)
+
+    if (!modal) {
+        return
+    }
+
+    let input = DOM.el(`#endpoint-input`)
+
+    if (input) {
+        input.value = App.status_endpoint
+        setTimeout(() => input.focus(), 100)
+    }
+
+    modal.classList.add(`active`)
+}
+
+App.close_endpoint_modal = () => {
+    let modal = DOM.el(`#endpoint-modal`)
+
+    if (!modal) {
+        return
+    }
+
+    modal.classList.remove(`active`)
+}
+
+App.truncate_path = (path, max_length = 20) => {
+    if (path.length <= max_length) {
+        return path
+    }
+
+    return path.substring(0, max_length) + `...`
+}
+
+App.start_auto_with_endpoint = async (endpoint) => {
+    App.close_endpoint_modal()
+
+    if (!endpoint || !endpoint.trim()) {
+        App.set_status(`Invalid endpoint`)
+        return
+    }
+
+    App.status_endpoint = endpoint.trim()
+    let ready = await App.ensure_strudel_ready()
+
+    if (!ready) {
+        return
+    }
+
+    App.start_status_watch()
+    let display_endpoint = App.truncate_path(App.status_endpoint)
+    App.set_status(`Auto mode running (${display_endpoint})`)
+}
+
 App.start_events = () => {
     if (App.events_started) {
         return
@@ -675,7 +731,7 @@ App.start_events = () => {
 
     App.events_started = true
 
-    DOM.el(`#btn-play`).addEventListener(`click`, () => {
+    DOM.ev(`#btn-play`, `click`, () => {
         App.stop_status_watch()
 
         let code_input = App.get_input()
@@ -684,37 +740,25 @@ App.start_events = () => {
         App.play_action(next_code, true)
     })
 
-    DOM.el(`#btn-auto`).addEventListener(`click`, async () => {
-        if (App.fetch_timer) {
-            App.set_status(`Auto mode already running`)
-            return
-        }
-
-        let ready = await App.ensure_strudel_ready()
-
-        if (!ready) {
-            return
-        }
-
-        App.start_status_watch()
-        App.set_status(`Auto mode running`)
+    DOM.ev(`#btn-auto`, `click`, () => {
+        App.open_endpoint_modal()
     })
 
-    DOM.el(`#btn-stop`).addEventListener(`click`, () => {
+    DOM.ev(`#btn-stop`, `click`, () => {
         App.stop_status_watch()
         App.stop_action()
     })
 
-    DOM.el(`#btn-songs`).addEventListener(`click`, () => {
+    DOM.ev(`#btn-songs`, `click`, () => {
         App.stop_status_watch()
         App.open_songs_modal()
     })
 
-    DOM.el(`#modal-close`).addEventListener(`click`, () => {
+    DOM.ev(`#modal-close`, `click`, () => {
         App.close_songs_modal()
     })
 
-    DOM.el(`#songs-modal`).addEventListener(`click`, (event) => {
+    DOM.ev(`#songs-modal`, `click`, (event) => {
         if (event.target.id === `songs-modal`) {
             App.close_songs_modal()
         }
@@ -723,27 +767,80 @@ App.start_events = () => {
     let about_image = DOM.el(`#image`)
 
     if (about_image) {
-        about_image.addEventListener(`click`, () => {
+        DOM.ev(about_image, `click`, () => {
             App.open_about_modal()
         })
     }
 
-    DOM.el(`#about-close`).addEventListener(`click`, () => {
+    DOM.ev(`#about-close`, `click`, () => {
         App.close_about_modal()
     })
 
-    DOM.el(`#about-modal`).addEventListener(`click`, (event) => {
+    DOM.ev(`#about-modal`, `click`, (event) => {
         if (event.target.id === `about-modal`) {
             App.close_about_modal()
         }
     })
+
+    let endpoint_close = DOM.el(`#endpoint-close`)
+
+    if (endpoint_close) {
+        DOM.ev(endpoint_close, `click`, () => {
+            App.close_endpoint_modal()
+        })
+    }
+
+    let endpoint_modal = DOM.el(`#endpoint-modal`)
+
+    if (endpoint_modal) {
+        DOM.ev(endpoint_modal, `click`, (event) => {
+            if (event.target.id === `endpoint-modal`) {
+                App.close_endpoint_modal()
+            }
+        })
+    }
+
+    let endpoint_start = DOM.el(`#endpoint-start`)
+
+    if (endpoint_start) {
+        DOM.ev(endpoint_start, `click`, () => {
+            let input = DOM.el(`#endpoint-input`)
+
+            if (input) {
+                App.start_auto_with_endpoint(input.value)
+            }
+        })
+    }
+
+    let endpoint_default = DOM.el(`#endpoint-default`)
+
+    if (endpoint_default) {
+        DOM.ev(endpoint_default, `click`, () => {
+            App.start_auto_with_endpoint(`/status`)
+        })
+    }
+
+    let endpoint_input = DOM.el(`#endpoint-input`)
+
+    if (endpoint_input) {
+        DOM.ev(endpoint_input, `keydown`, (event) => {
+            if (event.key === `Enter`) {
+                event.preventDefault()
+                let input = DOM.el(`#endpoint-input`)
+
+                if (input) {
+                    App.start_auto_with_endpoint(input.value)
+                }
+            }
+        })
+    }
 
     App.init_volume_controls()
     App.init_tempo_controls()
     App.init_scope_checkbox()
     App.setup_scope_canvas()
 
-    window.addEventListener(`resize`, () => {
+    DOM.ev(window, `resize`, () => {
         App.handle_scope_resize()
     })
 

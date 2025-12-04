@@ -110,11 +110,11 @@ App.init_tempo_controls = () => {
     App.refresh_tempo_ui()
     App.persist_tempo()
 
-    slider.addEventListener(`input`, (event) => {
+    DOM.ev(slider, `input`, (event) => {
         App.update_tempo(event.target.value)
     })
 
-    slider.addEventListener(`auxclick`, (event) => {
+    DOM.ev(slider, `auxclick`, (event) => {
         if (event.button === 1) {
             event.target.value = App.default_cpm
             App.update_tempo(App.default_cpm)
@@ -122,7 +122,7 @@ App.init_tempo_controls = () => {
         }
     })
 
-    slider.addEventListener(`wheel`, (event) => {
+    DOM.ev(slider, `wheel`, (event) => {
         event.preventDefault()
         let step = parseInt(event.target.step, 10) || 1
         let current = parseInt(event.target.value, 10)
@@ -137,7 +137,7 @@ App.init_tempo_controls = () => {
         App.on_tempo_change(event)
     })
 
-    slider.addEventListener(`change`, (event) => {
+    DOM.ev(slider, `change`, (event) => {
         App.on_tempo_change(event)
     })
 }

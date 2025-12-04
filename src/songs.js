@@ -74,7 +74,7 @@ App.open_songs_modal = async () => {
             let item = DOM.create(`div`)
             item.className = `song-item`
             item.textContent = App.underspace(song)
-            item.addEventListener(`click`, () => App.load_song(song))
+            DOM.ev(item, `click`, () => App.load_song(song))
             songs_list.appendChild(item)
         }
     }
