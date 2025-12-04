@@ -81,6 +81,7 @@ App.update_tempo = (cpm, skip_heavy = false) => {
 
 App.on_tempo_change = (is_final = false) => {
     let slider = App.get_tempo_slider()
+    console.log(slider)
     App.update_tempo(slider.value, true)
 
     if (is_final) {
@@ -136,7 +137,7 @@ App.init_tempo_controls = () => {
         }
 
         App.on_tempo_change(true)
-    }, {passive: false})
+    })
 
     DOM.ev(container, `change`, (event) => {
         App.on_tempo_change(true)
