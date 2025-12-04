@@ -1,6 +1,8 @@
+import re
+import os
+import json
 import atexit
 import logging
-import os
 import threading
 from pathlib import Path
 from typing import Dict, Optional, List
@@ -321,7 +323,8 @@ def index():
 	"""Serve the main HTML page."""
 
 	song_name = request.args.get("song", "")
-	return render_template("index.html", song_name=song_name)
+	song_display = re.sub(r"_+", " ", song_name) if song_name else ""
+	return render_template("index.html", song_name=song_name, song_display=song_display)
 
 @app.get("/strudel/<path:path>")
 def strudel_files(path: str) -> Response:
@@ -364,7 +367,6 @@ def list_songs() -> Response:
 	song_paths.sort(key=lambda path: path.stat().st_mtime, reverse=True)
 	song_files = [path.stem for path in song_paths[:SONG_LIST_LIMIT]]
 
-	import json
 	return Response(json.dumps(song_files), mimetype="application/json")
 
 @app.route("/songs/<path:filename>")
@@ -376,7 +378,8 @@ def songs_assets(filename):
 def song_shortcut(song_name: str):
 	"""Render HTML page with song name in title and meta tags."""
 
-	return render_template("index.html", song_name=song_name)
+	song_display = re.sub(r"_+", " ", song_name)
+	return render_template("index.html", song_name=song_name, song_display=song_display)
 
 def shutdown_worker() -> None:
 	stop_event.set()

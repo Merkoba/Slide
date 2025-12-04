@@ -73,7 +73,7 @@ App.open_songs_modal = async () => {
         for (let song of list) {
             let item = DOM.create(`div`)
             item.className = `song-item`
-            item.textContent = song
+            item.textContent = App.underspace(song)
             item.addEventListener(`click`, () => App.load_song(song))
             songs_list.appendChild(item)
         }
@@ -131,7 +131,7 @@ App.load_song = async (song_name) => {
         App.last_code = null
         await App.play_action(content)
         App.set_song_context(song_name)
-        App.set_status(`Playing: ${song_name}`)
+        App.set_status(`Playing: ${App.underspace(song_name)}`)
     }
     catch (err) {
         App.set_status(`Failed to load song: ${err.message}`)

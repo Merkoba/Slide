@@ -231,7 +231,7 @@ App.playing = (extra) => {
     let msg = `Playing 🥁`
 
     if (App.current_song) {
-        msg = `Playing: ${App.current_song}`
+        msg = `Playing: ${App.underspace(App.current_song)}`
     }
 
     if (extra) {
@@ -785,7 +785,7 @@ App.update_song_query_param = (song_name = ``) => {
 
 App.set_song_context = (song_name = ``) => {
     App.current_song = song_name || ``
-    App.set_title(App.current_song)
+    App.set_title(App.underspace(App.current_song))
     App.update_song_query_param(App.current_song)
 }
 
@@ -817,12 +817,16 @@ App.load_song_from_query = async () => {
         App.set_input(content)
         App.set_song_context(requested_song)
         App.code_to_play = content
-        App.set_status(`Loaded: ${requested_song}`)
+        App.set_status(`Loaded: ${App.underspace(requested_song)}`)
     }
     catch (err) {
         App.set_status(`Failed to load song: ${err.message}`)
         console.error(`Failed to load song:`, err)
     }
+}
+
+App.underspace = (s) => {
+    return s.replace(/_+/g, ` `).trim()
 }
 
 // Export functions to window for use in HTML

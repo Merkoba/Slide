@@ -2,13 +2,13 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>{% if song_name %}Slide - {{ song_name }}{% else %}Slide{% endif %}</title>
-        <meta property="og:title" content="{% if song_name %}Slide - {{ song_name }}{% else %}Slide{% endif %}">
-        <meta property="og:description" content="{% if song_name %}Listen to {{ song_name }} on Slide{% else %}Slide - A player for strudel code{% endif %}">
+        <title>{% if song_display %}Slide - {{ song_display }}{% else %}Slide{% endif %}</title>
+        <meta property="og:title" content="{% if song_display %}Slide - {{ song_display }}{% else %}Slide{% endif %}">
+        <meta property="og:description" content="{% if song_display %}Listen to {{ song_display }} on Slide{% else %}Slide - A player for strudel code{% endif %}">
         <meta property="og:type" content="music.song">
         <meta name="twitter:card" content="summary">
-        <meta name="twitter:title" content="{% if song_name %}Slide - {{ song_name }}{% else %}Slide{% endif %}">
-        <meta name="twitter:description" content="{% if song_name %}Listen to {{ song_name }} on Slide{% else %}Slide - A player for strudel code{% endif %}">
+        <meta name="twitter:title" content="{% if song_display %}Slide - {{ song_display }}{% else %}Slide{% endif %}">
+        <meta name="twitter:description" content="{% if song_display %}Listen to {{ song_display }} on Slide{% else %}Slide - A player for strudel code{% endif %}">
         <link rel="stylesheet" type="text/css" href="/css/style.css">
         <link rel="icon" type="image/png" href="/img/slide.png">
     </head>
