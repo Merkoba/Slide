@@ -38,6 +38,7 @@ App.current_song = ``
 App.events_started = false
 App.audio_started = false
 App.fetch_in_flight = false
+App.status_watch_cancelled = false
 App.default_cpm = 60
 App.tempo_cpm = App.default_cpm
 App.tempo_storage_key = `slide.tempoCpm`
@@ -75,6 +76,7 @@ App.clear_status_watch = () => {
     console.info(`Interval cleared.`)
     clearInterval(App.fetch_timer)
     App.fetch_timer = undefined
+    App.status_watch_cancelled = true
 }
 
 App.apply_color = (color) => {
@@ -335,6 +337,7 @@ App.strudel_watch_status = (seconds) => {
         return
     }
 
+    App.status_watch_cancelled = false
     const interval_ms = App.fetch_delay_seconds * 1000
 
     const fetch_status = async () => {
@@ -351,6 +354,11 @@ App.strudel_watch_status = (seconds) => {
             const next_code = code.trim()
 
             if (!next_code) {
+                return
+            }
+
+            if (App.status_watch_cancelled) {
+                console.info(`Status watch was cancelled, skipping play action`)
                 return
             }
 
