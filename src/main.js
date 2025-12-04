@@ -584,6 +584,19 @@ App.ensure_strudel_ready = async () => {
     return true
 }
 
+App.restart_code_scroll = () => {
+    let code_input = App.get_input()
+
+    if (code_input) {
+        code_input.scrollTop = 0
+    }
+
+    if (App.code_scroll_active) {
+        App.defer_code_scroll(App.code_scroll_song_pause_ms)
+        App.reset_code_scroll_for_content(App.code_scroll_song_pause_ms)
+    }
+}
+
 App.play_action = async (code = ``, force = false) => {
     let ready = await App.ensure_strudel_ready()
 
@@ -604,6 +617,7 @@ App.play_action = async (code = ``, force = false) => {
         return
     }
 
+    App.restart_code_scroll()
     App.last_code = code
     App.clear_draw_context()
     App.start_color_cycle()
@@ -627,6 +641,7 @@ App.stop_action = () => {
     }
 
     App.strudel_stop()
+    App.stop_code_scroll()
     App.last_code = null
     App.clear_draw_context()
     App.set_status(`Stopped`)
@@ -925,12 +940,8 @@ App.load_song_from_query = async () => {
     try {
         App.set_status(`Loading ${requested_song}...`)
         let content = await App.fetch_song_content(requested_song)
-
-        if (App.code_scroll_active) {
-            App.defer_code_scroll(App.code_scroll_song_pause_ms)
-        }
-
-        App.set_input(content, {scroll_delay_ms: App.code_scroll_song_pause_ms})
+        App.restart_code_scroll()
+        App.set_input(content)
         App.set_song_context(requested_song)
         App.code_to_play = content
         App.set_status(`Loaded: ${App.underspace(requested_song)}`)

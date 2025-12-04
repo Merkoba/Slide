@@ -162,7 +162,6 @@ body, html {
 #code-input-wrapper {
     position: relative;
     width: var(--width);
-    max-width: 96%;
     min-width: 500px;
 }
 
