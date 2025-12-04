@@ -46,6 +46,7 @@ App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
+App.endpoint_storage_key = `slide.statusEndpoint`
 App.status_endpoint = `/status`
 
 App.cycle_colors = [
@@ -713,6 +714,7 @@ App.start_auto_with_endpoint = async (endpoint) => {
     }
 
     App.status_endpoint = endpoint.trim()
+    localStorage.setItem(App.endpoint_storage_key, App.status_endpoint)
     let ready = await App.ensure_strudel_ready()
 
     if (!ready) {
@@ -722,6 +724,14 @@ App.start_auto_with_endpoint = async (endpoint) => {
     App.start_status_watch()
     let display_endpoint = App.truncate_path(App.status_endpoint)
     App.set_status(`Auto mode running (${display_endpoint})`)
+}
+
+App.load_endpoint_from_storage = () => {
+    let stored_endpoint = localStorage.getItem(App.endpoint_storage_key)
+
+    if (stored_endpoint) {
+        App.status_endpoint = stored_endpoint
+    }
 }
 
 App.start_events = () => {
@@ -844,6 +854,7 @@ App.start_events = () => {
         App.handle_scope_resize()
     })
 
+    App.load_endpoint_from_storage()
     App.load_song_from_query()
 }
 
