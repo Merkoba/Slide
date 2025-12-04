@@ -1,5 +1,6 @@
 import './dom.js'
 import './main.js'
+import './filter.js'
 import './volume.js'
 import './tempo.js'
 import './scope.js'

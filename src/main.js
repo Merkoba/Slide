@@ -7,51 +7,7 @@ import {initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
-import {Pattern} from "@strudel.cycles/core"
 import {cleanupDraw} from "@strudel.cycles/draw"
-
-// Generic code filter to remove or neutralize unwanted calls
-App.filter_code = (code) => {
-  // Remove setcps() calls with any arguments
-  code = code.replace(/setcps\s*\([^)]*\)/gi, ``)
-
-  // Remove setbpm() calls with any arguments
-  code = code.replace(/setbpm\s*\([^)]*\)/gi, ``)
-
-  // Remove setcpm() calls with any arguments
-  code = code.replace(/setcpm\s*\([^)]*\)/gi, ``)
-
-  // Remove .cpm() calls with any arguments
-  code = code.replace(/\._?cpm\s*\([^)]*\)/gi, ``)
-
-  // Remove .cpm() calls with any arguments
-  code = code.replace(/\._?pianoroll\s*\([^)]*\)/gi, ``)
-
-  // Remove .cpm() calls with any arguments
-  code = code.replace(/\._?scope\s*\([^)]*\)/gi, ``)
-
-  // Replace multiple empty lines with single empty line
-  code = code.replace(/\n\s*\n\s*\n+/g, `\n\n`)
-
-  return code.trim()
-}
-
-// No-op visualization function
-Pattern.prototype._pianoroll = function (options = {}) {
-  return this
-}
-
-Pattern.prototype._punchcard = function (options = {}) {
-  return this
-}
-
-Pattern.prototype._spiral = function (options = {}) {
-  return this
-}
-
-Pattern.prototype._scope = function (options = {}) {
-  return this
-}
 
 App.last_eval_error = ``
 
@@ -74,6 +30,7 @@ const {evaluate, scheduler} = webaudioRepl({
     }
 })
 
+App.app_name = `Slide`
 App.events_started = false
 App.audio_started = false
 App.fetch_in_flight = false
@@ -778,6 +735,10 @@ App.start_events = () => {
     window.addEventListener(`resize`, () => {
         App.handle_scope_resize()
     })
+}
+
+App.set_title = (title) => {
+    document.title = `${App.app_name} - ${title}`
 }
 
 // Export functions to window for use in HTML

@@ -131,6 +131,7 @@ App.load_song = async (song_name) => {
         App.last_code = null
         await App.play_action(content)
         App.set_status(`Playing: ${song_name}`)
+        App.set_title(song_name)
     }
     catch (err) {
         App.set_status(`Failed to load song: ${err.message}`)
