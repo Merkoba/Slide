@@ -376,6 +376,7 @@ button:hover {
     color: #fff;
     font-size: 1rem;
     box-sizing: border-box;
+    outline: none;
 }
 
 #songs-filter:disabled {
@@ -506,7 +507,6 @@ a.popup:hover {
 
 #endpoint-input:focus {
     outline: none;
-    border-color: var(--green);
 }
 
 #endpoint-delay-select {
@@ -523,7 +523,6 @@ a.popup:hover {
 
 #endpoint-delay-select:focus {
     outline: none;
-    border-color: var(--green);
 }
 
 #endpoint-buttons {
