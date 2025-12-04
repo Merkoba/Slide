@@ -1,5 +1,5 @@
 const App = {}
-App.fetch_delay_seconds = 3
+App.fetch_delay_seconds = 5
 
 import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
@@ -57,6 +57,8 @@ App.code_scroll_pause_until = 0
 App.code_scroll_wheel_pause_ms = 350
 App.code_scroll_song_pause_ms = 1.2 * 1000
 App.code_scroll_pending_delay_ms = 0
+
+App.fetch_delay_storage_key = `slide.fetchDelaySeconds`
 
 App.cycle_colors = [
     `#94dd94`,
@@ -694,11 +696,10 @@ App.open_endpoint_modal = () => {
         return
     }
 
-    let input = DOM.el(`#endpoint-input`)
+    let select = DOM.el(`#endpoint-delay-select`)
 
-    if (input) {
-        input.value = App.status_endpoint
-        setTimeout(() => input.focus(), 100)
+    if (select) {
+        select.value = App.fetch_delay_seconds
     }
 
     modal.classList.add(`active`)
@@ -748,6 +749,32 @@ App.load_endpoint_from_storage = () => {
 
     if (stored_endpoint) {
         App.status_endpoint = stored_endpoint
+    }
+}
+
+App.persist_fetch_delay = () => {
+    try {
+        localStorage.setItem(App.fetch_delay_storage_key, `${App.fetch_delay_seconds}`)
+    }
+    catch (err) {
+        console.warn(`Failed to persist fetch delay`, err)
+    }
+}
+
+App.load_fetch_delay_from_storage = () => {
+    try {
+        let stored = localStorage.getItem(App.fetch_delay_storage_key)
+
+        if (stored) {
+            let parsed = parseInt(stored, 10)
+
+            if (Number.isFinite(parsed) && parsed > 0) {
+                App.fetch_delay_seconds = parsed
+            }
+        }
+    }
+    catch (err) {
+        console.warn(`Failed to load fetch delay`, err)
     }
 }
 
@@ -862,6 +889,15 @@ App.start_events = () => {
         })
     }
 
+    let endpoint_delay_select = DOM.el(`#endpoint-delay-select`)
+
+    if (endpoint_delay_select) {
+        DOM.ev(endpoint_delay_select, `change`, (event) => {
+            App.fetch_delay_seconds = parseInt(event.target.value, 10)
+            App.persist_fetch_delay()
+        })
+    }
+
     App.init_volume_controls()
     App.init_tempo_controls()
     App.init_code_input_controls()
@@ -873,6 +909,7 @@ App.start_events = () => {
     })
 
     App.load_endpoint_from_storage()
+    App.load_fetch_delay_from_storage()
     App.load_song_from_query()
 }
 

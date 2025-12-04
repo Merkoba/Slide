@@ -449,6 +449,23 @@ a.popup:hover {
     border-color: var(--green);
 }
 
+#endpoint-delay-select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #222;
+    color: #fff;
+    font-size: 1.1rem;
+    font-family: monospace;
+    box-sizing: border-box;
+}
+
+#endpoint-delay-select:focus {
+    outline: none;
+    border-color: var(--green);
+}
+
 #endpoint-buttons {
     display: flex;
     gap: 0.5rem;

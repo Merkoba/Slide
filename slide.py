@@ -324,7 +324,7 @@ def index():
 
 	song_name = request.args.get("song", "")
 	song_display = re.sub(r"_+", " ", song_name) if song_name else ""
-	return render_template("index.html", song_name=song_name, song_display=song_display)
+	return render_template("index.jinja", song_name=song_name, song_display=song_display)
 
 @app.get("/strudel/<path:path>")
 def strudel_files(path: str) -> Response:
