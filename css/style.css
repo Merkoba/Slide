@@ -1,6 +1,7 @@
 :root {
   --green: #94dd94;
   --width: 88%;
+  --small_font: 0.95rem;
 }
 
 body, html {
@@ -60,6 +61,14 @@ body, html {
     gap: 1rem;
 }
 
+.control-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: var(--small_font);
+    user-select: none;
+}
+
 #scope-wrapper {
     width: var(--width);
     display: flex;
@@ -92,7 +101,7 @@ body, html {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.95rem;
+    font-size: var(--small_font);
     user-select: none;
 }
 
@@ -100,14 +109,6 @@ body, html {
     width: 20px;
     height: 20px;
     cursor: pointer;
-}
-
-#volume-control {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.4rem;
-    font-size: 0.95rem;
-    user-select: none;
 }
 
 .control-stepper {
@@ -136,14 +137,6 @@ body, html {
     text-align: left;
     color: var(--green);
     transition: color 3s ease;
-}
-
-#tempo-control {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.4rem;
-    font-size: 0.95rem;
-    user-select: none;
 }
 
 #tempo-slider {
