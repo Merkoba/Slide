@@ -1,9 +1,12 @@
 :root {
   --green: #94dd94;
-  --width: 88%;
-  --small_font: 0.95rem;
+
+  --input_width: 88%;
   --input_height: 420px;
+
+  --input_max_width: 88%;
   --input_max_height: 680px;
+
   --input_min_width: 500px;
   --input_min_height: 100px;
 }
@@ -74,7 +77,7 @@ body, html {
 }
 
 #scope-wrapper {
-    width: var(--width);
+    width: var(--input_width);
     display: flex;
     justify-content: left;
 }
@@ -158,12 +161,12 @@ body, html {
 
 #code-input-wrapper {
     position: relative;
-    width: var(--width);
+    width: var(--input_width);
     height: var(--input_height);
     min-width: var(--input_min_width);
     min-height: var(--input_min_height);
     max-height: var(--input_max_height);
-    max-width: var(--width);
+    max-width: var(--input_width);
     resize: none;
     box-sizing: border-box;
     height: var(--input_height);
@@ -193,7 +196,7 @@ body, html {
     gap: 0.4rem;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 150ms ease;
+    transition: opacity 1s ease;
 }
 
 .code-input-wrapper:hover .code-input-controls {
@@ -239,7 +242,7 @@ body, html {
     cursor: se-resize;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 150ms ease;
+    transition: opacity 1s ease;
 }
 
 #resize-handle::after {
@@ -250,7 +253,7 @@ body, html {
     width: 0;
     height: 0;
     border-left: 18px solid transparent;
-    border-bottom: 18px solid #666;
+    border-bottom: 18px solid var(--green);
 }
 
 .code-input-wrapper:hover #resize-handle {

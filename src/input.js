@@ -161,8 +161,10 @@ App.stop_code_scroll = () => {
 }
 
 App.init_code_input_controls = () => {
-    let scroll_button = DOM.el(`#code-input-scroll`)
+    let wrapper = DOM.el(`#code-input-wrapper`)
     let code_input = App.get_input()
+    let scroll_button = DOM.el(`#code-input-scroll`)
+    let max_button = DOM.el(`#code-input-max`)
 
     if (scroll_button) {
         DOM.ev(scroll_button, `click`, (event) => {
@@ -177,21 +179,9 @@ App.init_code_input_controls = () => {
         })
     }
 
-    let max_button = DOM.el(`#code-input-max`)
-
     if (max_button) {
         DOM.ev(max_button, `click`, (event) => {
-            let style = getComputedStyle(document.documentElement)
-            let height = parseInt(style.getPropertyValue(`--input_height`))
-            let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
-            let cheight = code_input.offsetHeight
-
-            if (Math.abs(cheight - max_height) > 2) {
-                code_input.style.height = `${max_height}px`
-            }
-            else {
-                code_input.style.height = `${height}px`
-            }
+            App.toggle_max()
         })
     }
 
@@ -211,8 +201,6 @@ App.init_code_input_controls = () => {
 
             App.stop_code_scroll()
         })
-
-        let wrapper = DOM.el(`#code-input-wrapper`)
 
         if (wrapper) {
             let resize_handle = DOM.el(`#resize-handle`)
@@ -285,6 +273,10 @@ App.init_code_input_controls = () => {
                     document.addEventListener(`mousemove`, mouse_move)
                     document.addEventListener(`mouseup`, mouse_up)
                 })
+
+                DOM.ev(resize_handle, `dblclick`, (event) => {
+                    App.toggle_max()
+                })
             }
         }
 
@@ -307,5 +299,27 @@ App.init_code_input_controls = () => {
                 App.code_scroll_direction = 1
             }
         }, {passive: true})
+    }
+}
+
+App.toggle_max = () => {
+    let wrapper = DOM.el(`#code-input-wrapper`)
+
+    if (!wrapper) {
+        return
+    }
+
+    let style = getComputedStyle(document.documentElement)
+    let height = parseInt(style.getPropertyValue(`--input_height`))
+    let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
+    let max_width = parseInt(style.getPropertyValue(`--input_max_width`))
+    let cheight = wrapper.offsetHeight
+    wrapper.style.width = `${max_width}px`
+
+    if (Math.abs(cheight - max_height) > 2) {
+        wrapper.style.height = `${max_height}px`
+    }
+    else {
+        wrapper.style.height = `${height}px`
     }
 }
