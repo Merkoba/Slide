@@ -2,19 +2,33 @@ App.get_input = () => {
     return DOM.el(`#code-input`)
 }
 
-App.reset_code_scroll_for_content = () => {
+App.defer_code_scroll = (delay_ms) => {
+    if (!Number.isFinite(delay_ms) || (delay_ms <= 0)) {
+        App.code_scroll_pending_delay_ms = 0
+        return
+    }
+
+    App.code_scroll_pending_delay_ms = delay_ms
+}
+
+App.reset_code_scroll_for_content = (delay_ms = 0) => {
     App.code_scroll_direction = 1
     App.code_scroll_last_ts = 0
 
-    if (typeof window !== `undefined` && window.performance?.now) {
-        App.code_scroll_pause_until = window.performance.now()
+    if ((delay_ms <= 0) || (typeof window === `undefined`)) {
+        App.code_scroll_pause_until = 0
+        return
+    }
+
+    if (window.performance?.now) {
+        App.code_scroll_pause_until = window.performance.now() + delay_ms
     }
     else {
-        App.code_scroll_pause_until = 0
+        App.code_scroll_pause_until = delay_ms
     }
 }
 
-App.set_input = (code) => {
+App.set_input = (code, options = {}) => {
     const code_input = App.get_input()
 
     if (!code_input) {
@@ -23,7 +37,19 @@ App.set_input = (code) => {
 
     code_input.value = code
     code_input.scrollTop = 0
-    App.reset_code_scroll_for_content()
+    let delay_ms = 0
+
+    if (App.code_scroll_active) {
+        if (Number.isFinite(App.code_scroll_pending_delay_ms) && (App.code_scroll_pending_delay_ms > 0)) {
+            delay_ms = App.code_scroll_pending_delay_ms
+        }
+        else if (Number.isFinite(options.scroll_delay_ms) && (options.scroll_delay_ms > 0)) {
+            delay_ms = options.scroll_delay_ms
+        }
+    }
+
+    App.code_scroll_pending_delay_ms = 0
+    App.reset_code_scroll_for_content(delay_ms)
 }
 
 App.set_code_scroll_button_active = (is_active) => {
@@ -143,6 +169,7 @@ App.init_code_input_controls = () => {
             event.preventDefault()
 
             if (App.code_scroll_active) {
+                App.stop_code_scroll()
                 return
             }
 
@@ -164,7 +191,12 @@ App.init_code_input_controls = () => {
                 return
             }
 
-            App.code_scroll_pause_until = window.performance.now() + App.code_scroll_wheel_pause_ms
+            if (window.performance?.now) {
+                App.code_scroll_pause_until = window.performance.now() + App.code_scroll_wheel_pause_ms
+            }
+            else {
+                App.code_scroll_pause_until = App.code_scroll_wheel_pause_ms
+            }
 
             if (event.deltaY < 0) {
                 App.code_scroll_direction = -1

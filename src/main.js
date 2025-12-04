@@ -55,6 +55,8 @@ App.code_scroll_active = false
 App.code_scroll_speed_px_per_second = 80
 App.code_scroll_pause_until = 0
 App.code_scroll_wheel_pause_ms = 350
+App.code_scroll_song_pause_ms = 1.2 * 1000
+App.code_scroll_pending_delay_ms = 0
 
 App.cycle_colors = [
     `#94dd94`,
@@ -925,7 +927,10 @@ App.load_song_from_query = async () => {
     try {
         App.set_status(`Loading ${requested_song}...`)
         let content = await App.fetch_song_content(requested_song)
-        App.set_input(content)
+        if (App.code_scroll_active) {
+            App.defer_code_scroll(App.code_scroll_song_pause_ms)
+        }
+        App.set_input(content, {scroll_delay_ms: App.code_scroll_song_pause_ms})
         App.set_song_context(requested_song)
         App.code_to_play = content
         App.set_status(`Loaded: ${App.underspace(requested_song)}`)
