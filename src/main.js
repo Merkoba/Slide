@@ -244,7 +244,12 @@ App.playing = (extra) => {
 }
 
 App.set_tempo = () => {
-    scheduler.setCps(App.tempo_cpm / 60)
+    try {
+        scheduler.setCps(App.tempo_cpm / 60)
+    }
+    catch (err) {
+        console.debug(`Tempo will be applied when audio starts`, err)
+    }
 }
 
 // 2. Export the update function
