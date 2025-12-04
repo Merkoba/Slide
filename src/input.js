@@ -192,7 +192,6 @@ App.init_code_input_controls = () => {
             else {
                 code_input.style.height = `${height}px`
             }
-
         })
     }
 
@@ -212,6 +211,52 @@ App.init_code_input_controls = () => {
 
             App.stop_code_scroll()
         })
+
+        let wrapper = DOM.el(`#code-input-wrapper`)
+
+        if (wrapper) {
+            let resize_handle = DOM.el(`#resize-handle`)
+
+            if (resize_handle) {
+                let is_resizing = false
+
+                DOM.ev(resize_handle, `mousedown`, (event) => {
+                    event.preventDefault()
+                    is_resizing = true
+                    document.body.style.userSelect = `none`
+                    document.body.style.cursor = `se-resize`
+
+                    let start_x = event.clientX
+                    let start_y = event.clientY
+                    let start_width = wrapper.offsetWidth
+                    let start_height = wrapper.offsetHeight
+
+                    let mouse_move = (move_event) => {
+                        if (!is_resizing) return
+
+                        let new_width = start_width + (move_event.clientX - start_x)
+                        let new_height = start_height + (move_event.clientY - start_y)
+
+                        new_width = Math.max(500, new_width)
+                        new_height = Math.max(100, new_height)
+
+                        wrapper.style.width = `${new_width}px`
+                        wrapper.style.height = `${new_height}px`
+                    }
+
+                    let mouse_up = () => {
+                        is_resizing = false
+                        document.body.style.userSelect = ``
+                        document.body.style.cursor = ``
+                        document.removeEventListener(`mousemove`, mouse_move)
+                        document.removeEventListener(`mouseup`, mouse_up)
+                    }
+
+                    document.addEventListener(`mousemove`, mouse_move)
+                    document.addEventListener(`mouseup`, mouse_up)
+                })
+            }
+        }
 
         DOM.ev(code_input, `wheel`, (event) => {
             if (!App.code_scroll_active) {
