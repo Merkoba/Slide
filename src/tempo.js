@@ -5,6 +5,17 @@ App.min_tempo = 20
 App.max_tempo = 160
 App.tempo_step = 5
 
+App.schedule_tempo_commit = (callback) => {
+    if (typeof window === `undefined`) {
+        callback()
+        return
+    }
+
+    window.setTimeout(() => {
+        callback()
+    }, 0)
+}
+
 App.get_tempo_slider = () => {
     return DOM.el(`#tempo-slider`)
 }
@@ -90,13 +101,15 @@ App.on_tempo_change = (is_final = false, value_override = undefined) => {
     App.update_tempo(source_value)
 
     if (is_final) {
-        App.persist_tempo()
+        App.schedule_tempo_commit(() => {
+            App.persist_tempo()
 
-        if (App.current_song) {
-            App.update_song_query_param(App.current_song)
-        }
+            if (App.current_song) {
+                App.update_song_query_param(App.current_song)
+            }
 
-        App.set_tempo()
+            App.set_tempo()
+        })
     }
 }
 

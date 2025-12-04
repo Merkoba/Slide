@@ -886,7 +886,7 @@ App.update_song_query_param = (song_name = ``) => {
         next_url.searchParams.delete(App.song_query_key)
     }
 
-    if ((App.tempo_cpm !== App.default_cpm) && song_name) {
+    if (song_name) {
         next_url.searchParams.set(App.cpm_query_key, `${App.tempo_cpm}`)
     }
     else {
