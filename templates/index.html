@@ -22,13 +22,21 @@
                 <div id="top-controls">
                     <div id="volume-control">
                         <label for="volume-slider">Volume</label>
-                        <input id="volume-slider" type="range" min="0" max="100" value="100" step="1">
+                        <div class="control-stepper">
+                            <button id="volume-decrement" class="step-button" type="button" aria-label="Decrease volume">-</button>
+                            <input id="volume-slider" type="range" min="0" max="100" value="100" step="1">
+                            <button id="volume-increment" class="step-button" type="button" aria-label="Increase volume">+</button>
+                        </div>
                         <span id="volume-value">100%</span>
                     </div>
 
                     <div id="tempo-control">
                         <label for="tempo-slider">Tempo</label>
-                        <input id="tempo-slider" type="range" min="20" max="160" value="60" step="5">
+                        <div class="control-stepper">
+                            <button id="tempo-decrement" class="step-button" type="button" aria-label="Decrease tempo">-</button>
+                            <input id="tempo-slider" type="range" min="20" max="160" value="60" step="5">
+                            <button id="tempo-increment" class="step-button" type="button" aria-label="Increase tempo">+</button>
+                        </div>
                         <span id="tempo-value">60 cpm</span>
                     </div>
 

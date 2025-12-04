@@ -3,6 +3,7 @@ App.tempo_storage_key = `slide.tempoCpm`
 App.tempo_debounce_timer = undefined
 App.min_tempo = 20
 App.max_tempo = 160
+App.tempo_step = 5
 
 App.get_tempo_slider = () => {
     return DOM.el(`#tempo-slider`)
@@ -71,8 +72,8 @@ App.update_tempo = (cpm) => {
         next_value = App.tempo_cpm
     }
 
-    // Round to nearest 5 for stepped values
-    next_value = Math.round(next_value / 5) * 5
+    // Round to nearest step for stepped values
+    next_value = Math.round(next_value / App.tempo_step) * App.tempo_step
     next_value = Math.min(App.max_tempo, Math.max(App.min_tempo, next_value))
     App.tempo_cpm = next_value
     App.refresh_tempo_ui()
@@ -96,6 +97,8 @@ App.on_tempo_change = (is_final = false) => {
 App.init_tempo_controls = () => {
     let slider = App.get_tempo_slider()
     const container = DOM.el(`#tempo-control`)
+    const decrement_button = DOM.el(`#tempo-decrement`)
+    const increment_button = DOM.el(`#tempo-increment`)
 
     if (!slider) {
         return
@@ -141,4 +144,32 @@ App.init_tempo_controls = () => {
     DOM.ev(container, `change`, (event) => {
         App.on_tempo_change(true)
     })
+
+    const step_tempo = (direction) => {
+        if (!slider) {
+            return
+        }
+
+        let current_value = parseInt(slider.value, 10)
+
+        if (!Number.isFinite(current_value)) {
+            current_value = App.tempo_cpm
+        }
+
+        let next_value = current_value + (direction * App.tempo_step)
+        slider.value = `${next_value}`
+        App.on_tempo_change(true)
+    }
+
+    if (decrement_button) {
+        DOM.ev(decrement_button, `click`, () => {
+            step_tempo(-1)
+        })
+    }
+
+    if (increment_button) {
+        DOM.ev(increment_button, `click`, () => {
+            step_tempo(1)
+        })
+    }
 }

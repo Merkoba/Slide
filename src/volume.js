@@ -2,6 +2,7 @@ import {getSuperdoughAudioController} from "superdough"
 
 App.volume_percent = 100
 App.volume_storage_key = `slide.volumePercent`
+App.volume_step = 1
 
 App.get_volume_slider = () => {
     return DOM.el(`#volume-slider`)
@@ -121,6 +122,8 @@ App.update_volume = (percent) => {
 App.init_volume_controls = () => {
     const slider = App.get_volume_slider()
     const container = DOM.el(`#volume-control`)
+    const decrement_button = DOM.el(`#volume-decrement`)
+    const increment_button = DOM.el(`#volume-increment`)
 
     if (!slider) {
         return
@@ -143,6 +146,22 @@ App.init_volume_controls = () => {
         App.update_volume(App.read_volume_value(event.target))
     })
 
+    const step_volume = (direction) => {
+        App.update_volume(App.volume_percent + (direction * App.volume_step))
+    }
+
+    if (decrement_button) {
+        DOM.ev(decrement_button, `click`, () => {
+            step_volume(-1)
+        })
+    }
+
+    if (increment_button) {
+        DOM.ev(increment_button, `click`, () => {
+            step_volume(1)
+        })
+    }
+
     DOM.ev(container, `auxclick`, (event) => {
         if (event.button === 1) {
             App.update_volume(50)
@@ -151,7 +170,7 @@ App.init_volume_controls = () => {
 
     DOM.ev(container, `wheel`, (event) => {
         event.preventDefault()
-        let step = parseInt(slider.step, 10) || 1
+        let step = parseInt(slider.step, 10) || App.volume_step
         let current = parseInt(slider.value, 10)
 
         if (event.deltaY < 0) {
