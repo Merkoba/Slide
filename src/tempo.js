@@ -79,8 +79,9 @@ App.update_tempo = (cpm, skip_heavy = false) => {
     App.refresh_tempo_ui()
 }
 
-App.on_tempo_change = (event, is_final = false) => {
-    App.update_tempo(event.target.value, true)
+App.on_tempo_change = (is_final = false) => {
+    let slider = App.get_tempo_slider()
+    App.update_tempo(slider.value, true)
 
     if (is_final) {
         App.persist_tempo()
@@ -95,6 +96,7 @@ App.on_tempo_change = (event, is_final = false) => {
 
 App.init_tempo_controls = () => {
     let slider = App.get_tempo_slider()
+    const container = DOM.el(`#tempo-control`)
 
     if (!slider) {
         return
@@ -113,30 +115,30 @@ App.init_tempo_controls = () => {
         App.update_tempo(event.target.value)
     })
 
-    DOM.ev(slider, `auxclick`, (event) => {
+    DOM.ev(container, `auxclick`, (event) => {
         if (event.button === 1) {
-            event.target.value = App.default_cpm
+            slider.value = App.default_cpm
             App.update_tempo(App.default_cpm)
             App.set_tempo()
         }
     })
 
-    DOM.ev(slider, `wheel`, (event) => {
+    DOM.ev(container, `wheel`, (event) => {
         event.preventDefault()
-        let step = parseInt(event.target.step, 10) || 1
-        let current = parseInt(event.target.value, 10)
+        let step = parseInt(slider.step, 10) || 1
+        let current = parseInt(slider.value, 10)
 
         if (event.deltaY < 0) {
-            event.target.value = current - step
+            slider.value = current + step
         }
         else {
-            event.target.value = current + step
+            slider.value = current - step
         }
 
-        App.on_tempo_change(event, true)
+        App.on_tempo_change(true)
     })
 
-    DOM.ev(slider, `change`, (event) => {
-        App.on_tempo_change(event, true)
+    DOM.ev(container, `change`, (event) => {
+        App.on_tempo_change(true)
     })
 }

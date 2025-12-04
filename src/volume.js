@@ -120,6 +120,7 @@ App.update_volume = (percent) => {
 
 App.init_volume_controls = () => {
     const slider = App.get_volume_slider()
+    const container = DOM.el(`#volume-control`)
 
     if (!slider) {
         return
@@ -138,22 +139,28 @@ App.init_volume_controls = () => {
     App.refresh_volume_ui()
     App.persist_volume()
 
-    slider.addEventListener(`input`, (event) => {
+    DOM.ev(slider, `input`, (event) => {
         App.update_volume(App.read_volume_value(event.target))
     })
 
-    slider.addEventListener(`wheel`, (event) => {
+    DOM.ev(container, `auxclick`, (event) => {
+        if (event.button === 1) {
+            App.update_volume(50)
+        }
+    })
+
+    DOM.ev(container, `wheel`, (event) => {
         event.preventDefault()
-        let step = parseInt(event.target.step, 10) || 1
-        let current = parseInt(event.target.value, 10)
+        let step = parseInt(slider.step, 10) || 1
+        let current = parseInt(slider.value, 10)
 
         if (event.deltaY < 0) {
-            event.target.value = current - step
+            slider.value = current + step
         }
         else {
-            event.target.value = current + step
+            slider.value = current - step
         }
 
-        App.update_volume(App.read_volume_value(event.target))
+        App.update_volume(App.read_volume_value(slider))
     })
 }
