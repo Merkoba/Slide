@@ -531,3 +531,52 @@ a.popup:hover {
     gap: 0.5rem;
     justify-content: flex-end;
 }
+
+/* Custom Scrollbar Styling */
+/* Firefox */
+* {
+    scrollbar-color: #555 #222;
+}
+
+::-webkit-scrollbar-track {
+    background: #222;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 8px;
+    border: 2px solid #222;
+    transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: #777;
+}
+
+::-webkit-scrollbar-corner {
+    background: #222;
+}
+
+.modal-content ::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 6px;
+}
+
+.modal-content ::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+}
+
+.modal-content ::-webkit-scrollbar-thumb:hover {
+    background: var(--green);
+}
+
+.songs-list {
+    scrollbar-color: #555 #2a2a2a;
+}
