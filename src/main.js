@@ -1,5 +1,4 @@
 const App = {}
-App.fetch_delay_seconds = 5
 
 import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
@@ -58,6 +57,7 @@ App.code_scroll_pause_until = 0
 App.code_scroll_wheel_pause_ms = 350
 App.code_scroll_song_pause_ms = 1.2 * 1000
 App.code_scroll_pending_delay_ms = 0
+App.fetch_delay_seconds = 5
 
 App.fetch_delay_storage_key = `slide.fetchDelaySeconds`
 
@@ -68,7 +68,7 @@ App.cycle_colors = [
     `rgb(127, 155, 210)`,
 ]
 
-App.clear_status_watch = () => {
+App.clear_status_watch = (set_cancelled = true) => {
     if (!App.fetch_timer) {
         return
     }
@@ -76,7 +76,10 @@ App.clear_status_watch = () => {
     console.info(`Interval cleared.`)
     clearInterval(App.fetch_timer)
     App.fetch_timer = undefined
-    App.status_watch_cancelled = true
+
+    if (set_cancelled) {
+        App.status_watch_cancelled = true
+    }
 }
 
 App.apply_color = (color) => {
@@ -303,7 +306,6 @@ App.clear_draw_context = () => {
 
 // 3. Export stop
 App.strudel_stop = () => {
-    App.stop_status_watch()
     App.stop_color_cycle()
     App.clear_draw_context()
     evaluate(`hush`)
@@ -326,10 +328,6 @@ App.stop_status_watch = () => {
 App.strudel_watch_status = (seconds) => {
     if (Number.isFinite(seconds) && (seconds > 0)) {
         App.fetch_delay_seconds = seconds
-    }
-
-    if (App.fetch_timer) {
-        return
     }
 
     if (!App.fetch_delay_seconds || (App.fetch_delay_seconds <= 0)) {
@@ -379,7 +377,7 @@ App.strudel_watch_status = (seconds) => {
         }
     }
 
-    App.clear_status_watch()
+    App.clear_status_watch(false) // Don't set cancelled flag for restart
     fetch_status()
 
     App.fetch_timer = setInterval(() => {
@@ -903,6 +901,11 @@ App.start_events = () => {
         DOM.ev(endpoint_delay_select, `change`, (event) => {
             App.fetch_delay_seconds = parseInt(event.target.value, 10)
             App.persist_fetch_delay()
+
+            // Restart interval if it's currently running
+            if (App.fetch_timer) {
+                App.strudel_watch_status()
+            }
         })
     }
 
