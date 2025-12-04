@@ -26,11 +26,14 @@ App.handle_eval_error = (err) => {
 const {evaluate, scheduler} = webaudioRepl({
     transpiler,
     onEvalError: (err) => {
+        App.set_song_context(song_name)
         App.handle_eval_error(err)
     }
 })
 
 App.app_name = `Slide`
+App.song_query_key = `song`
+App.current_song = ``
 App.events_started = false
 App.audio_started = false
 App.fetch_in_flight = false
@@ -336,6 +339,8 @@ App.strudel_watch_status = (seconds) => {
                 return
             }
 
+            App.set_song_context()
+
             if (!App.audio_started) {
                 App.code_to_play = next_code
             }
@@ -616,6 +621,7 @@ App.stop_action = () => {
     App.last_code = null
     App.clear_draw_context()
     App.set_status(`Stopped`)
+    App.set_song_context()
 }
 
 App.start_status_watch = () => {
@@ -670,6 +676,7 @@ App.start_events = () => {
         let code_input = App.get_input()
         let next_code = code_input ? code_input.value : ``
 
+        App.set_song_context()
         App.play_action(next_code, true)
     })
 
@@ -735,10 +742,66 @@ App.start_events = () => {
     window.addEventListener(`resize`, () => {
         App.handle_scope_resize()
     })
+
+    App.load_song_from_query()
 }
 
 App.set_title = (title) => {
-    document.title = `${App.app_name} - ${title}`
+    if (title) {
+        document.title = `${App.app_name} - ${title}`
+        return
+    }
+
+    document.title = App.app_name
+}
+
+App.update_song_query_param = (song_name = ``) => {
+    if (!window?.history?.replaceState) {
+        return
+    }
+
+    let next_url = new URL(window.location.href)
+
+    if (song_name) {
+        next_url.searchParams.set(App.song_query_key, song_name)
+    }
+    else {
+        next_url.searchParams.delete(App.song_query_key)
+    }
+
+    window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
+}
+
+App.set_song_context = (song_name = ``) => {
+    App.current_song = song_name || ``
+    App.set_title(App.current_song)
+    App.update_song_query_param(App.current_song)
+}
+
+App.load_song_from_query = async () => {
+    if (!window || !window.location) {
+        return
+    }
+
+    let query_params = new URLSearchParams(window.location.search)
+    let requested_song = query_params.get(App.song_query_key)
+
+    if (!requested_song) {
+        return
+    }
+
+    try {
+        App.set_status(`Loading ${requested_song}...`)
+        let content = await App.fetch_song_content(requested_song)
+        App.set_input(content)
+        App.set_song_context(requested_song)
+        App.code_to_play = content
+        App.set_status(`Loaded: ${requested_song}`)
+    }
+    catch (err) {
+        App.set_status(`Failed to load song: ${err.message}`)
+        console.error(`Failed to load song:`, err)
+    }
 }
 
 // Export functions to window for use in HTML

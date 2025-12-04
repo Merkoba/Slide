@@ -30,6 +30,7 @@ App.scope_connected = false
 App.scope_pixel_ratio = 1
 App.scope_enabled = true
 App.scope_color = `rgba(204, 198, 239, 1)`
+App.scope_sine_time = 0
 
 App.get_scope_container = () => {
     if (!App.scope_container_el) {
@@ -214,15 +215,10 @@ App.draw_scope_frame = () => {
         return
     }
 
-    let analyser = App.scope_analyser
-    let waveform = App.ensure_scope_waveform()
-
-    if (!analyser || !waveform || !App.scope_canvas_ctx) {
+    if (!App.scope_canvas_ctx) {
         App.stop_scope_loop()
         return
     }
-
-    analyser.getByteTimeDomainData(waveform)
 
     let {width, height} = App.get_scope_dimensions()
 
@@ -238,22 +234,50 @@ App.draw_scope_frame = () => {
     App.scope_canvas_ctx.lineWidth = 2
     App.scope_canvas_ctx.beginPath()
 
-    let slice_width = width / waveform.length
-    let x = 0
+    let analyser = App.scope_analyser
+    let waveform = App.ensure_scope_waveform()
 
-    for (let i = 0; i < waveform.length; i += 1) {
-        let value = waveform[i]
-        let normalized = (value / 128) - 1
-        let y = (height / 2) + (normalized * (height / 2))
+    if (App.is_playing && analyser && waveform) {
+        analyser.getByteTimeDomainData(waveform)
+        let slice_width = width / waveform.length
+        let x = 0
 
-        if (i === 0) {
-            App.scope_canvas_ctx.moveTo(x, y)
+        for (let i = 0; i < waveform.length; i += 1) {
+            let value = waveform[i]
+            let normalized = (value / 128) - 1
+            let y = (height / 2) + (normalized * (height / 2))
+
+            if (i === 0) {
+                App.scope_canvas_ctx.moveTo(x, y)
+            }
+            else {
+                App.scope_canvas_ctx.lineTo(x, y)
+            }
+
+            x += slice_width
         }
-        else {
-            App.scope_canvas_ctx.lineTo(x, y)
-        }
+    }
+    else {
+        App.scope_sine_time += 0.012
+        let num_points = waveform ? waveform.length : 2048
+        let slice_width = width / num_points
+        let x = 0
 
-        x += slice_width
+        for (let i = 0; i < num_points; i += 1) {
+            let phase = (i / num_points) * (Math.PI * 2) * 6
+            let amplitude = 0.3
+            let normalized = Math.sin(phase + App.scope_sine_time) * amplitude
+            let y = (height / 2) + (normalized * (height / 2))
+
+            if (i === 0) {
+                App.scope_canvas_ctx.moveTo(x, y)
+            }
+            else {
+                App.scope_canvas_ctx.lineTo(x, y)
+            }
+
+            x += slice_width
+        }
     }
 
     App.scope_canvas_ctx.stroke()
@@ -320,6 +344,13 @@ App.enable_scope_visualizer = () => {
     App.scope_enabled = true
     App.set_scope_visibility(true)
     App.handle_scope_resize()
+
+    let canvas = App.setup_scope_canvas()
+
+    if (canvas && !App.scope_animation_id) {
+        App.start_scope_loop()
+    }
+
     App.try_start_scope_visualizer()
 }
 

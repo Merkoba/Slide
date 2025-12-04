@@ -4,7 +4,7 @@ import os
 import threading
 from pathlib import Path
 from typing import Dict, Optional, List
-from flask import Flask, Response, send_from_directory
+from flask import Flask, Response, send_from_directory, redirect, url_for
 from litellm import completion
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -369,6 +369,13 @@ def list_songs() -> Response:
 @app.route("/songs/<path:filename>")
 def songs_assets(filename):
 	return send_from_directory("songs", filename)
+
+
+@app.get("/song/<path:song_name>")
+def song_shortcut(song_name: str):
+	"""Redirect pretty song URLs to index with ?song parameter."""
+
+	return redirect(url_for("index", song=song_name), code=302)
 
 def shutdown_worker() -> None:
 	stop_event.set()
