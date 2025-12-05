@@ -48,6 +48,8 @@
                         <input id="scope-checkbox" type="checkbox" checked>
                         <label for="scope-checkbox">Scope</label>
                     </div>
+
+                    <div id="visual-button" class="top-button">Visual</div>
                 </div>
             </div>
 
@@ -91,6 +93,26 @@
 
                     <div id="songs-list" class="songs-list">
                         <div class="loading">Loading songs...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="visual-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div id="song-picker-title">Select a Visual</div>
+                        <button id="modal-close">&times;</button>
+                    </div>
+
+                    <div id="visual-filter-wrapper">
+                        <input id="visual-filter" type="text" placeholder="Filter visual..." autocomplete="off">
+                    </div>
+
+                    <div id="visual-list" class="visual-list">
+                        <div>Auto</div>
+                        <div>None</div>
+                        <div>Scope</div>
+                        <div>Pianoroll</div>
                     </div>
                 </div>
             </div>
@@ -145,6 +167,23 @@
                             <button id="endpoint-default">Default</button>
                             <button id="endpoint-start">Start</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="visual-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div id="visual-title">Visual Options</div>
+                        <button id="visual-close">&times;</button>
+                    </div>
+
+                    <div id="visual-filter-wrapper">
+                        <input id="visual-filter" type="text" placeholder="Filter options..." autocomplete="off">
+                    </div>
+
+                    <div id="visual-modal-list" class="visual-list">
+                        <div class="loading">Loading options...</div>
                     </div>
                 </div>
             </div>

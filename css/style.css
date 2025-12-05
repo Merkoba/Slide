@@ -605,3 +605,14 @@ a.popup:hover {
 .hidden {
     display: none !important;
 }
+
+.top-button {
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #363636;
+}
+
+.top-button:hover {
+    background-color: #575555;
+    cursor: pointer;
+}
