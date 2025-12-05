@@ -14,6 +14,7 @@ App.defer_code_scroll = (delay_ms) => {
 App.reset_code_scroll_for_content = (options = {}) => {
   let delay_ms = 0
   let default_scroll_delay = options.scroll_delay_ms ?? App.code_scroll_song_pause_ms
+  let direction = options.direction ?? 1
 
   if (App.code_scroll_active) {
     if (Number.isFinite(App.code_scroll_pending_delay_ms) && (App.code_scroll_pending_delay_ms > 0)) {
@@ -25,7 +26,7 @@ App.reset_code_scroll_for_content = (options = {}) => {
   }
 
   App.code_scroll_pending_delay_ms = 0
-  App.code_scroll_direction = 1
+  App.code_scroll_direction = direction
   App.code_scroll_last_ts = 0
 
   if ((delay_ms <= 0) || (typeof window === `undefined`)) {
@@ -108,11 +109,11 @@ App.code_scroll_tick = (timestamp) => {
 
   if (input.scrollTop >= max_scroll) {
     input.scrollTop = max_scroll
-    App.code_scroll_direction = -1
+    App.reset_code_scroll_for_content({direction: -1})
   }
   else if (input.scrollTop <= 0) {
     input.scrollTop = 0
-    App.code_scroll_direction = 1
+    App.reset_code_scroll_for_content({direction: 1})
   }
 
   App.code_scroll_frame = window.requestAnimationFrame(App.code_scroll_tick)
