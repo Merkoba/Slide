@@ -619,6 +619,7 @@ a.popup:hover {
     padding-left: 5px;
     padding-right: 5px;
     background-color: #363636;
+    user-select: none;
 }
 
 .top-button:hover {

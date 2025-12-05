@@ -925,10 +925,6 @@ App.underspace = (s) => {
 }
 
 App.clean_canvas = () => {
-
-}
-
-App.clean_canvas = () => {
   let body = document.body
   let children = Array.from(body.children)
   let ignored_tags = [`script`, `style`]
