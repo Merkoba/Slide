@@ -333,35 +333,50 @@ App.toggle_max = (mode = `toggle`) => {
   let height = parseInt(style.getPropertyValue(`--input_height`))
   let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
   let max_width = parseInt(style.getPropertyValue(`--input_max_width`))
-  let cheight = wrapper.offsetHeight
-  let cwidth = wrapper.getBoundingClientRect().width
   wrapper.style.width = `${max_width}%`
 
   if (mode === `restore`) {
     wrapper.style.height = `${height}px`
   }
   else {
-    let buffer = 2
-
-    let main = DOM.el(`#main`)
-    let main_width = window.innerWidth
-
-    if (main) {
-      let main_style = getComputedStyle(main)
-      let padding_left = parseFloat(main_style.paddingLeft) || 0
-      let padding_right = parseFloat(main_style.paddingRight) || 0
-      let client_width = main.clientWidth || main.getBoundingClientRect().width
-      main_width = Math.max(0, client_width - padding_left - padding_right)
-    }
-
-    let max_width_px = (max_width / 100) * main_width
-
-    if ((Math.abs(cheight - max_height) > buffer) ||
-            (Math.abs(cwidth - max_width_px) > buffer)) {
-      wrapper.style.height = `${max_height}px`
-    }
-    else {
+    if (App.input_is_maxed()) {
+      // Restore
       wrapper.style.height = `${height}px`
     }
+    else {
+      // Maximize
+      wrapper.style.height = `${max_height}px`
+    }
   }
+}
+
+App.input_is_maxed = () => {
+  let wrapper = DOM.el(`#code-input-wrapper`)
+
+  if (!wrapper) {
+    return
+  }
+
+  let buffer = 2
+  let main = DOM.el(`#main`)
+  let main_width = window.innerWidth
+
+  let style = getComputedStyle(document.documentElement)
+  let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
+  let max_width = parseInt(style.getPropertyValue(`--input_max_width`))
+  let cheight = wrapper.offsetHeight
+  let cwidth = wrapper.getBoundingClientRect().width
+
+  if (main) {
+    let main_style = getComputedStyle(main)
+    let padding_left = parseFloat(main_style.paddingLeft) || 0
+    let padding_right = parseFloat(main_style.paddingRight) || 0
+    let client_width = main.clientWidth || main.getBoundingClientRect().width
+    main_width = Math.max(0, client_width - padding_left - padding_right)
+  }
+
+  let max_width_px = (max_width / 100) * main_width
+
+  return ((Math.abs(cheight - max_height) <= buffer) &&
+          (Math.abs(cwidth - max_width_px) <= buffer))
 }
