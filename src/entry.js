@@ -8,6 +8,8 @@ import "./scope.js"
 import "./songs.js"
 import "./modals.js"
 import "./about.js"
+import "./auto.js"
+import "./visual.js"
 
 const startAppEvents = () => {
   if (!window?.App?.start_events) {

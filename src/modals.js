@@ -1,22 +1,26 @@
-App.create_modal = () => {
-  let template = DOM.el(`#template-modal`)
+App.modal_factory = (id, mode) => {
+  let template = DOM.el(`#${mode}`)
   let container = DOM.create(`div`)
   container.innerHTML = template.innerHTML
   DOM.el(`#modals`).appendChild(container)
-  return container
+  let modal = DOM.el(`.modal`, container)
+  modal.id = `${id}-modal`
+  return modal
 }
 
-App.create_list_modal = () => {
-  let template = DOM.el(`#template-list-modal`)
-  let container = DOM.create(`div`)
-  container.innerHTML = template.innerHTML
-  DOM.el(`#modals`).appendChild(container)
-  return container
+App.create_modal = (id) => {
+  return App.modal_factory(id, `template-modal`)
+}
+
+App.create_list_modal = (id) => {
+  return App.modal_factory(id, `template-list-modal`)
 }
 
 App.create_modals = () => {
   App.create_about_modal()
   App.create_songs_modal()
+  App.create_auto_modal()
+  App.create_visual_modal()
 
   DOM.ev(`#main`, `click`, (event) => {
     let close_btn = event.target.closest(`.modal-close`)
@@ -38,11 +42,11 @@ App.create_modals = () => {
 App.show_items_modal = async (what, args = {}) => {
   let loaded = args.loaded || false
   let modal = DOM.el(`#${what}-modal`)
-  let items = DOM.el(`.modal-list`, modal)
+  let modal_list = DOM.el(`.modal-list`, modal)
   let filter_input = DOM.el(`.modal-filter`, modal)
 
   if (loaded) {
-    items.innerHTML = `<div class="loading">Loading items...</div>`
+    modal_list.innerHTML = `<div class="loading">Loading items...</div>`
   }
 
   if (filter_input) {
@@ -53,15 +57,15 @@ App.show_items_modal = async (what, args = {}) => {
   }
 
   if (!args.items.length) {
-    items.innerHTML = `<div class="loading">Nothing found</div>`
+    modal_list.innerHTML = `<div class="loading">Nothing found</div>`
     return
   }
 
   let render_items = (list) => {
-    items.innerHTML = ``
+    modal_list.innerHTML = ``
 
     if (!list.length) {
-      items.innerHTML = `<div class="loading">No results</div>`
+      modal_list.innerHTML = `<div class="loading">No results</div>`
       return
     }
 
@@ -70,7 +74,7 @@ App.show_items_modal = async (what, args = {}) => {
       item_div.className = `modal-item`
       item_div.textContent = App.underspace(item)
       DOM.ev(item_div, `click`, () => args.action(item))
-      items.appendChild(item_div)
+      modal_list.appendChild(item_div)
     }
   }
 
@@ -102,7 +106,7 @@ App.show_items_modal = async (what, args = {}) => {
     }
 
     event.preventDefault()
-    let all_items = DOM.els(`.modal-item`, items)
+    let all_items = DOM.els(`.modal-item`, modal_list)
 
     for (let item of all_items) {
       item.click()

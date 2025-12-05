@@ -40,10 +40,8 @@ App.fetch_song_content = async (song_name) => {
 }
 
 App.create_songs_modal = () => {
-  let container = App.create_list_modal(`songs-modal`)
-  let modal = DOM.el(`.modal`, container)
-  modal.id = `songs-modal`
-  let title = DOM.el(`.modal-title`, container)
+  let modal = App.create_list_modal(`songs`)
+  let title = DOM.el(`.modal-title`, modal)
   title.textContent = `Select a Song`
 }
 

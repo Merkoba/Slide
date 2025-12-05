@@ -664,22 +664,6 @@ App.stop_action = () => {
   App.set_song_context()
 }
 
-App.open_endpoint_modal = () => {
-  let modal = DOM.el(`#endpoint-modal`)
-
-  if (!modal) {
-    return
-  }
-
-  let select = DOM.el(`#endpoint-delay-select`)
-
-  if (select) {
-    select.value = App.fetch_delay_seconds
-  }
-
-  modal.classList.add(`active`)
-}
-
 App.close_endpoint_modal = () => {
   let modal = DOM.el(`#endpoint-modal`)
 
@@ -771,7 +755,7 @@ App.start_events = () => {
   })
 
   DOM.ev(`#btn-auto`, `click`, () => {
-    App.open_endpoint_modal()
+    App.open_auto_modal()
   })
 
   DOM.ev(`#btn-stop`, `click`, () => {

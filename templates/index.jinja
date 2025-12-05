@@ -116,61 +116,6 @@
 
             <div id="modal-overlay" class="hidden"></div>
             <div id="modals"></div>
-
-            <div id="endpoint-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div id="endpoint-title">Auto Mode Endpoint</div>
-                        <button id="endpoint-close">&times;</button>
-                    </div>
-
-                    <div id="endpoint-body">
-                        <div>
-                            Code will be fetched periodically
-                        </div>
-
-                        <div>
-                            <select id="endpoint-delay-select">
-                                <option value="1">1 second</option>
-                                <option value="5" selected>5 seconds</option>
-                                <option value="10">10 seconds</option>
-                                <option value="30">30 seconds</option>
-                                <option value="60">1 minute</option>
-                                <option value="300">5 minutes</option>
-                                <option value="600">10 minutes</option>
-                                <option value="900">15 minutes</option>
-                                <option value="1200">20 minutes</option>
-                                <option value="1800">30 minutes</option>
-                                <option value="3600">1 hour</option>
-                            </select>
-                        </div>
-
-                        <input id="endpoint-input" type="text" placeholder="Enter endpoint URL..." value="/status" autocomplete="off">
-
-                        <div id="endpoint-buttons">
-                            <button id="endpoint-default">Default</button>
-                            <button id="endpoint-start">Start</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="visual-modal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <div id="visual-title">Visual Options</div>
-                        <button id="visual-close">&times;</button>
-                    </div>
-
-                    <div id="visual-filter-wrapper">
-                        <input id="visual-filter" type="text" placeholder="Filter options..." autocomplete="off">
-                    </div>
-
-                    <div id="visual-modal-list" class="visual-list">
-                        <div class="loading">Loading options...</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <script src="/dist/strudel.bundle.js"></script>
