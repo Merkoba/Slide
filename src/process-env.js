@@ -1,5 +1,5 @@
 if (typeof globalThis.process === `undefined`) {
-  globalThis.process = { env: {} }
+  globalThis.process = {env: {}}
 }
 
 if (typeof globalThis.process.env === `undefined`) {
