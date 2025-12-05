@@ -138,7 +138,7 @@ App.start_code_scroll = () => {
 
   App.code_scroll_active = true
   App.code_scroll_direction = 1
-  App.code_scroll_last_ts = 0
+  App.code_scroll_last_ts = window.performance.now() - 16
   App.code_scroll_pause_until = 0
   App.set_code_scroll_button_active(true)
   App.code_scroll_frame = window.requestAnimationFrame(App.code_scroll_tick)
@@ -182,7 +182,7 @@ App.init_code_input_controls = () => {
     DOM.ev(bottom_button, `click`, (event) => {
       event.preventDefault()
       code_input.scrollTop = code_input.scrollHeight
-      App.reset_code_scroll_for_content()
+      App.reset_code_scroll_for_content({direction: -1})
     })
   }
 
