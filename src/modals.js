@@ -11,6 +11,7 @@ App.create_list_modal = () => {
   let container = DOM.create(`div`)
   container.innerHTML = template.innerHTML
   DOM.el(`#modals`).appendChild(container)
+  return container
 }
 
 App.create_modals = () => {
@@ -37,10 +38,8 @@ App.create_modals = () => {
 App.show_items_modal = async (what, args = {}) => {
   let loaded = args.loaded || false
   let modal = DOM.el(`#${what}-modal`)
-  let items = DOM.el(`#${what}-list`)
-  let filter_input = DOM.el(`#${what}-filter`)
-
-  modal.classList.add(`active`)
+  let items = DOM.el(`.modal-list`, modal)
+  let filter_input = DOM.el(`.modal-filter`, modal)
 
   if (loaded) {
     items.innerHTML = `<div class="loading">Loading items...</div>`
@@ -110,6 +109,8 @@ App.show_items_modal = async (what, args = {}) => {
       break
     }
   }
+
+  App.do_open_modal(modal)
 }
 
 App.open_modal = (what) => {
@@ -119,6 +120,10 @@ App.open_modal = (what) => {
     return
   }
 
+  App.do_open_modal(modal)
+}
+
+App.do_open_modal = (modal) => {
   App.show_overlay()
   modal.classList.add(`active`)
 }

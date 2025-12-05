@@ -40,7 +40,9 @@ App.fetch_song_content = async (song_name) => {
 }
 
 App.create_songs_modal = () => {
-  let container = App.create_list_modal()
+  let container = App.create_list_modal(`songs-modal`)
+  let modal = DOM.el(`.modal`, container)
+  modal.id = `songs-modal`
   let title = DOM.el(`.modal-title`, container)
   title.textContent = `Select a Song`
 }
@@ -56,13 +58,8 @@ App.open_songs_modal = async () => {
   })
 }
 
-App.close_songs_modal = () => {
-  let modal = DOM.el(`#songs-modal`)
-  modal.classList.remove(`active`)
-}
-
 App.load_song = async (song_name) => {
-  App.close_songs_modal()
+  App.close_all_modals()
 
   try {
     App.set_status(`Loading ${song_name}...`)
