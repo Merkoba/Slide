@@ -32,6 +32,10 @@ App.scope_enabled = true
 App.scope_color = `rgba(204, 198, 239, 1)`
 App.scope_border_color = `#444`
 App.scope_sine_time = 0
+App.scope_clicks = []
+App.scope_click_color = `rgba(178, 178, 178, 0.9)`
+App.scope_click_time = 5 * 1000
+App.scope_click_size = 6
 
 App.get_scope_container = () => {
   if (!App.scope_container_el) {
@@ -210,6 +214,20 @@ App.stop_scope_loop = () => {
   }
 }
 
+App.handle_scope_click = (event) => {
+  let canvas = App.get_scope_canvas()
+
+  if (!canvas) {
+    return
+  }
+
+  let rect = canvas.getBoundingClientRect()
+  let x = event.clientX - rect.left
+  let y = event.clientY - rect.top
+
+  App.scope_clicks.push({x, y, timestamp: Date.now()})
+}
+
 App.draw_scope_frame = () => {
   if (!App.scope_enabled) {
     App.stop_scope_loop()
@@ -282,6 +300,18 @@ App.draw_scope_frame = () => {
   }
 
   App.scope_canvas_ctx.stroke()
+
+  // Draw clicks
+  let now = Date.now()
+  App.scope_clicks = App.scope_clicks.filter(click => (now - click.timestamp) < App.scope_click_time)
+
+  for (let click of App.scope_clicks) {
+    App.scope_canvas_ctx.fillStyle = App.scope_click_color
+    App.scope_canvas_ctx.beginPath()
+    App.scope_canvas_ctx.arc(click.x, click.y, App.scope_click_size, 0, Math.PI * 2)
+    App.scope_canvas_ctx.fill()
+  }
+
   App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
 }
 
@@ -341,6 +371,14 @@ App.try_start_scope_visualizer = () => {
   App.start_scope_loop()
 }
 
+App.init_scope_click_handler = () => {
+  let canvas = App.get_scope_canvas()
+
+  if (canvas) {
+    DOM.ev(canvas, `click`, App.handle_scope_click)
+  }
+}
+
 App.enable_scope_visualizer = () => {
   App.scope_enabled = true
   App.set_scope_visibility(true)
@@ -353,6 +391,7 @@ App.enable_scope_visualizer = () => {
   }
 
   App.try_start_scope_visualizer()
+  App.init_scope_click_handler()
 }
 
 App.disable_scope_visualizer = () => {
