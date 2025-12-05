@@ -33,9 +33,10 @@ App.scope_color = `rgba(204, 198, 239, 1)`
 App.scope_border_color = `#444`
 App.scope_sine_time = 0
 App.scope_clicks = []
-App.scope_click_color = `rgba(178, 178, 178, 0.9)`
-App.scope_click_time = 5 * 1000
+App.scope_click_color = `rgba(162, 171, 234, 0.5)`
+App.scope_click_time = 3 * 1000
 App.scope_click_size = 6
+App.scope_is_drawing = false
 
 App.get_scope_container = () => {
   if (!App.scope_container_el) {
@@ -228,6 +229,21 @@ App.handle_scope_click = (event) => {
   App.scope_clicks.push({x, y, timestamp: Date.now()})
 }
 
+App.handle_scope_mouse_down = (event) => {
+  App.scope_is_drawing = true
+  App.handle_scope_click(event)
+}
+
+App.handle_scope_mouse_move = (event) => {
+  if (App.scope_is_drawing) {
+    App.handle_scope_click(event)
+  }
+}
+
+App.handle_scope_mouse_up = () => {
+  App.scope_is_drawing = false
+}
+
 App.draw_scope_frame = () => {
   if (!App.scope_enabled) {
     App.stop_scope_loop()
@@ -375,7 +391,9 @@ App.init_scope_click_handler = () => {
   let canvas = App.get_scope_canvas()
 
   if (canvas) {
-    DOM.ev(canvas, `click`, App.handle_scope_click)
+    DOM.ev(canvas, `mousedown`, App.handle_scope_mouse_down)
+    DOM.ev(canvas, `mousemove`, App.handle_scope_mouse_move)
+    DOM.ev(window, `mouseup`, App.handle_scope_mouse_up)
   }
 }
 
