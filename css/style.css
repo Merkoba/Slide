@@ -601,3 +601,7 @@ a.popup:hover {
 .songs-list {
     scrollbar-color: #555 #2a2a2a;
 }
+
+.hidden {
+    display: none !important;
+}

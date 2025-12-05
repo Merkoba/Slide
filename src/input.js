@@ -298,6 +298,17 @@ App.init_code_input_controls = () => {
           App.toggle_max(`restore`)
         })
       }
+
+      DOM.ev(wrapper, `mouseover`, () => {
+        let max_button = DOM.el(`#code-input-max`)
+
+        if (App.input_is_maxed()) {
+          max_button.classList.add(`hidden`)
+        }
+        else {
+          max_button.classList.remove(`hidden`)
+        }
+      })
     }
 
     DOM.ev(code_input, `wheel`, (event) => {
