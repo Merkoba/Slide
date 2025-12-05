@@ -40,78 +40,14 @@ App.fetch_song_content = async (song_name) => {
 }
 
 App.open_songs_modal = async () => {
-  let modal = DOM.el(`#songs-modal`)
-  let songs_list = DOM.el(`#songs-list`)
-  let filter_input = DOM.el(`#songs-filter`)
+  let items = await App.fetch_songs_list()
 
-  modal.classList.add(`active`)
-  songs_list.innerHTML = `<div class="loading">Loading songs...</div>`
-
-  if (filter_input) {
-    filter_input.value = ``
-    filter_input.disabled = true
-    filter_input.oninput = null
-    filter_input.onkeydown = null
-  }
-
-  let songs = await App.fetch_songs_list()
-  App.cached_songs = songs
-
-  if (!songs.length) {
-    songs_list.innerHTML = `<div class="loading">No songs found</div>`
-    return
-  }
-
-  let render_songs = (list) => {
-    songs_list.innerHTML = ``
-
-    if (!list.length) {
-      songs_list.innerHTML = `<div class="loading">No matching songs</div>`
-      return
-    }
-
-    for (let song of list) {
-      let item = DOM.create(`div`)
-      item.className = `song-item`
-      item.textContent = App.underspace(song)
-      DOM.ev(item, `click`, () => App.load_song(song))
-      songs_list.appendChild(item)
-    }
-  }
-
-  render_songs(App.cached_songs)
-
-  if (!filter_input) {
-    return
-  }
-
-  let apply_filter = () => {
-    let query = filter_input.value.trim().toLowerCase()
-
-    if (!query) {
-      render_songs(App.cached_songs)
-      return
-    }
-
-    let filtered = App.cached_songs.filter((song) => song.toLowerCase().includes(query))
-    render_songs(filtered)
-  }
-
-  filter_input.disabled = false
-  filter_input.focus()
-  filter_input.oninput = apply_filter
-  filter_input.onkeydown = (event) => {
-    if (event.key !== `Enter`) {
-      return
-    }
-
-    event.preventDefault()
-    let first_item = DOM.els(`.song-item`, songs_list)
-
-    if (first_item) {
-      first_item.click()
-    }
-  }
+  App.show_items_modal(`songs`, {
+    items,
+    action: (item) => {
+      App.load_song(item)
+    },
+  })
 }
 
 App.close_songs_modal = () => {

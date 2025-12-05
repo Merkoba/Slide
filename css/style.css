@@ -384,12 +384,12 @@ button:hover {
     color: var(--green);
 }
 
-#songs-filter-wrapper {
+.modal-filter-wrapper {
     padding: 1rem;
     border-bottom: 1px solid #444;
 }
 
-#songs-filter {
+.modal-filter {
     width: 100%;
     padding: 0.6rem 0.8rem;
     border: 1px solid #555;
@@ -401,14 +401,12 @@ button:hover {
     outline: none;
 }
 
-#songs-filter:disabled {
+.modal-filter:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
-#modal-close,
-#about-close,
-#endpoint-close {
+.modal-close {
     background: transparent;
     border: none;
     font-size: 2rem;
@@ -422,20 +420,20 @@ button:hover {
     justify-content: center;
 }
 
-#modal-close:hover,
+.modal-close:hover,
 #about-close:hover,
 #endpoint-close:hover {
     color: #fff;
     box-shadow: none;
 }
 
-.songs-list {
+.modal-list {
     padding: 1rem;
     overflow-y: auto;
     max-height: 60vh;
 }
 
-.song-item {
+.modal-item {
     padding: 0.8rem;
     margin-bottom: 0.5rem;
     background-color: #333;
@@ -458,13 +456,13 @@ button:hover {
     color: #888;
 }
 
-#song-picker-title {
+.modal-picker-title {
     font-size: 1.2rem;
     color: var(--green);
     user-select: none;
 }
 
-#songs-list {
+.modal-list {
     user-select: none;
 }
 

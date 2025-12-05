@@ -83,15 +83,15 @@
             <div id="songs-modal" class="modal">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <div id="song-picker-title">Select a Song</div>
-                        <button id="modal-close">&times;</button>
+                        <div id="songs-picker-title" class="modal-picker-title">Select a Song</div>
+                        <button id="songs-close" class="modal-close">&times;</button>
                     </div>
 
-                    <div id="songs-filter-wrapper">
-                        <input id="songs-filter" type="text" placeholder="Filter songs..." autocomplete="off">
+                    <div id="songs-filter-wrapper" class="modal-filter-wrapper">
+                        <input id="songs-filter" class="modal-filter" type="text" placeholder="Filter songs..." autocomplete="off">
                     </div>
 
-                    <div id="songs-list" class="songs-list">
+                    <div id="songs-list" class="modal-list">
                         <div class="loading">Loading songs...</div>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ import './volume.js'
 import './tempo.js'
 import './scope.js'
 import './songs.js'
-import './popups.js'
+import './modals.js'
 
 const startAppEvents = () => {
   if (!window?.App?.start_events) {
