@@ -1,7 +1,6 @@
 import {getSuperdoughAudioController} from "superdough"
 
 App.volume_percent = 100
-App.volume_storage_key = `slide.volumePercent`
 App.volume_step = 1
 
 App.get_volume_slider = () => {

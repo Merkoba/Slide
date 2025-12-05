@@ -1,5 +1,4 @@
 App.tempo_cpm = App.default_cpm
-App.tempo_storage_key = `slide.tempoCpm`
 App.tempo_debounce_timer = undefined
 App.tempo_commit_delay_ms = 500
 App.min_tempo = 20

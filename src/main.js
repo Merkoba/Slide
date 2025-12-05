@@ -40,26 +40,19 @@ App.fetch_in_flight = false
 App.status_watch_cancelled = false
 App.default_cpm = 60
 App.tempo_cpm = App.default_cpm
-App.tempo_storage_key = `slide.tempoCpm`
 App.tempo_debounce_timer = undefined
 App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
-App.endpoint_storage_key = `slide.statusEndpoint`
 App.status_endpoint = `/status`
-App.code_scroll_frame = undefined
-App.code_scroll_last_ts = 0
-App.code_scroll_direction = 1
-App.code_scroll_active = false
-App.code_scroll_speed_px_per_second = 80
-App.code_scroll_pause_until = 0
-App.code_scroll_wheel_pause_ms = 350
-App.code_scroll_song_pause_ms = 1.2 * 1000
-App.code_scroll_pending_delay_ms = 0
 App.fetch_delay_seconds = 5
 
+App.tempo_storage_key = `slide.tempoCpm`
+App.endpoint_storage_key = `slide.statusEndpoint`
 App.fetch_delay_storage_key = `slide.fetchDelaySeconds`
+App.tempo_storage_key = `slide.tempoCpm`
+App.volume_storage_key = `slide.volumePercent`
 
 App.cycle_colors = [
   `#94dd94`,
@@ -304,11 +297,10 @@ App.clear_draw_context = () => {
   }
 }
 
-// 3. Export stop
-App.strudel_stop = () => {
+App.stop_strudel = () => {
   App.stop_color_cycle()
   App.clear_draw_context()
-  evaluate(`hush`)
+  scheduler.stop()
   App.clean_canvas()
 }
 
@@ -326,9 +318,10 @@ App.stop_status_watch = () => {
   App.clear_status_watch()
 }
 
-App.strudel_watch_status = (seconds) => {
-  if (Number.isFinite(seconds) && (seconds > 0)) {
-    App.fetch_delay_seconds = seconds
+App.strudel_watch_status = () => {
+  if (!App.strudel_watch_status) {
+    console.warn(`Polling function missing. Did strudel bundle load?`)
+    return
   }
 
   if (!App.fetch_delay_seconds || (App.fetch_delay_seconds <= 0)) {
@@ -583,13 +576,13 @@ App.apply_partial_update = async (code) => {
 }
 
 App.ensure_strudel_ready = async () => {
-  if (!window.strudel_init) {
+  if (!App.strudel_init) {
     App.set_status(`Bundle not loaded. Check console for errors`)
     console.error(`strudel.bundle.js is missing or failed to load`)
     return false
   }
 
-  await window.strudel_init()
+  await App.strudel_init()
   return true
 }
 
@@ -626,6 +619,7 @@ App.play_action = async (code = ``, force = false) => {
     return
   }
 
+  App.stop_strudel()
   App.restart_code_scroll()
   App.last_code = code
   App.clear_draw_context()
@@ -641,7 +635,7 @@ App.play_action = async (code = ``, force = false) => {
 }
 
 App.stop_action = () => {
-  if (!App.strudel_stop) {
+  if (!App.stop_strudel) {
     App.set_status(`Bundle not loaded. Cannot stop audio`)
     return
   }
@@ -650,31 +644,12 @@ App.stop_action = () => {
     App.strudel_stop_status_watch()
   }
 
-  App.strudel_stop()
+  App.stop_strudel()
   App.stop_code_scroll()
   App.last_code = null
   App.clear_draw_context()
   App.set_status(`Stopped`)
   App.set_song_context()
-}
-
-App.start_status_watch = () => {
-  if (!App.strudel_watch_status) {
-    console.warn(`Polling function missing. Did strudel bundle load?`)
-    return
-  }
-
-  let seconds = window.App && window.App.statusPollSeconds
-
-  if (!Number.isFinite(seconds) || (seconds <= 0)) {
-    let minutes = window.App && window.App.statusPollMinutes
-
-    if (Number.isFinite(minutes) && (minutes > 0)) {
-      seconds = minutes * 60
-    }
-  }
-
-  App.strudel_watch_status(seconds)
 }
 
 App.open_about_modal = () => {
@@ -747,7 +722,7 @@ App.start_auto_with_endpoint = async (endpoint) => {
     return
   }
 
-  App.start_status_watch()
+  App.strudel_watch_status()
   let display_endpoint = App.truncate_path(App.status_endpoint)
   App.set_status(`Auto mode running (${display_endpoint})`)
 }
@@ -1027,18 +1002,7 @@ App.clean_canvas = () => {
   }
 }
 
-// Export functions to window for use in HTML
-window.strudel_init = App.strudel_init
-window.strudel_update = App.strudel_update
-window.strudel_stop = App.strudel_stop
-window.strudel_watch_status = App.strudel_watch_status
-window.strudel_stop_status_watch = App.stop_status_watch
-
-// Expose hydra helpers (songs expect initHydra to be available globally)
 window.initHydra = initHydra
 window.clearHydra = clearHydra
-
-// H is a convenience helper used by hydra songs — rename locally to avoid collisions
 window.H = H_hydra
-
 window.App = App
