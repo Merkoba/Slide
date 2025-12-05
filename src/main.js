@@ -26,7 +26,6 @@ App.handle_eval_error = (err) => {
 const {evaluate, scheduler} = webaudioRepl({
   transpiler,
   onEvalError: (err) => {
-    App.set_song_context(song_name)
     App.handle_eval_error(err)
   },
 })
@@ -777,7 +776,7 @@ App.load_fetch_delay_from_storage = () => {
     if (stored) {
       let parsed = parseInt(stored, 10)
 
-      if (Number.isFinite(parsed) && parsed > 0) {
+      if (Number.isFinite(parsed) && (parsed > 0)) {
         App.fetch_delay_seconds = parsed
       }
     }

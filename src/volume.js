@@ -66,7 +66,7 @@ App.load_saved_volume = () => {
   try {
     const stored_value = window.localStorage?.getItem(App.volume_storage_key)
 
-    if (stored_value == null) {
+    if (stored_value === null) {
       return undefined
     }
 

@@ -82,7 +82,7 @@ App.load_saved_tempo = () => {
   try {
     let saved = window.localStorage?.getItem(App.tempo_storage_key)
 
-    if (saved == null) {
+    if (saved === null) {
       return undefined
     }
 
@@ -116,7 +116,7 @@ App.update_tempo = (cpm) => {
 App.on_tempo_change = (is_final = false, value_override = undefined) => {
   let source_value = value_override
 
-  if (source_value == null) {
+  if (source_value === null) {
     let slider = App.get_tempo_slider()
     source_value = slider?.value
   }
@@ -176,7 +176,7 @@ App.init_tempo_controls = () => {
 
     let slider_step = parseInt(slider.step, 10)
 
-    if (!Number.isFinite(slider_step) || slider_step <= 0) {
+    if (!Number.isFinite(slider_step) || (slider_step <= 0)) {
       slider_step = App.tempo_step
     }
 
