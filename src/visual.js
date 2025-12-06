@@ -40,12 +40,9 @@ App.get_visual_snippet = (mode) => {
       .lpf(saw.rangex(50,cosine.range(10,10).slow(6)).slow(8))
       .lpe(rand.range(3,6).slow(8))
       .lpq(saw.range(1,1).slow(8))
-      // .room(rand.range(0.1,1.5).slow(1))  // REMOVED - reverb can cause audio leaks
       .gain(".2")
-      // .dist("3:.17")  // REMOVED - distortion can bypass muting
       .hpf(rand.rangex(10,200).slow(8))
       .pan(rand)
-      // .delay(".1:0.5")  // REMOVED - delay can cause audio leaks
       .dry(0)  // MUTE AUDIO OUTPUT
     ,
       s(\` bd <~ bd> [~|hh] ~
@@ -56,15 +53,10 @@ App.get_visual_snippet = (mode) => {
       .end(rand.rangex(
         .01, tri.range(.1, .9).slow(4)
       ))
-      // .distort("2:.8")  // REMOVED - distortion can bypass muting
       .lpf(saw.rangex(
         cosine.range(4000,2000).slow(2), 5000).slow(8))
-      // .delay("<0.01@3 0.5>")  // REMOVED - delay effects
-      // .dt("[0.01|0.02|0.03]*4")  // REMOVED - delay time
-      // .dfb("0.4")  // REMOVED - delay feedback
-      // .room(saw.rangex(.001,.4).slow(4))  // REMOVED - reverb
       .dry(0)  // MUTE AUDIO OUTPUT
-    ).cpm(30).scope()
+    ).cpm(26).scope()
     `
   }
   else if (mode === `pianoroll`) {
@@ -75,10 +67,12 @@ App.get_visual_snippet = (mode) => {
 }
 
 App.apply_visual = (mode) => {
+  App.visual_code = ``
+  App.stop_visual()
   App.clean_canvas()
 
   if ([`auto`, `mode`].includes(mode)) {
-    return App
+    return
   }
 
   App.visual_code = App.get_visual_snippet(mode).trim()
@@ -86,5 +80,13 @@ App.apply_visual = (mode) => {
 }
 
 App.show_visual = () => {
+  if (!App.visual_code) {
+    return
+  }
+
   visual_evaluate(App.visual_code)
+}
+
+App.stop_visual = () => {
+  visual_scheduler.stop()
 }

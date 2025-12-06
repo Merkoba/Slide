@@ -931,23 +931,6 @@ App.underspace = (s) => {
   return s.replace(/_+/g, ` `).trim()
 }
 
-App.clean_canvas = () => {
-  let body = document.body
-  let children = Array.from(body.children)
-  let ignored_tags = [`script`, `style`]
-  let ignored_ids = [`overlay`, `main`]
-
-  for (let child of children) {
-    let tag = child.tagName.toLowerCase()
-
-    if (ignored_tags.includes(tag) || ignored_ids.includes(child.id)) {
-      continue
-    }
-
-    body.removeChild(child)
-  }
-}
-
 App.create_debouncer = (func, delay) => {
   if (typeof func !== `function`) {
     App.error(`Invalid debouncer function`)
