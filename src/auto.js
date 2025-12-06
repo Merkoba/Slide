@@ -85,12 +85,14 @@ App.create_auto_modal = () => {
   `
 
   body.appendChild(info)
+  body.appendChild(select)
   body.appendChild(input)
   body.appendChild(buttons)
 }
 
 App.open_auto_modal = () => {
   App.open_modal(`auto`)
+  DOM.el(`#auto-input`).value = App.auto_endpoint
 }
 
 App.start_auto = async (endpoint) => {
