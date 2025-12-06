@@ -221,6 +221,8 @@ const {evaluate, scheduler} = webaudioRepl({
   },
 })
 
+App.scheduler = scheduler
+
 App.app_name = `Slide`
 App.song_query_key = `song`
 App.cpm_query_key = `cpm`
@@ -438,40 +440,11 @@ App.playing = (extra) => {
 
 App.set_tempo = () => {
   try {
-    scheduler.setCps(App.tempo / 60)
+    App.scheduler.setCps(App.tempo / 60)
   }
   catch (err) {
     console.debug(`Tempo will be applied when audio starts`, err)
   }
-}
-
-// 2. Export the update function
-App.strudel_update = async (code) => {
-  if (!App.audio_started) {
-    console.warn(`Audio not started yet. Call strudel_init() first.`)
-    return
-  }
-
-  console.info(`Updating 💨`)
-  await App.ensure_scope()
-
-  App.set_tempo()
-  const full_result = await App.run_eval(code)
-
-  if (full_result.ok) {
-    App.playing()
-    return
-  }
-
-  if (App.do_partial_updates) {
-    const partial_applied = await App.apply_partial_update(code)
-
-    if (partial_applied) {
-      return
-    }
-  }
-
-  App.report_eval_failure(full_result.error)
 }
 
 App.clear_draw_context = () => {
@@ -486,7 +459,7 @@ App.clear_draw_context = () => {
 App.stop_strudel = () => {
   App.stop_color_cycle()
   App.clear_draw_context()
-  scheduler.stop()
+  App.scheduler.stop()
   App.clean_canvas()
 }
 
