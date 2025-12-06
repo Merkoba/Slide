@@ -406,7 +406,6 @@ App.strudel_init = async () => {
 
     App.audio_started = true
     App.apply_volume()
-    App.try_start_scope_visualizer()
     console.info(`Audio Ready.`)
 
     if (App.code_to_play) {

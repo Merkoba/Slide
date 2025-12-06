@@ -39,6 +39,8 @@ App.setup_scope = () => {
   App.init_scope_checkbox()
   App.setup_scope_canvas()
 
+  App.start_scope_visualizer()
+
   if (App.scope_enabled) {
     App.set_scope_visibility(true)
   }
@@ -437,31 +439,21 @@ App.stop_scope_visualizer = () => {
   App.clear_scope_canvas()
 }
 
-App.try_start_scope_visualizer = () => {
-  if (!App.scope_enabled || !App.audio_started) {
-    return
-  }
-
+App.start_scope_visualizer = () => {
   let canvas = App.setup_scope_canvas()
 
   if (!canvas) {
     return
   }
 
-  if (!App.ensure_scope_analyser()) {
-    return
-  }
-
   if (!App.scope_connected) {
-    let connected = App.connect_scope_analyser()
-
-    if (!connected) {
-      return
-    }
+    App.connect_scope_analyser()
   }
 
-  App.clear_scope_canvas()
-  App.start_scope_loop()
+  if (App.scope_enabled) {
+    App.clear_scope_canvas()
+    App.start_scope_loop()
+  }
 }
 
 App.init_scope_click_handler = () => {
@@ -495,7 +487,7 @@ App.enable_scope_visualizer = () => {
     App.start_scope_loop()
   }
 
-  App.try_start_scope_visualizer()
+  App.start_scope_visualizer()
   App.init_scope_click_handler()
   App.stor_save_scope()
 }
