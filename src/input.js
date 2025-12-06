@@ -112,9 +112,18 @@ App.code_scroll_tick = (timestamp) => {
   App.code_scroll_last_ts = timestamp
   let distance = (App.code_scroll_speed_px_per_second * delta) / 1000
   let target = input.scrollTop + (distance * App.code_scroll_direction)
-  input.scrollTop = target
 
   let max_scroll = Math.max(0, input.scrollHeight - input.clientHeight)
+  let buffer = 2 // Small buffer to ensure boundary crossing
+
+  if ((App.code_scroll_direction > 0) && (target >= max_scroll)) {
+    target = max_scroll + buffer
+  }
+  else if ((App.code_scroll_direction < 0) && (target <= 0)) {
+    target = -buffer
+  }
+
+  input.scrollTop = target
 
   if (max_scroll <= 0) {
     App.stop_code_scroll()
@@ -124,8 +133,7 @@ App.code_scroll_tick = (timestamp) => {
   if (input.scrollTop >= max_scroll) {
     input.scrollTop = max_scroll
     App.reset_code_scroll_for_content({direction: -1})
-  }
-  else if (input.scrollTop <= 0) {
+  } else if (input.scrollTop <= 0) {
     input.scrollTop = 0
     App.reset_code_scroll_for_content({direction: 1})
   }
