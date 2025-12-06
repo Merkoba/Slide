@@ -11,7 +11,7 @@ App.clean_canvas = () => {
   let canvases = DOM.els(`canvas`)
 
   for (let canvas of canvases) {
-    if ([`scope-canvas`].includes(canvas.id)) {
+    if ([`scope-canvas`, `background-canvas`].includes(canvas.id)) {
       continue
     }
 
