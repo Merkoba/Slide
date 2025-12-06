@@ -294,6 +294,7 @@ App.handle_scope_mouse_up = (event) => {
 
   if ((Date.now() - App.scope_mousedown_date) <= App.scope_beep_delay) {
     App.beep_sound()
+    App.splash_reverb(3)
   }
 
   if ((Date.now() - App.scope_mousedown_date) <= App.scope_slide_delay) {

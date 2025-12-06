@@ -46,14 +46,18 @@ App.get_audio_context = () => {
   return App.audio_context
 }
 
-App.add_reverb = (seconds) => {
-  window.master_fx.splash_reverb(seconds)
+App.splash_reverb = (seconds) => {
+  master_fx.splash_reverb(seconds)
 }
 
 App.set_panning = (value) => {
-  window.master_fx.set_panning(value)
+  master_fx.set_panning(value)
 }
 
 App.set_gain = (value) => {
-  window.master_fx.set_volume(value)
+  master_fx.set_volume(value)
+}
+
+App.set_eq = (low, mid, high) => {
+  master_fx.set_eq_freqs(low, mid, high)
 }

@@ -3,7 +3,7 @@ const App = {};
 (function() {
   let OriginalAudioContext = window.AudioContext || window.webkitAudioContext
 
-  // helper to generate a reverb impulse (simple noise decay)
+  // helper to generate a reverb impulse
   function create_reverb_buffer(ctx, duration = 3, decay = 2) {
     let rate = ctx.sampleRate
     let length = rate * duration
@@ -12,13 +12,12 @@ const App = {};
     let right = impulse.getChannelData(1)
 
     for (let i = 0; i < length; i++) {
-      // create noise with exponential decay
       let n = i / length
       let volume = Math.pow(1 - n, decay)
-      // white noise * volume
       left[i] = (Math.random() * 2 - 1) * volume
       right[i] = (Math.random() * 2 - 1) * volume
     }
+
     return impulse
   }
 
@@ -26,40 +25,55 @@ const App = {};
     constructor(...args) {
       super(...args)
       let ctx = this
-      console.log('Intercepted new AudioContext with FX')
+      console.log('Intercepted AudioContext: EQ + FX Ready')
 
       // --- 1. Create Nodes ---
 
-      // low shelf (EQ)
-      let low_shelf = ctx.createBiquadFilter()
-      low_shelf.type = 'lowshelf'
-      low_shelf.frequency.value = 320
-      low_shelf.gain.value = 3
+      // EQ: Low (Bass)
+      let eq_low = ctx.createBiquadFilter()
+      eq_low.type = 'lowshelf'
+      eq_low.frequency.value = 320
+      eq_low.gain.value = 0
 
-      // panning ("padding"?)
+      // EQ: Mid (Presence)
+      let eq_mid = ctx.createBiquadFilter()
+      eq_mid.type = 'peaking'
+      eq_mid.frequency.value = 1000
+      eq_mid.Q.value = 1.0
+      eq_mid.gain.value = 0
+
+      // EQ: High (Treble)
+      let eq_high = ctx.createBiquadFilter()
+      eq_high.type = 'highshelf'
+      eq_high.frequency.value = 4000
+      eq_high.gain.value = 0
+
+      // Panning
       let panner = ctx.createStereoPanner()
-      panner.pan.value = 0 // -1 (left) to 1 (right)
+      panner.pan.value = 0
 
-      // reverb (convolver)
+      // Reverb
       let convolver = ctx.createConvolver()
-      convolver.buffer = create_reverb_buffer(ctx) // generate 3s reverb
+      convolver.buffer = create_reverb_buffer(ctx)
 
-      // reverb volume (wet mix)
       let reverb_gain = ctx.createGain()
-      reverb_gain.gain.value = 0 // start with reverb off
+      reverb_gain.gain.value = 0
 
-      // master volume
+      // Master Volume
       let master_gain = ctx.createGain()
 
       // --- 2. Routing ---
 
-      // DRY PATH: Input -> LowShelf -> Panner -> Master -> Output
-      // We start logically at low_shelf (which we pretend is destination)
-      low_shelf.connect(panner)
+      // Chain: Input -> Low -> Mid -> High -> Panner
+      // Note: We expose 'eq_low' as the fake destination so Strudel connects there first
+      eq_low.connect(eq_mid)
+      eq_mid.connect(eq_high)
+      eq_high.connect(panner)
+
+      // Dry Path: Panner -> Master -> Output
       panner.connect(master_gain)
 
-      // WET PATH (Reverb): Panner -> Convolver -> ReverbGain -> Master
-      // We branch off after the panner so reverb follows the stereo position
+      // Wet Path (Reverb): Panner -> Convolver -> ReverbGain -> Master
       panner.connect(convolver)
       convolver.connect(reverb_gain)
       reverb_gain.connect(master_gain)
@@ -67,57 +81,57 @@ const App = {};
       // Final connection to hardware
       master_gain.connect(super.destination)
 
-      // --- 3. Strudel Compatibility Hacks ---
+      // --- 3. Strudel Compatibility ---
 
-      // forward maxChannelCount to the input node
-      Object.defineProperty(low_shelf, 'maxChannelCount', {
+      // Forward maxChannelCount to the first node in the chain
+      Object.defineProperty(eq_low, 'maxChannelCount', {
         get: () => super.destination.maxChannelCount
       })
 
-      // intercept the destination property
       Object.defineProperty(ctx, 'destination', {
-        get: () => low_shelf,
+        get: () => eq_low,
         configurable: true
       })
 
-      // --- 4. Expose Controls to Window ---
+      // --- 4. Expose Controls ---
 
       window.master_fx = {
-        // Change Master Volume
+        // Set EQ Gains (in Decibels)
+        // Usage: window.master_fx.set_eq(5, 0, 2) // Boost bass +5, flat mid, boost high +2
+        set_eq: (low_db, mid_db, high_db) => {
+          let now = ctx.currentTime
+          let ramp = 0.1 // smooth transition time
+
+          if (low_db !== undefined) eq_low.gain.setTargetAtTime(low_db, now, ramp)
+          if (mid_db !== undefined) eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
+          if (high_db !== undefined) eq_high.gain.setTargetAtTime(high_db, now, ramp)
+
+          console.log(`EQ Set: L:${eq_low.gain.value.toFixed(1)} M:${eq_mid.gain.value.toFixed(1)} H:${eq_high.gain.value.toFixed(1)}`)
+        },
+
+        // Helper to change EQ frequencies if needed
+        set_eq_freqs: (low_hz, mid_hz, high_hz) => {
+          let now = ctx.currentTime
+          if (low_hz) eq_low.frequency.setTargetAtTime(low_hz, now, 0.1)
+          if (mid_hz) eq_mid.frequency.setTargetAtTime(mid_hz, now, 0.1)
+          if (high_hz) eq_high.frequency.setTargetAtTime(high_hz, now, 0.1)
+        },
+
         set_volume: (val) => {
-          let now = ctx.currentTime
-          master_gain.gain.setTargetAtTime(val, now, 0.1)
-          console.log(`Volume set to ${val}`)
+          master_gain.gain.setTargetAtTime(val, ctx.currentTime, 0.1)
         },
 
-        // Change Panning (-1 to 1)
         set_panning: (val) => {
-          let now = ctx.currentTime
-          panner.pan.setTargetAtTime(val, now, 0.1)
-          console.log(`Panning set to ${val}`)
+          panner.pan.setTargetAtTime(val, ctx.currentTime, 0.1)
         },
 
-        // Enable Reverb for X seconds then fade out
         splash_reverb: (duration = 3) => {
           let now = ctx.currentTime
-
-          // fade in reverb to 0.5 volume quickly
           reverb_gain.gain.cancelScheduledValues(now)
           reverb_gain.gain.setValueAtTime(0, now)
           reverb_gain.gain.linearRampToValueAtTime(0.5, now + 0.1)
-
-          console.log("Reverb attached")
-
-          // schedule fade out after duration
           reverb_gain.gain.setTargetAtTime(0, now + duration, 0.5)
-
-          setTimeout(() => {
-             console.log("Reverb detaching...")
-          }, duration * 1000)
-        },
-
-        // Direct access if you need to tweak specific nodes
-        nodes: {low_shelf, panner, reverb_gain, master_gain}
+        }
       }
     }
   }
