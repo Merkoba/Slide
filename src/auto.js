@@ -3,10 +3,9 @@ App.create_auto_modal = () => {
   let title = DOM.el(`.modal-title`, modal)
   title.textContent = `Auto Mode`
   let body = DOM.el(`.modal-body`, modal)
-  let info = DOM.create(`div`)
+  let info = DOM.create(`div`, ``, `auto-info`)
   info.textContent = `Code will be fetched periodically`
-  let select = DOM.create(`select`)
-  select.id = `auto-delay-select`
+  let select = DOM.create(`select`, ``, `auto-delay-select`)
 
   select.innerHTML = `
     <option value="1">1 second</option>
@@ -22,8 +21,8 @@ App.create_auto_modal = () => {
     <option value="3600">1 hour</option>
   `
 
-  let input = DOM.create(`input`)
-  input.id = `auto-input`
+  let input = DOM.create(`input`, ``, `auto-input`)
+  input.classList.add(`modal-input`)
   input.placeholder = `Endpoint URL`
   let buttons = DOM.create(`auto-buttons`)
 

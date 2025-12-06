@@ -484,10 +484,13 @@ button:hover {
 }
 
 .modal-body {
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
     font-size: 1rem;
     line-height: 1.4;
     color: #ddd;
+    gap: 1rem;
 }
 
 .modal-body p {
@@ -507,24 +510,7 @@ a.popup:hover {
     font-weight: bold;
 }
 
-#endpoint-modal .modal-content {
-    max-width: 500px;
-}
-
-#endpoint-title {
-    font-size: 1.2rem;
-    color: var(--green);
-    user-select: none;
-}
-
-#endpoint-body {
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-#endpoint-input {
+.modal-input {
     width: 100%;
     padding: 0.8rem;
     border: 1px solid #555;

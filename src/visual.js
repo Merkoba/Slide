@@ -33,24 +33,21 @@ App.get_visual_snippet = (mode) => {
     return `
     stack(
       n("[0 .. 11]")
-
-      // .chord("<Fm Fm7 Fm9 Fm11>".slow(2))
       .chord("<<[Fm7|Fm9|Fm11] <Ab7 Ab9>> Cm7 Ebm9 <F7 Dm7 B>>".slow(2))
-
       .voicing()
       .add(note("-12, -24.2, <.1 [.1, 12.1]>".slow(8)))
       .s("square, triangle, sawtooth".fast(8))
       .lpf(saw.rangex(50,cosine.range(10,10).slow(6)).slow(8))
       .lpe(rand.range(3,6).slow(8))
       .lpq(saw.range(1,1).slow(8))
-      .room(rand.range(0.1,1.5).slow(1))
+      // .room(rand.range(0.1,1.5).slow(1))  // REMOVED - reverb can cause audio leaks
       .gain(".2")
-      .dist("3:.17")
+      // .dist("3:.17")  // REMOVED - distortion can bypass muting
       .hpf(rand.rangex(10,200).slow(8))
       .pan(rand)
-      .delay(".1:0.5")
+      // .delay(".1:0.5")  // REMOVED - delay can cause audio leaks
+      .dry(0)  // MUTE AUDIO OUTPUT
     ,
-      // --------------------------------------//
       s(\` bd <~ bd> [~|hh] ~
           hh ~ [hh|bd] [~|bd]
           [sd|cp] ~ [~|hh|bd] [hh|oh]
@@ -59,15 +56,15 @@ App.get_visual_snippet = (mode) => {
       .end(rand.rangex(
         .01, tri.range(.1, .9).slow(4)
       ))
-      .distort("2:.8")
+      // .distort("2:.8")  // REMOVED - distortion can bypass muting
       .lpf(saw.rangex(
         cosine.range(4000,2000).slow(2), 5000).slow(8))
-
-      .delay("<0.01@3 0.5>")
-      .dt("[0.01|0.02|0.03]*4")
-      .dfb("0.4")
-      .room(saw.rangex(.001,.4).slow(4))
-    ).cpm(10).scope().analyze().gain(0)
+      // .delay("<0.01@3 0.5>")  // REMOVED - delay effects
+      // .dt("[0.01|0.02|0.03]*4")  // REMOVED - delay time
+      // .dfb("0.4")  // REMOVED - delay feedback
+      // .room(saw.rangex(.001,.4).slow(4))  // REMOVED - reverb
+      .dry(0)  // MUTE AUDIO OUTPUT
+    ).cpm(30).scope()
     `
   }
   else if (mode === `pianoroll`) {
@@ -89,5 +86,5 @@ App.apply_visual = (mode) => {
 }
 
 App.show_visual = () => {
-  visual_scheduler.setPattern(App.visual_code)
+  visual_evaluate(App.visual_code)
 }
