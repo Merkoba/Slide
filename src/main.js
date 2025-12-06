@@ -45,7 +45,6 @@ App.is_playing = false
 App.color_index = 0
 App.color_cycle_timer = undefined
 App.do_partial_updates = false
-App.status_endpoint = `/status`
 App.fetch_delay_seconds = 5
 
 App.tempo_storage_key = `slide.tempoCpm`
@@ -306,96 +305,6 @@ App.stop_strudel = () => {
   App.clear_draw_context()
   scheduler.stop()
   App.clean_canvas()
-}
-
-App.fetch_status_code = async () => {
-  const response = await fetch(App.status_endpoint, {cache: `no-store`})
-
-  if (!response.ok) {
-    throw new Error(`Status endpoint returned ${response.status}`)
-  }
-
-  return response.text()
-}
-
-App.stop_status_watch = () => {
-  App.clear_status_watch()
-}
-
-App.strudel_watch_status = () => {
-  if (!App.strudel_watch_status) {
-    console.warn(`Polling function missing. Did strudel bundle load?`)
-    return
-  }
-
-  if (!App.fetch_delay_seconds || (App.fetch_delay_seconds <= 0)) {
-    console.error(`Provide a fetch interval in seconds greater than zero`)
-    return
-  }
-
-  App.status_watch_cancelled = false
-  const interval_ms = App.fetch_delay_seconds * 1000
-
-  const fetch_status = async () => {
-    console.info(`Fetching status...`)
-
-    if (App.fetch_in_flight) {
-      return
-    }
-
-    App.fetch_in_flight = true
-
-    try {
-      const code = await App.fetch_status_code()
-      const next_code = code.trim()
-
-      if (!next_code) {
-        return
-      }
-
-      if (App.status_watch_cancelled) {
-        console.info(`Status watch was cancelled, skipping play action`)
-        return
-      }
-
-      App.set_song_context()
-
-      if (!App.audio_started) {
-        App.code_to_play = next_code
-      }
-      else {
-        await App.play_action(next_code)
-      }
-    }
-    catch (err) {
-      console.error(`Failed to update Strudel status`, err)
-    }
-    finally {
-      App.fetch_in_flight = false
-    }
-  }
-
-  App.clear_status_watch(false) // Don't set cancelled flag for restart
-  fetch_status()
-
-  App.fetch_timer = setInterval(() => {
-    fetch_status()
-  }, interval_ms)
-
-  console.info(`Interval started.`)
-}
-
-App.set_status = (status) => {
-  if (!App.status_debouncer) {
-    return
-  }
-
-  App.status_debouncer.call(status)
-}
-
-App.do_set_status = (status) => {
-  let status_el = DOM.el(`#status`)
-  status_el.innerText = status
 }
 
 App.reset_eval_state = () => {
@@ -664,79 +573,6 @@ App.stop_action = () => {
   App.set_song_context()
 }
 
-App.close_endpoint_modal = () => {
-  let modal = DOM.el(`#endpoint-modal`)
-
-  if (!modal) {
-    return
-  }
-
-  modal.classList.remove(`active`)
-}
-
-App.truncate_path = (path, max_length = 20) => {
-  if (path.length <= max_length) {
-    return path
-  }
-
-  return path.substring(0, max_length) + `...`
-}
-
-App.start_auto_with_endpoint = async (endpoint) => {
-  App.close_endpoint_modal()
-
-  if (!endpoint || !endpoint.trim()) {
-    App.set_status(`Invalid endpoint`)
-    return
-  }
-
-  App.status_endpoint = endpoint.trim()
-  localStorage.setItem(App.endpoint_storage_key, App.status_endpoint)
-  let ready = await App.ensure_strudel_ready()
-
-  if (!ready) {
-    return
-  }
-
-  App.strudel_watch_status()
-  let display_endpoint = App.truncate_path(App.status_endpoint)
-  App.set_status(`Auto mode running (${display_endpoint})`)
-}
-
-App.load_endpoint_from_storage = () => {
-  let stored_endpoint = localStorage.getItem(App.endpoint_storage_key)
-
-  if (stored_endpoint) {
-    App.status_endpoint = stored_endpoint
-  }
-}
-
-App.persist_fetch_delay = () => {
-  try {
-    localStorage.setItem(App.fetch_delay_storage_key, `${App.fetch_delay_seconds}`)
-  }
-  catch (err) {
-    console.warn(`Failed to persist fetch delay`, err)
-  }
-}
-
-App.load_fetch_delay_from_storage = () => {
-  try {
-    let stored = localStorage.getItem(App.fetch_delay_storage_key)
-
-    if (stored) {
-      let parsed = parseInt(stored, 10)
-
-      if (Number.isFinite(parsed) && (parsed > 0)) {
-        App.fetch_delay_seconds = parsed
-      }
-    }
-  }
-  catch (err) {
-    console.warn(`Failed to load fetch delay`, err)
-  }
-}
-
 App.start_events = () => {
   if (App.events_started) {
     return
@@ -781,55 +617,7 @@ App.start_events = () => {
     })
   }
 
-  let endpoint_start = DOM.el(`#endpoint-start`)
-
-  if (endpoint_start) {
-    DOM.ev(endpoint_start, `click`, () => {
-      let input = DOM.el(`#endpoint-input`)
-
-      if (input) {
-        App.start_auto_with_endpoint(input.value)
-      }
-    })
-  }
-
-  let endpoint_default = DOM.el(`#endpoint-default`)
-
-  if (endpoint_default) {
-    DOM.ev(endpoint_default, `click`, () => {
-      App.start_auto_with_endpoint(`/status`)
-    })
-  }
-
-  let endpoint_input = DOM.el(`#endpoint-input`)
-
-  if (endpoint_input) {
-    DOM.ev(endpoint_input, `keydown`, (event) => {
-      if (event.key === `Enter`) {
-        event.preventDefault()
-        let input = DOM.el(`#endpoint-input`)
-
-        if (input) {
-          App.start_auto_with_endpoint(input.value)
-        }
-      }
-    })
-  }
-
-  let endpoint_delay_select = DOM.el(`#endpoint-delay-select`)
-
-  if (endpoint_delay_select) {
-    DOM.ev(endpoint_delay_select, `change`, (event) => {
-      App.fetch_delay_seconds = parseInt(event.target.value, 10)
-      App.persist_fetch_delay()
-
-      // Restart interval if it's currently running
-      if (App.fetch_timer) {
-        App.strudel_watch_status()
-      }
-    })
-  }
-
+  App.setup_auto()
   App.init_volume_controls()
   App.init_tempo_controls()
   App.init_code_input_controls()

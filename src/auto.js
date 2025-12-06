@@ -1,3 +1,56 @@
+App.auto_endpoint = `/status`
+
+App.setup_auto = () => {
+  let auto_start = DOM.el(`#auto-start`)
+
+  if (auto_start) {
+    DOM.ev(auto_start, `click`, () => {
+      let input = DOM.el(`#auto-input`)
+
+      if (input) {
+        App.start_auto(input.value)
+      }
+    })
+  }
+
+  let auto_default = DOM.el(`#auto-default`)
+
+  if (auto_default) {
+    DOM.ev(auto_default, `click`, () => {
+      App.start_auto(`/status`)
+    })
+  }
+
+  let auto_input = DOM.el(`#auto-input`)
+
+  if (auto_input) {
+    DOM.ev(auto_input, `keydown`, (event) => {
+      if (event.key === `Enter`) {
+        event.preventDefault()
+        let input = DOM.el(`#auto-input`)
+
+        if (input) {
+          App.start_auto(input.value)
+        }
+      }
+    })
+  }
+
+  let auto_delay_select = DOM.el(`#auto-delay-select`)
+
+  if (auto_delay_select) {
+    DOM.ev(auto_delay_select, `change`, (event) => {
+      App.fetch_delay_seconds = parseInt(event.target.value, 10)
+      App.persist_fetch_delay()
+
+      // Restart interval if it's currently running
+      if (App.fetch_timer) {
+        App.strudel_watch_status()
+      }
+    })
+  }
+}
+
 App.create_auto_modal = () => {
   let modal = App.create_modal(`auto`)
   let title = DOM.el(`.modal-title`, modal)
@@ -27,8 +80,8 @@ App.create_auto_modal = () => {
   let buttons = DOM.create(`auto-buttons`)
 
   buttons.innerHTML = `
-    <button id="endpoint-default">Default</button>
-    <button id="endpoint-start">Start</button>
+    <button id="auto-default">Default</button>
+    <button id="auto-start">Start</button>
   `
 
   body.appendChild(info)
@@ -38,4 +91,149 @@ App.create_auto_modal = () => {
 
 App.open_auto_modal = () => {
   App.open_modal(`auto`)
+}
+
+App.start_auto = async (endpoint) => {
+  App.close_modal(`auto`)
+
+  if (!endpoint || !endpoint.trim()) {
+    App.set_status(`Invalid endpoint`)
+    return
+  }
+
+  App.auto_endpoint = endpoint.trim()
+  localStorage.setItem(App.endpoint_storage_key, App.auto_endpoint)
+  let ready = await App.ensure_strudel_ready()
+
+  if (!ready) {
+    return
+  }
+
+  App.strudel_watch_status()
+  let display_endpoint = App.truncate_path(App.auto_endpoint)
+  App.set_status(`Auto mode running (${display_endpoint})`)
+}
+
+App.load_endpoint_from_storage = () => {
+  let stored_endpoint = localStorage.getItem(App.endpoint_storage_key)
+
+  if (stored_endpoint) {
+    App.auto_endpoint = stored_endpoint
+  }
+}
+
+App.persist_fetch_delay = () => {
+  try {
+    localStorage.setItem(App.fetch_delay_storage_key, `${App.fetch_delay_seconds}`)
+  }
+  catch (err) {
+    console.warn(`Failed to persist fetch delay`, err)
+  }
+}
+
+App.load_fetch_delay_from_storage = () => {
+  try {
+    let stored = localStorage.getItem(App.fetch_delay_storage_key)
+
+    if (stored) {
+      let parsed = parseInt(stored, 10)
+
+      if (Number.isFinite(parsed) && (parsed > 0)) {
+        App.fetch_delay_seconds = parsed
+      }
+    }
+  }
+  catch (err) {
+    console.warn(`Failed to load fetch delay`, err)
+  }
+}
+
+App.fetch_status_code = async () => {
+  const response = await fetch(App.auto_endpoint, {cache: `no-store`})
+
+  if (!response.ok) {
+    throw new Error(`Status endpoint returned ${response.status}`)
+  }
+
+  return response.text()
+}
+
+App.stop_status_watch = () => {
+  App.clear_status_watch()
+}
+
+App.strudel_watch_status = () => {
+  if (!App.strudel_watch_status) {
+    console.warn(`Polling function missing. Did strudel bundle load?`)
+    return
+  }
+
+  if (!App.fetch_delay_seconds || (App.fetch_delay_seconds <= 0)) {
+    console.error(`Provide a fetch interval in seconds greater than zero`)
+    return
+  }
+
+  App.status_watch_cancelled = false
+  const interval_ms = App.fetch_delay_seconds * 1000
+
+  const fetch_status = async () => {
+    console.info(`Fetching status...`)
+
+    if (App.fetch_in_flight) {
+      return
+    }
+
+    App.fetch_in_flight = true
+
+    try {
+      const code = await App.fetch_status_code()
+      const next_code = code.trim()
+
+      if (!next_code) {
+        return
+      }
+
+      if (App.status_watch_cancelled) {
+        console.info(`Status watch was cancelled, skipping play action`)
+        return
+      }
+
+      App.set_song_context()
+
+      if (!App.audio_started) {
+        App.code_to_play = next_code
+      }
+      else {
+        await App.play_action(next_code)
+      }
+    }
+    catch (err) {
+      console.error(`Failed to update Strudel status`, err)
+    }
+    finally {
+      App.fetch_in_flight = false
+    }
+  }
+
+  App.clear_status_watch(false) // Don't set cancelled flag for restart
+  fetch_status()
+
+  App.fetch_timer = setInterval(() => {
+    fetch_status()
+  }, interval_ms)
+
+  console.info(`Interval started.`)
+}
+
+App.set_status = (status) => {
+  if (!App.status_debouncer) {
+    return
+  }
+
+  App.status_debouncer.call(status)
+}
+
+App.do_set_status = (status) => {
+  let status_el = DOM.el(`#status`)
+  status_el.innerText = status
 }
