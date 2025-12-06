@@ -1,5 +1,7 @@
 const App = {};
 
+// ---------------------------
+
 (function() {
   let OriginalAudioContext = window.AudioContext || window.webkitAudioContext
 
@@ -17,6 +19,7 @@ const App = {};
       left[i] = (Math.random() * 2 - 1) * volume
       right[i] = (Math.random() * 2 - 1) * volume
     }
+
     return impulse
   }
 
@@ -32,7 +35,8 @@ const App = {};
 
       if (is_main_context) {
         console.log(`Intercepted MAIN AudioContext (Master FX Active)`)
-      } else {
+      }
+      else {
         console.log(`Intercepted SECONDARY AudioContext`)
       }
 
@@ -91,13 +95,13 @@ const App = {};
 
       // Proxy 'maxChannelCount' from real hardware so Strudel doesn't crash
       Object.defineProperty(eq_low, `maxChannelCount`, {
-        get: () => super.destination.maxChannelCount
+        get: () => super.destination.maxChannelCount,
       })
 
       // Redirect 'destination' to our input node (eq_low)
       Object.defineProperty(ctx, `destination`, {
         get: () => eq_low,
-        configurable: true
+        configurable: true,
       })
 
       // --- 4. Expose Controls (Only for Main Context) ---
@@ -107,14 +111,24 @@ const App = {};
           // EXPOSED CONTEXT: This allows other apps to find and reuse this context
           context: ctx,
 
-          nodes: { eq_low, eq_mid, eq_high, panner, reverb_gain, master_gain },
+          nodes: {eq_low, eq_mid, eq_high, panner, reverb_gain, master_gain},
 
           set_eq: (low_db, mid_db, high_db) => {
             let now = ctx.currentTime
             let ramp = 0.1
-            if (low_db !== undefined) eq_low.gain.setTargetAtTime(low_db, now, ramp)
-            if (mid_db !== undefined) eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
-            if (high_db !== undefined) eq_high.gain.setTargetAtTime(high_db, now, ramp)
+
+            if (low_db !== undefined) {
+              eq_low.gain.setTargetAtTime(low_db, now, ramp)
+            }
+
+            if (mid_db !== undefined) {
+              eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
+            }
+
+            if (high_db !== undefined) {
+              eq_high.gain.setTargetAtTime(high_db, now, ramp)
+            }
+
             console.log(`EQ: L ${eq_low.gain.value} | M ${eq_mid.gain.value} | H ${eq_high.gain.value}`)
           },
 
@@ -153,6 +167,8 @@ const App = {};
     window.webkitAudioContext = InterceptedAudioContext
   }
 })()
+
+// ---------------------------
 
 import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
