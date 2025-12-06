@@ -593,6 +593,10 @@ a.popup:hover {
     display: none !important;
 }
 
+.hidden_2 {
+    display: none !important;
+}
+
 .top-button {
     padding-left: 5px;
     padding-right: 5px;

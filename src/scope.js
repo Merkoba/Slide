@@ -109,9 +109,15 @@ App.setup_scope_canvas = () => {
 }
 
 App.resize_scope_canvas = () => {
+  if (!App.scope_enabled) {
+    return
+  }
+
   if (!App.scope_canvas_el || !App.scope_canvas_ctx) {
     return
   }
+
+  DOM.show(`#scope-container`, 2)
 
   let ratio = 1
 
