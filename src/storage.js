@@ -7,25 +7,25 @@ App.volume_storage_key = `slide.volumePercent`
 App.load_all_storage = () => {
   App.stor_load_auto_endpoint()
   App.stor_load_auto_delay()
-  App.stor_load_song()
 }
 
 App.stor_load_auto_endpoint = () => {
-  App.load_storage(`endpoint`, App.auto_endpoint)
+  App.load_storage(`endpoint`,
+    (value) => {
+      App.auto_endpoint = value
+    }
+  )
 }
 
 App.stor_load_auto_delay = () => {
-  App.load_storage(`delay`, App.auto_delay)
+  App.load_storage(`delay`,
+    (value) => {
+      App.auto_delay = value
+    }
+  )
 }
 
-App.stor_load_song = () => {
-  App.load_storage(`song`, App.auto_delay)
-}
-
-App.load_storage = (what, the_variable) => {
+App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
-
-  if (value) {
-    the_variable = value
-  }
+  on_value(value)
 }
