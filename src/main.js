@@ -28,21 +28,17 @@ const App = {};
       super(...args)
       let ctx = this
 
-      // Check if global controls already exist.
-      // If they do, this is likely a secondary context (like a temporary beep)
-      // and we should NOT overwrite the global controls.
       const is_main_context = !window.master_fx
 
       if (is_main_context) {
-        console.log(`Intercepted MAIN AudioContext (Master FX Active)`)
-      }
-      else {
+        console.log(`Intercepted MAIN AudioContext (Clean Signal Mode)`)
+      } else {
         console.log(`Intercepted SECONDARY AudioContext`)
       }
 
       // --- 1. Create Nodes ---
 
-      // 3-Band EQ
+      // 3-Band EQ (Neutral by default)
       let eq_low = ctx.createBiquadFilter()
       eq_low.type = `lowshelf`
       eq_low.frequency.value = 320
@@ -63,14 +59,14 @@ const App = {};
       let panner = ctx.createStereoPanner()
       panner.pan.value = 0
 
-      // Reverb
+      // Reverb (Initialized but NOT connected)
       let convolver = ctx.createConvolver()
       convolver.buffer = create_reverb_buffer(ctx)
 
       let reverb_gain = ctx.createGain()
       reverb_gain.gain.value = 0
 
-      // Master Volume
+      // Master Volume (Default is 1.0 / Unity Gain for cleanest signal)
       let master_gain = ctx.createGain()
 
       // --- 2. Routing ---
@@ -83,22 +79,18 @@ const App = {};
       // Dry Path: Panner -> Master
       panner.connect(master_gain)
 
-      // Wet Path: Panner -> Reverb -> ReverbGain -> Master
-      panner.connect(convolver)
-      convolver.connect(reverb_gain)
-      reverb_gain.connect(master_gain)
+      // NOTE: Wet Path (Reverb) is intentionally NOT connected here.
+      // It is connected dynamically in splash_reverb to keep signal pure.
 
       // Final Output: Master -> [Real Hardware]
       master_gain.connect(super.destination)
 
       // --- 3. Strudel Compatibility Hacks ---
 
-      // Proxy 'maxChannelCount' from real hardware so Strudel doesn't crash
       Object.defineProperty(eq_low, `maxChannelCount`, {
         get: () => super.destination.maxChannelCount,
       })
 
-      // Redirect 'destination' to our input node (eq_low)
       Object.defineProperty(ctx, `destination`, {
         get: () => eq_low,
         configurable: true,
@@ -108,10 +100,8 @@ const App = {};
 
       if (is_main_context) {
         window.master_fx = {
-          // EXPOSED CONTEXT: This allows other apps to find and reuse this context
           context: ctx,
-
-          nodes: {eq_low, eq_mid, eq_high, panner, reverb_gain, master_gain},
+          nodes: { eq_low, eq_mid, eq_high, panner, reverb_gain, master_gain },
 
           set_eq: (low_db, mid_db, high_db) => {
             let now = ctx.currentTime
@@ -120,15 +110,12 @@ const App = {};
             if (low_db !== undefined) {
               eq_low.gain.setTargetAtTime(low_db, now, ramp)
             }
-
             if (mid_db !== undefined) {
               eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
             }
-
             if (high_db !== undefined) {
               eq_high.gain.setTargetAtTime(high_db, now, ramp)
             }
-
             console.log(`EQ: L ${eq_low.gain.value} | M ${eq_mid.gain.value} | H ${eq_high.gain.value}`)
           },
 
@@ -149,19 +136,41 @@ const App = {};
 
           splash_reverb: (duration = 3) => {
             let now = ctx.currentTime
+            let fade_time = 0.5
+
+            // 1. Physically Connect the Reverb Path
+            // Panner -> Convolver -> ReverbGain -> Master
+            panner.connect(convolver)
+            convolver.connect(reverb_gain)
+            reverb_gain.connect(master_gain)
+
+            // 2. Schedule Envelopes
             reverb_gain.gain.cancelScheduledValues(now)
             reverb_gain.gain.setValueAtTime(0, now)
+
+            // Fast attack
             reverb_gain.gain.linearRampToValueAtTime(0.5, now + 0.1)
 
-            // Auto detach logic
-            reverb_gain.gain.setTargetAtTime(0, now + duration, 0.5)
+            // Hold until fade out time
+            let fade_start = now + duration
+            reverb_gain.gain.setValueAtTime(0.5, fade_start)
+
+            // Linear fade to absolute 0
+            reverb_gain.gain.linearRampToValueAtTime(0, fade_start + fade_time)
+
+            // 3. Cleanup / Disconnect
+            // We wait for duration + fade + buffer to ensure silence
+            setTimeout(() => {
+              reverb_gain.disconnect()
+              convolver.disconnect()
+              console.log(`Reverb disconnected`)
+            }, (duration + fade_time) * 1000 + 100)
           }
         }
       }
     }
   }
 
-  // Replace Global Constructors
   window.AudioContext = InterceptedAudioContext
   if (window.webkitAudioContext) {
     window.webkitAudioContext = InterceptedAudioContext
