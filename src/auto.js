@@ -36,14 +36,14 @@ App.setup_auto = () => {
     })
   }
 
-  let auto_delay_select = DOM.el(`#auto-delay-select`)
+  let auto_delay_select = DOM.el(`#auto-delay`)
 
   if (auto_delay_select) {
     DOM.ev(auto_delay_select, `change`, (event) => {
       App.auto_delay = parseInt(event.target.value, 10)
-      App.persist_fetch_delay()
+      App.stor_save_auto_delay()
 
-      // Restart interval if it's currently running
+      // Restart interval if it's currently runni\ng
       if (App.fetch_timer) {
         App.strudel_watch_status()
       }
@@ -58,7 +58,7 @@ App.create_auto_modal = () => {
   let body = DOM.el(`.modal-body`, modal)
   let info = DOM.create(`div`, ``, `auto-info`)
   info.textContent = `Code will be fetched periodically`
-  let select = DOM.create(`select`, `modal-select`, `auto-delay-select`)
+  let select = DOM.create(`select`, `modal-select`, `auto-delay`)
 
   select.innerHTML = `
     <option value="1">1 second</option>
@@ -92,6 +92,7 @@ App.create_auto_modal = () => {
 
 App.open_auto_modal = () => {
   App.open_modal(`auto`)
+  DOM.el(`#auto-delay`).value = App.auto_delay
   DOM.el(`#auto-input`).value = App.auto_endpoint
 }
 
@@ -114,15 +115,6 @@ App.start_auto = async (endpoint) => {
   App.strudel_watch_status()
   let display_endpoint = App.truncate_path(App.auto_endpoint)
   App.set_status(`Auto mode running (${display_endpoint})`)
-}
-
-App.persist_fetch_delay = () => {
-  try {
-    App.stor_save_auto_delay()
-  }
-  catch (err) {
-    console.warn(`Failed to persist fetch delay`, err)
-  }
 }
 
 App.fetch_status_code = async () => {

@@ -22,7 +22,7 @@ App.load_all_storage = () => {
 }
 
 App.stor_load_auto_endpoint = () => {
-  App.load_storage(`endpoint`,
+  App.load_storage(`auto_endpoint`,
     (value) => {
       App.auto_endpoint = value
     }
@@ -30,7 +30,7 @@ App.stor_load_auto_endpoint = () => {
 }
 
 App.stor_load_auto_delay = () => {
-  App.load_storage(`delay`,
+  App.load_storage(`auto_delay`,
     (value) => {
       App.auto_delay = parseInt(value)
     }
