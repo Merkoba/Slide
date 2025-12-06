@@ -456,13 +456,6 @@ App.clear_draw_context = () => {
   }
 }
 
-App.stop_strudel = () => {
-  App.stop_color_cycle()
-  App.clear_draw_context()
-  App.scheduler.stop()
-  App.clean_canvas()
-}
-
 App.reset_eval_state = () => {
   App.has_error = false
 }
