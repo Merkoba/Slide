@@ -19,6 +19,7 @@ App.load_all_storage = () => {
   App.stor_load_auto_delay()
   App.stor_load_tempo()
   App.stor_load_volume()
+  App.stor_load_visual()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -53,6 +54,14 @@ App.stor_load_volume = () => {
   )
 }
 
+App.stor_load_visual = () => {
+  App.load_storage(`visual`,
+    (value) => {
+      App.visual = value
+    },
+  )
+}
+
 // Save
 
 App.stor_save_auto_delay = () => {
@@ -69,4 +78,8 @@ App.stor_save_tempo = () => {
 
 App.stor_save_volume = () => {
   App.save_storage(`volume`, App.volume)
+}
+
+App.stor_save_visual = () => {
+  App.save_storage(`visual`, App.visual)
 }

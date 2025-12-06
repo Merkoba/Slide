@@ -1,4 +1,4 @@
-App.current_animation = ``
+App.visual = ``
 App.animation_frames = 0
 
 App.start_visual = () => {
@@ -21,6 +21,8 @@ App.start_visual = () => {
   // Trigger initial size
   App.background_canvas.width = window.innerWidth
   App.background_canvas.height = window.innerHeight
+
+  App.render_animation()
 }
 
 App.create_visual_modal = () => {
@@ -50,7 +52,8 @@ App.open_visual_modal = async () => {
 }
 
 App.apply_visual = (mode) => {
-  App.current_animation = mode
+  App.visual = mode
+  App.stor_save_visual()
 
   if (mode === `no visual`) {
     App.clear_visual()
@@ -289,7 +292,7 @@ App.anim_aurora_borealis = (c, w, h, f) => {
 }
 
 App.render_animation = () => {
-  if (App.current_animation === `no visual`) {
+  if (App.visual === `no visual`) {
     return
   }
 
@@ -300,19 +303,19 @@ App.render_animation = () => {
   App.background_canvas_ctx.fillStyle = bg_fade
   App.background_canvas_ctx.fillRect(0, 0, width, height)
 
-  if (App.current_animation === `bio tunnel`) {
+  if (App.visual === `bio tunnel`) {
     App.anim_bio_tunnel(App.background_canvas_ctx, width, height, App.animation_frames)
   }
-  else if (App.current_animation === `flux surface`) {
+  else if (App.visual === `flux surface`) {
     App.anim_flux_surface(App.background_canvas_ctx, width, height, App.animation_frames)
   }
-  else if (App.current_animation === `hyper rose`) {
+  else if (App.visual === `hyper rose`) {
     App.anim_hyper_rose(App.background_canvas_ctx, width, height, App.animation_frames)
   }
-  else if (App.current_animation === `liquid aether`) {
+  else if (App.visual === `liquid aether`) {
     App.anim_liquid_aether(App.background_canvas_ctx, width, height, App.animation_frames)
   }
-  else if (App.current_animation === `aurora borealis`) {
+  else if (App.visual === `aurora borealis`) {
     App.anim_aurora_borealis(App.background_canvas_ctx, width, height, App.animation_frames)
   }
 
