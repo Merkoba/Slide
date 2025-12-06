@@ -42,6 +42,7 @@ App.scope_beep_delay = 300
 App.scope_slide_delay = 800
 App.scope_slide_distance = 250
 App.scope_panning_zone = 100
+App.scope_padding_amount = 0.9
 
 App.setup_scope = () => {
   App.scope_debouncer = App.create_debouncer(() => {
@@ -575,12 +576,13 @@ App.check_scope_panning = () => {
   let b = App.mouse_up_coords
   let {width, height} = App.get_scope_dimensions()
   let zone = App.scope_panning_zone
+  let amount = App.scope_padding_amount
 
   if ((a.x <= zone) || (b.x <= zone)) {
-    App.set_panning(-0.9, 3)
+    App.set_panning(-amount, 3)
   }
   else if ((a.x >= (width - zone)) ||
     (b.x >= (width - zone))) {
-    App.set_panning(0.9, 3)
+    App.set_panning(amount, 3)
   }
 }
