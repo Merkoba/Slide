@@ -45,6 +45,7 @@ App.play_action = async (code = ``, force = false) => {
     App.set_status(`Error: ${e.message}`)
   }
 
+  // Small timeout to ensure the hardware buffer clears
   await new Promise(r => setTimeout(r, 10))
   await ctx.resume()
 }
