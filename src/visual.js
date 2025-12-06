@@ -71,7 +71,7 @@ App.apply_visual = (mode) => {
   App.stop_visual()
   App.clean_canvas()
 
-  if ([`auto`, `mode`].includes(mode)) {
+  if ([`auto`, `none`].includes(mode)) {
     return
   }
 
@@ -89,4 +89,5 @@ App.show_visual = () => {
 
 App.stop_visual = () => {
   visual_scheduler.stop()
+  visual_evaluate(`hush`)
 }
