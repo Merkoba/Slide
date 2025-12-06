@@ -13,7 +13,7 @@ import "./visual.js"
 import "./utils.js"
 import "./storage.js"
 
-const startAppEvents = () => {
+const start_app_events = () => {
   if (!window?.App?.start_events) {
     return
   }
@@ -23,9 +23,9 @@ const startAppEvents = () => {
 
 if (document.readyState === `loading`) {
   document.addEventListener(`DOMContentLoaded`, () => {
-    startAppEvents()
+    start_app_events()
   }, {once: true})
 }
 else {
-  startAppEvents()
+  start_app_events()
 }
