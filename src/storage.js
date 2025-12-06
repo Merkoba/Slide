@@ -25,7 +25,7 @@ App.stor_load_auto_endpoint = () => {
   App.load_storage(`auto_endpoint`,
     (value) => {
       App.auto_endpoint = value
-    }
+    },
   )
 }
 
@@ -33,7 +33,7 @@ App.stor_load_auto_delay = () => {
   App.load_storage(`auto_delay`,
     (value) => {
       App.auto_delay = parseInt(value)
-    }
+    },
   )
 }
 
@@ -41,7 +41,7 @@ App.stor_load_tempo = () => {
   App.load_storage(`tempo`,
     (value) => {
       App.tempo = parseInt(value)
-    }
+    },
   )
 }
 
@@ -49,7 +49,7 @@ App.stor_load_volume = () => {
   App.load_storage(`volume`,
     (value) => {
       App.volume = parseInt(value)
-    }
+    },
   )
 }
 

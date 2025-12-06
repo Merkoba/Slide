@@ -82,14 +82,16 @@ App.anim_bio_tunnel = (c, w, h, f) => {
     let scale = 1000 / (z + 10)
 
     // Skip if too close (prevents screen nuke)
-    if (scale > 20) continue;
+    if (scale > 20) {
+      continue
+    }
 
     c.beginPath()
     c.lineWidth = 2 * scale
 
     // Color: Alien green/purple shift based on depth and time
     let hue = (t * 50 + z * 0.5) % 360
-    c.strokeStyle = `hsla(${hue}, 80%, 60%, ${z/1000})` // fade out at back
+    c.strokeStyle = `hsla(${hue}, 80%, 60%, ${z / 1000})` // fade out at back
 
     // Draw a distorted polygon/circle
     for (let j = 0; j <= 6; j++) {
@@ -106,8 +108,12 @@ App.anim_bio_tunnel = (c, w, h, f) => {
       let x = cx + Math.cos(angle + rot) * r
       let y = cy + Math.sin(angle + rot) * r
 
-      if (j === 0) c.moveTo(x, y)
-      else c.lineTo(x, y)
+      if (j === 0) {
+        c.moveTo(x, y)
+      }
+      else {
+        c.lineTo(x, y)
+      }
     }
 
     c.closePath()
@@ -154,7 +160,7 @@ App.anim_hyper_rose = (c, w, h, f) => {
   let t = f * 0.002
 
   c.lineWidth = 1
-  c.globalCompositeOperation = 'lighter' // Key for the "energy" look
+  c.globalCompositeOperation = `lighter` // Key for the "energy" look
 
   // Draw multiple rotated layers to create density
   for (let layer = 0; layer < 15; layer++) {
@@ -189,22 +195,22 @@ App.anim_hyper_rose = (c, w, h, f) => {
   }
 
   // Reset composite so we don't break the next frame's fade
-  c.globalCompositeOperation = 'source-over'
+  c.globalCompositeOperation = `source-over`
 }
 
 App.anim_liquid_aether = (c, w, h, f) => {
   // Initialize 400 particles if they don't exist
-  if (!App.flow_particles || App.flow_particles.length === 0) {
+  if (!App.flow_particles || (App.flow_particles.length === 0)) {
     App.flow_particles = Array(400).fill().map(() => ({
       x: Math.random() * w,
-      y: Math.random() * h
+      y: Math.random() * h,
     }))
   }
 
   // Fade trick: We draw a very faint black rect on top to slowly erase old trails
   // This interacts with your main render loop's fade for a double-fade effect
-  c.fillStyle = 'rgba(0,0,0,0.02)'
-  c.fillRect(0,0,w,h)
+  c.fillStyle = `rgba(0, 0, 0, 0.02)`
+  c.fillRect(0, 0, w, h)
 
   const t = f * 0.005
   c.lineWidth = 2
@@ -229,10 +235,22 @@ App.anim_liquid_aether = (c, w, h, f) => {
     c.stroke()
 
     // Wrap around screen edges so we never run out of particles
-    if (p.x < 0) p.x = w
-    if (p.x > w) p.x = 0
-    if (p.y < 0) p.y = h
-    if (p.y > h) p.y = 0
+
+    if (p.x < 0) {
+      p.x = w
+    }
+
+    if (p.x > w) {
+      p.x = 0
+    }
+
+    if (p.y < 0) {
+      p.y = h
+    }
+
+    if (p.y > h) {
+      p.y = 0
+    }
   })
 }
 
@@ -240,7 +258,7 @@ App.anim_aurora_borealis = (c, w, h, f) => {
   let t = f * 0.02
   c.lineWidth = 2
   // "Screen" blend mode makes overlapping waves look like bright light
-  c.globalCompositeOperation = 'lighter'
+  c.globalCompositeOperation = `lighter`
 
   // Draw 5 distinct "curtains" of light
   for (let i = 0; i < 5; i++) {
@@ -266,7 +284,7 @@ App.anim_aurora_borealis = (c, w, h, f) => {
     c.fill()
   }
 
-  c.globalCompositeOperation = 'source-over'
+  c.globalCompositeOperation = `source-over`
 }
 
 App.render_animation = () => {
