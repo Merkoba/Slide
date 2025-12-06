@@ -703,6 +703,10 @@ App.start_events = async () => {
     App.open_songs_modal()
   })
 
+  DOM.ev(`#btn-settings`, `click`, () => {
+    App.open_settings_modal()
+  })
+
   let about_image = DOM.el(`#image`)
 
   if (about_image) {

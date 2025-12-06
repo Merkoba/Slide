@@ -124,3 +124,7 @@ App.create_debouncer = (func, delay) => {
 
   return obj
 }
+
+App.boolstring = (s) => {
+  return s && (s === `true`)
+}

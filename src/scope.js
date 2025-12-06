@@ -5,20 +5,6 @@ import * as strudelWebAudio from "@strudel.cycles/webaudio"
 import * as strudelTonal from "@strudel.cycles/tonal"
 import {getAudioContext, getSuperdoughAudioController} from "superdough"
 
-const resolveSharedApp = () => {
-  if (typeof globalThis !== `object`) {
-    return {}
-  }
-
-  if (!globalThis.App) {
-    globalThis.App = {}
-  }
-
-  return globalThis.App
-}
-
-const App = resolveSharedApp()
-
 App.scope_container_el = undefined
 App.scope_canvas_el = undefined
 App.scope_canvas_ctx = undefined
@@ -49,8 +35,16 @@ App.setup_scope = () => {
     App.resize_scope_canvas()
   }, 80)
 
+  App.stor_load_scope()
   App.init_scope_checkbox()
   App.setup_scope_canvas()
+
+  if (App.scope_enabled) {
+    App.set_scope_visibility(true)
+  }
+  else {
+    App.set_scope_visibility(false)
+  }
 }
 
 App.get_scope_container = () => {
@@ -481,6 +475,15 @@ App.init_scope_click_handler = () => {
   }
 }
 
+App.toggle_scope = () => {
+  if (App.scope_enabled) {
+    App.disable_scope_visualizer()
+  }
+  else {
+    App.enable_scope_visualizer()
+  }
+}
+
 App.enable_scope_visualizer = () => {
   App.scope_enabled = true
   App.set_scope_visibility(true)
@@ -494,11 +497,13 @@ App.enable_scope_visualizer = () => {
 
   App.try_start_scope_visualizer()
   App.init_scope_click_handler()
+  App.stor_save_scope()
 }
 
 App.disable_scope_visualizer = () => {
   App.scope_enabled = false
   App.stop_scope_visualizer()
+  App.stor_save_scope()
 }
 
 App.handle_scope_resize = () => {

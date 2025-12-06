@@ -3,6 +3,7 @@ App.auto_endpoint_storage_key = `slide.auto_endpoint`
 App.auto_delay_storage_key = `slide.auto_delay`
 App.volume_storage_key = `slide.volume`
 App.visual_storage_key = `slide.visual`
+App.scope_storage_key = `slide.scope`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
@@ -26,6 +27,7 @@ App.load_all_storage = () => {
   App.stor_load_tempo()
   App.stor_load_volume()
   App.stor_load_visual()
+  App.stor_load_scope()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -68,6 +70,14 @@ App.stor_load_visual = () => {
   )
 }
 
+App.stor_load_scope = () => {
+  App.load_storage(`scope`,
+    (value) => {
+      App.scope_enabled = App.boolstring(value)
+    },
+  )
+}
+
 // Save
 
 App.stor_save_auto_delay = () => {
@@ -88,4 +98,8 @@ App.stor_save_volume = () => {
 
 App.stor_save_visual = () => {
   App.save_storage(`visual`, App.visual)
+}
+
+App.stor_save_scope = () => {
+  App.save_storage(`scope`, App.scope_enabled)
 }

@@ -24,6 +24,7 @@ App.create_modals = () => {
   App.create_songs_modal()
   App.create_auto_modal()
   App.create_visual_modal()
+  App.create_settings_modal()
 
   DOM.ev(`#main`, `click`, (event) => {
     let close_btn = event.target.closest(`.modal-close`)
@@ -148,7 +149,11 @@ App.close_modal = (id) => {
 
 App.do_close_modal = (modal) => {
   modal.classList.remove(`active`)
-  App.hide_overlay()
+  let active_modals = DOM.els(`.modal.active`)
+
+  if (active_modals.length === 0) {
+    App.hide_overlay()
+  }
 }
 
 App.close_all_modals = () => {
