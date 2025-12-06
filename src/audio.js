@@ -2,7 +2,7 @@ App.beep_sound = () => {
   try {
     // Create AudioContext if it doesn't exist.  Use a global variable or a dedicated function
     // to manage the AudioContext lifecycle.
-    let audio_ctx = AudioContext
+    let audio_ctx = App.get_audio_context()
 
     // Create oscillator and gain nodes
     let oscillator = audio_ctx.createOscillator()

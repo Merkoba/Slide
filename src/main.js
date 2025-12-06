@@ -3,7 +3,7 @@ const App = {};
 (function() {
   let OriginalAudioContext = window.AudioContext || window.webkitAudioContext
 
-  // helper to generate a reverb impulse
+  // Helper: Create a noise burst for reverb
   function create_reverb_buffer(ctx, duration = 3, decay = 2) {
     let rate = ctx.sampleRate
     let length = rate * duration
@@ -17,7 +17,6 @@ const App = {};
       left[i] = (Math.random() * 2 - 1) * volume
       right[i] = (Math.random() * 2 - 1) * volume
     }
-
     return impulse
   }
 
@@ -25,30 +24,38 @@ const App = {};
     constructor(...args) {
       super(...args)
       let ctx = this
-      console.log(`Intercepted AudioContext: EQ + FX Ready`)
+
+      // Check if global controls already exist.
+      // If they do, this is likely a secondary context (like a temporary beep)
+      // and we should NOT overwrite the global controls.
+      const is_main_context = !window.master_fx
+
+      if (is_main_context) {
+        console.log(`Intercepted MAIN AudioContext (Master FX Active)`)
+      } else {
+        console.log(`Intercepted SECONDARY AudioContext`)
+      }
 
       // --- 1. Create Nodes ---
 
-      // EQ: Low (Bass)
+      // 3-Band EQ
       let eq_low = ctx.createBiquadFilter()
       eq_low.type = `lowshelf`
       eq_low.frequency.value = 320
       eq_low.gain.value = 0
 
-      // EQ: Mid (Presence)
       let eq_mid = ctx.createBiquadFilter()
       eq_mid.type = `peaking`
       eq_mid.frequency.value = 1000
       eq_mid.Q.value = 1.0
       eq_mid.gain.value = 0
 
-      // EQ: High (Treble)
       let eq_high = ctx.createBiquadFilter()
       eq_high.type = `highshelf`
       eq_high.frequency.value = 4000
       eq_high.gain.value = 0
 
-      // Panning
+      // Stereo Panner
       let panner = ctx.createStereoPanner()
       panner.pan.value = 0
 
@@ -64,80 +71,84 @@ const App = {};
 
       // --- 2. Routing ---
 
-      // Chain: Input -> Low -> Mid -> High -> Panner
-      // Note: We expose 'eq_low' as the fake destination so Strudel connects there first
+      // Main Chain: [Fake Dest] -> Low -> Mid -> High -> Panner
       eq_low.connect(eq_mid)
       eq_mid.connect(eq_high)
       eq_high.connect(panner)
 
-      // Dry Path: Panner -> Master -> Output
+      // Dry Path: Panner -> Master
       panner.connect(master_gain)
 
-      // Wet Path (Reverb): Panner -> Convolver -> ReverbGain -> Master
+      // Wet Path: Panner -> Reverb -> ReverbGain -> Master
       panner.connect(convolver)
       convolver.connect(reverb_gain)
       reverb_gain.connect(master_gain)
 
-      // Final connection to hardware
+      // Final Output: Master -> [Real Hardware]
       master_gain.connect(super.destination)
 
-      // --- 3. Strudel Compatibility ---
+      // --- 3. Strudel Compatibility Hacks ---
 
-      // Forward maxChannelCount to the first node in the chain
+      // Proxy 'maxChannelCount' from real hardware so Strudel doesn't crash
       Object.defineProperty(eq_low, `maxChannelCount`, {
         get: () => super.destination.maxChannelCount
       })
 
+      // Redirect 'destination' to our input node (eq_low)
       Object.defineProperty(ctx, `destination`, {
         get: () => eq_low,
         configurable: true
       })
 
-      // --- 4. Expose Controls ---
+      // --- 4. Expose Controls (Only for Main Context) ---
 
-      window.master_fx = {
-        // Set EQ Gains (in Decibels)
-        // Usage: window.master_fx.set_eq(5, 0, 2) // Boost bass +5, flat mid, boost high +2
-        set_eq: (low_db, mid_db, high_db) => {
-          let now = ctx.currentTime
-          let ramp = 0.1 // smooth transition time
+      if (is_main_context) {
+        window.master_fx = {
+          // EXPOSED CONTEXT: This allows other apps to find and reuse this context
+          context: ctx,
 
-          if (low_db !== undefined) eq_low.gain.setTargetAtTime(low_db, now, ramp)
-          if (mid_db !== undefined) eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
-          if (high_db !== undefined) eq_high.gain.setTargetAtTime(high_db, now, ramp)
+          nodes: { eq_low, eq_mid, eq_high, panner, reverb_gain, master_gain },
 
-          console.log(`EQ Set: L:${eq_low.gain.value.toFixed(1)} M:${eq_mid.gain.value.toFixed(1)} H:${eq_high.gain.value.toFixed(1)}`)
-        },
+          set_eq: (low_db, mid_db, high_db) => {
+            let now = ctx.currentTime
+            let ramp = 0.1
+            if (low_db !== undefined) eq_low.gain.setTargetAtTime(low_db, now, ramp)
+            if (mid_db !== undefined) eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
+            if (high_db !== undefined) eq_high.gain.setTargetAtTime(high_db, now, ramp)
+            console.log(`EQ: L ${eq_low.gain.value} | M ${eq_mid.gain.value} | H ${eq_high.gain.value}`)
+          },
 
-        // Helper to change EQ frequencies if needed
-        set_eq_freqs: (low_hz, mid_hz, high_hz) => {
-          let now = ctx.currentTime
-          if (low_hz) eq_low.frequency.setTargetAtTime(low_hz, now, 0.1)
-          if (mid_hz) eq_mid.frequency.setTargetAtTime(mid_hz, now, 0.1)
-          if (high_hz) eq_high.frequency.setTargetAtTime(high_hz, now, 0.1)
-        },
+          set_eq_freqs: (low_hz, mid_hz, high_hz) => {
+            let now = ctx.currentTime
+            if (low_hz) eq_low.frequency.setTargetAtTime(low_hz, now, 0.1)
+            if (mid_hz) eq_mid.frequency.setTargetAtTime(mid_hz, now, 0.1)
+            if (high_hz) eq_high.frequency.setTargetAtTime(high_hz, now, 0.1)
+          },
 
-        set_volume: (val) => {
-          master_gain.gain.setTargetAtTime(val, ctx.currentTime, 0.1)
-        },
+          set_volume: (val) => {
+            master_gain.gain.setTargetAtTime(val, ctx.currentTime, 0.1)
+          },
 
-        set_panning: (val) => {
-          panner.pan.setTargetAtTime(val, ctx.currentTime, 0.1)
-        },
+          set_panning: (val) => {
+            panner.pan.setTargetAtTime(val, ctx.currentTime, 0.1)
+          },
 
-        splash_reverb: (duration = 3) => {
-          let now = ctx.currentTime
-          reverb_gain.gain.cancelScheduledValues(now)
-          reverb_gain.gain.setValueAtTime(0, now)
-          reverb_gain.gain.linearRampToValueAtTime(0.5, now + 0.1)
-          reverb_gain.gain.setTargetAtTime(0, now + duration, 0.5)
+          splash_reverb: (duration = 3) => {
+            let now = ctx.currentTime
+            reverb_gain.gain.cancelScheduledValues(now)
+            reverb_gain.gain.setValueAtTime(0, now)
+            reverb_gain.gain.linearRampToValueAtTime(0.5, now + 0.1)
+
+            // Auto detach logic
+            reverb_gain.gain.setTargetAtTime(0, now + duration, 0.5)
+          }
         }
       }
     }
   }
 
+  // Replace Global Constructors
   window.AudioContext = InterceptedAudioContext
-
   if (window.webkitAudioContext) {
     window.webkitAudioContext = InterceptedAudioContext
   }
