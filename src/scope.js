@@ -38,14 +38,13 @@ App.setup_scope = () => {
   App.stor_load_scope()
   App.init_scope_checkbox()
   App.setup_scope_canvas()
-
   App.start_scope_visualizer()
 
   if (App.scope_enabled) {
-    App.set_scope_visibility(true)
+    App.enable_scope_visualizer()
   }
   else {
-    App.set_scope_visibility(false)
+    App.disable_scope_visualizer()
   }
 }
 
@@ -448,11 +447,6 @@ App.start_scope_visualizer = () => {
 
   if (!App.scope_connected) {
     App.connect_scope_analyser()
-  }
-
-  if (App.scope_enabled) {
-    App.clear_scope_canvas()
-    App.start_scope_loop()
   }
 }
 
