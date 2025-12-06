@@ -54,17 +54,15 @@ App.cycle_colors = [
   `rgb(127, 155, 210)`,
 ]
 
-App.clear_status_watch = (set_cancelled = true) => {
-  if (!App.fetch_timer) {
-    return
+App.get_config = async () => {
+  let data = await fetch(`config/config.json`)
+
+  try {
+    App.config = await data.json()
   }
-
-  console.info(`Interval cleared.`)
-  clearInterval(App.fetch_timer)
-  App.fetch_timer = undefined
-
-  if (set_cancelled) {
-    App.status_watch_cancelled = true
+  catch (err) {
+    console.error(`Failed to parse config.json`, err)
+    App.config = {}
   }
 }
 
@@ -567,12 +565,13 @@ App.stop_action = () => {
   App.set_song_context()
 }
 
-App.start_events = () => {
+App.start_events = async () => {
   if (App.events_started) {
     return
   }
 
   App.events_started = true
+  await App.get_config()
   App.create_modals()
   App.start_visual()
 

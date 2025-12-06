@@ -206,3 +206,17 @@ App.do_set_status = (status) => {
   let status_el = DOM.el(`#status`)
   status_el.innerText = status
 }
+
+App.clear_status_watch = (set_cancelled = true) => {
+  if (!App.fetch_timer) {
+    return
+  }
+
+  console.info(`Interval cleared.`)
+  clearInterval(App.fetch_timer)
+  App.fetch_timer = undefined
+
+  if (set_cancelled) {
+    App.status_watch_cancelled = true
+  }
+}

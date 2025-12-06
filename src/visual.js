@@ -257,6 +257,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
 App.anim_aurora_borealis = (c, w, h, f) => {
   let t = f * 0.02
   c.lineWidth = 2
+
   // "Screen" blend mode makes overlapping waves look like bright light
   c.globalCompositeOperation = `lighter`
 

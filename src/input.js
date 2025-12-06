@@ -357,6 +357,7 @@ App.toggle_max = (mode = `toggle`) => {
 
   if (mode === `restore`) {
     wrapper.style.height = `${height}px`
+    wrapper.style.width = `${max_width}%`
   }
   else if (App.input_is_maxed()) {
     // Restore

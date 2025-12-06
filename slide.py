@@ -43,7 +43,7 @@ REQUEST_INTERVAL_MINUTES = max(1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{M
 DEFAULT_ANSWER = ""
 SONG_LIST_LIMIT = 100
 
-CONFIG_FILE = "config.json"
+CONFIG_FILE = "config/config.json"
 app_config = {}
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -378,6 +378,10 @@ def css_assets(filename):
 @app.route("/img/<path:filename>")
 def img_assets(filename):
     return send_from_directory("img", filename)
+
+@app.route("/config/<path:filename>")
+def config_assets(filename):
+    return send_from_directory("config", filename)
 
 @app.route("/songs/list")
 def list_songs() -> Response:

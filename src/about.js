@@ -1,8 +1,7 @@
 App.create_about_modal = () => {
   let modal = App.create_modal(`about`)
   let title = DOM.el(`.modal-title`, modal)
-  // let version = `v${App.config.version}`
-  let version = `v1.0`
+  let version = `v${App.config.version}`
   title.textContent = `Slide ${version} | Merkoba | 2025`
   let body = DOM.el(`.modal-body`, modal)
 
