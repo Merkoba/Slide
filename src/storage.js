@@ -5,6 +5,11 @@ App.volume_storage_key = `slide.volume`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
+
+  if ([null, undefined].includes(value)) {
+    return
+  }
+
   on_value(value)
 }
 

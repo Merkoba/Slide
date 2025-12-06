@@ -1,4 +1,4 @@
-App.visual = ``
+App.visual = `flux surface`
 App.animation_frames = 0
 
 App.start_visual = () => {
