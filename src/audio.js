@@ -2,7 +2,7 @@ App.beep_sound = () => {
   try {
     // Create AudioContext if it doesn't exist.  Use a global variable or a dedicated function
     // to manage the AudioContext lifecycle.
-    let audio_ctx = App.get_audio_context()
+    let audio_ctx = AudioContext
 
     // Create oscillator and gain nodes
     let oscillator = audio_ctx.createOscillator()
@@ -34,16 +34,25 @@ App.beep_sound = () => {
 }
 
 App.get_audio_context = () => {
-  if (!App.audio_context) {
-    try {
-      App.audio_context = new (window.AudioContext || window.webkitAudioContext)()
-    }
-    catch (e) {
-      console.error("Web Audio API is not supported in this browser")
-      return null // Or handle the error appropriately
-    }
+  // 1. Try to use the Intercepted Context (Strudel's context)
+  if (window.master_fx && window.master_fx.context) {
+    return window.master_fx.context
   }
-  return App.audio_context
+
+  // 2. Fallback: If App.audio_context already exists (cached)
+  if (App.audio_context) {
+    return App.audio_context
+  }
+
+  // 3. Last Resort: Create new (Only if Strudel hasn't loaded yet)
+  try {
+    App.audio_context = new (window.AudioContext || window.webkitAudioContext)()
+    return App.audio_context
+  }
+  catch (e) {
+    console.error("Web Audio API is not supported")
+    return null
+  }
 }
 
 App.splash_reverb = (seconds) => {

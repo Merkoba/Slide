@@ -25,26 +25,26 @@ const App = {};
     constructor(...args) {
       super(...args)
       let ctx = this
-      console.log('Intercepted AudioContext: EQ + FX Ready')
+      console.log(`Intercepted AudioContext: EQ + FX Ready`)
 
       // --- 1. Create Nodes ---
 
       // EQ: Low (Bass)
       let eq_low = ctx.createBiquadFilter()
-      eq_low.type = 'lowshelf'
+      eq_low.type = `lowshelf`
       eq_low.frequency.value = 320
       eq_low.gain.value = 0
 
       // EQ: Mid (Presence)
       let eq_mid = ctx.createBiquadFilter()
-      eq_mid.type = 'peaking'
+      eq_mid.type = `peaking`
       eq_mid.frequency.value = 1000
       eq_mid.Q.value = 1.0
       eq_mid.gain.value = 0
 
       // EQ: High (Treble)
       let eq_high = ctx.createBiquadFilter()
-      eq_high.type = 'highshelf'
+      eq_high.type = `highshelf`
       eq_high.frequency.value = 4000
       eq_high.gain.value = 0
 
@@ -84,11 +84,11 @@ const App = {};
       // --- 3. Strudel Compatibility ---
 
       // Forward maxChannelCount to the first node in the chain
-      Object.defineProperty(eq_low, 'maxChannelCount', {
+      Object.defineProperty(eq_low, `maxChannelCount`, {
         get: () => super.destination.maxChannelCount
       })
 
-      Object.defineProperty(ctx, 'destination', {
+      Object.defineProperty(ctx, `destination`, {
         get: () => eq_low,
         configurable: true
       })
@@ -137,6 +137,7 @@ const App = {};
   }
 
   window.AudioContext = InterceptedAudioContext
+
   if (window.webkitAudioContext) {
     window.webkitAudioContext = InterceptedAudioContext
   }
