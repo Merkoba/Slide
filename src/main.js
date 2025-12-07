@@ -419,20 +419,6 @@ App.strudel_init = async () => {
   }
 }
 
-App.playing = (extra) => {
-  let msg = `Playing 🥁`
-
-  if (App.current_song) {
-    msg = `Playing: ${App.underspace(App.current_song)}`
-  }
-
-  if (extra) {
-    msg = `${msg} - ${extra}`.trim()
-  }
-
-  App.set_status(msg)
-}
-
 App.set_tempo = () => {
   try {
     App.scheduler.setCps(App.tempo / 60)
