@@ -46,7 +46,6 @@ App.create_modals = () => {
 App.show_items_modal = async (id, args = {}) => {
   let def_args = {
     loaded: false,
-    asters: [],
     active: -1,
   }
 
@@ -83,12 +82,9 @@ App.show_items_modal = async (id, args = {}) => {
     for (let [i, item] of list.entries()) {
       let item_div = DOM.create(`div`)
       item_div.className = `modal-item`
-      item_div.textContent = App.underspace(item)
+      item_div.textContent = App.underspace(item.text)
+      item_div.title = item.title
       DOM.ev(item_div, `click`, () => args.action(item))
-
-      if (args.asters.includes(i)) {
-        item_div.classList.add(`aster`)
-      }
 
       if (args.active === i) {
         item_div.classList.add(`modal-active-item`)

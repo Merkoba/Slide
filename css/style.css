@@ -629,14 +629,6 @@ a.popup:hover {
     z-index: -1;
 }
 
-.aster::before {
-  content: "* ";
-}
-
-.aster::after {
-  content: " *";
-}
-
 .modal-active-item {
     color: rgb(240, 240, 147);
 }

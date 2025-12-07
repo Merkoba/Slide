@@ -54,12 +54,20 @@ App.create_songs_modal = () => {
 }
 
 App.open_songs_modal = async () => {
-  let items = await App.fetch_songs_list()
+  let songlist = await App.fetch_songs_list()
+  let items = []
+
+  for (let song of songlist) {
+    items.push({
+      text: song,
+      title: `Click to load and play this song`,
+    })
+  }
 
   App.show_items_modal(`songs`, {
     items,
     action: (item) => {
-      App.load_song(item)
+      App.load_song(item.text)
     },
   })
 }
