@@ -110,10 +110,10 @@ App.code_scroll_tick = (timestamp) => {
 
   let delta = timestamp - App.code_scroll_last_ts
   App.code_scroll_last_ts = timestamp
-  let distance = ((App.code_scroll_speed_px_per_second * delta) / 1000)
-  let target = (input.scrollTop + (distance * App.code_scroll_direction))
+  let distance = (App.code_scroll_speed_px_per_second * delta) / 1000
+  let target = input.scrollTop + (distance * App.code_scroll_direction)
 
-  let max_scroll = Math.max(0, (input.scrollHeight - input.clientHeight))
+  let max_scroll = Math.max(0, input.scrollHeight - input.clientHeight)
 
   input.scrollTop = target
 
