@@ -1,4 +1,4 @@
-App.cached_songs = App.cached_songs || []
+App.song_cache = {}
 
 App.fetch_songs_list = async () => {
   try {
@@ -31,7 +31,9 @@ App.fetch_song_content = async (song_name) => {
       throw new Error(`Failed to fetch song ${song_name}`)
     }
 
-    return await response.text()
+    let content = await response.text()
+    App.song_cache[song_name] = content
+    return content
   }
   catch (err) {
     console.error(`Error fetching song content`, err)
