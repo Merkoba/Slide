@@ -182,3 +182,32 @@ App.set_tempo = () => {
     console.debug(`Tempo will be applied when audio starts`, err)
   }
 }
+
+App.reset_eval_state = () => {
+  App.has_error = false
+}
+
+App.report_eval_failure = (error) => {
+  const message = error?.message || App.last_eval_error || `Failed to evaluate Strudel code`
+  App.last_eval_error = message
+  App.set_status(message)
+}
+
+App.run_eval = async (code) => {
+  App.reset_eval_state()
+  code = App.filter_code(code)
+  App.set_input(code)
+
+  try {
+    await evaluate(code)
+  }
+  catch (err) {
+    return {ok: false, error: err}
+  }
+
+  if (App.has_error) {
+    return {ok: false, error: new Error(App.last_eval_error || `Evaluation error`)}
+  }
+
+  return {ok: true}
+}
