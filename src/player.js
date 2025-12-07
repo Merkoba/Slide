@@ -1,3 +1,7 @@
+import * as strudelMini from "@strudel.cycles/mini"
+import {initAudio, samples, registerSynthSounds} from "superdough"
+import {registerSoundfonts} from "@strudel.cycles/soundfonts"
+
 App.play_action = async (code = ``, force = false) => {
   let ready = await App.ensure_strudel_ready()
 
@@ -119,4 +123,62 @@ App.ensure_strudel_ready = async () => {
 
   await App.strudel_init()
   return true
+}
+
+// 1. Export a setup function to the global window object
+// This allows your HTML/Flask templates to call it easily.
+App.strudel_init = async () => {
+  if (App.audio_started) {
+    console.info(`Audio already initialized`)
+    return
+  }
+
+  console.info(`Initializing Audio...`)
+
+  try {
+    console.info(`Loading scope...`)
+    await App.ensure_scope()
+    console.info(`Scope loaded`)
+
+    // This must be called in response to a user interaction
+    console.info(`Initializing audio context...`)
+    await initAudio()
+
+    // Enable mini-notation for strings
+    strudelMini.miniAllStrings()
+
+    // Load samples and sounds in parallel
+    const ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
+
+    console.info(`Loading samples and soundfonts...`)
+
+    await Promise.all([
+      registerSynthSounds(),
+      registerSoundfonts(),
+      samples(`github:tidalcycles/dirt-samples`),
+      samples(`${ds}/tidal-drum-machines.json`),
+    ])
+
+    App.audio_started = true
+    App.apply_volume()
+    console.info(`Audio Ready.`)
+
+    if (App.code_to_play) {
+      App.play_action(App.code_to_play)
+      App.code_to_play = ``
+    }
+  }
+  catch (err) {
+    console.error(`Audio Failed:`, err)
+    throw err
+  }
+}
+
+App.set_tempo = () => {
+  try {
+    App.scheduler.setCps(App.tempo / 60)
+  }
+  catch (err) {
+    console.debug(`Tempo will be applied when audio starts`, err)
+  }
 }
