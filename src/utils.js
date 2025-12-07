@@ -128,3 +128,7 @@ App.create_debouncer = (func, delay) => {
 App.boolstring = (s) => {
   return s && (s === `true`)
 }
+
+App.capitalize = (s) => {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}

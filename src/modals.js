@@ -44,6 +44,13 @@ App.create_modals = () => {
 }
 
 App.show_items_modal = async (id, args = {}) => {
+  let def_args = {
+    loaded: false,
+    asters: [],
+    active: -1,
+  }
+
+  App.def_args(def_args, args)
   let loaded = args.loaded || false
   let modal = DOM.el(`#${id}-modal`)
   let modal_list = DOM.el(`.modal-list`, modal)
@@ -73,11 +80,20 @@ App.show_items_modal = async (id, args = {}) => {
       return
     }
 
-    for (let item of list) {
+    for (let [i, item] of list.entries()) {
       let item_div = DOM.create(`div`)
       item_div.className = `modal-item`
       item_div.textContent = App.underspace(item)
       DOM.ev(item_div, `click`, () => args.action(item))
+
+      if (args.asters.includes(i)) {
+        item_div.classList.add(`aster`)
+      }
+
+      if (args.active === i) {
+        item_div.classList.add(`modal-active-item`)
+      }
+
       modal_list.appendChild(item_div)
     }
   }

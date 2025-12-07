@@ -1,5 +1,15 @@
 App.animation_frames = 0
 
+App.visual_items = [
+  `Auto`,
+  `Flux Surface`,
+  `Hyper Rose`,
+  `Bio Tunnel`,
+  `Liquid Aether`,
+  `Aurora Borealis`,
+  `Orb Balloons`,
+]
+
 App.start_visual = () => {
   App.visual = App.visual || `flux surface`
   App.background_canvas = DOM.el(`#background-canvas`)
@@ -32,15 +42,7 @@ App.create_visual_modal = () => {
 }
 
 App.open_visual_modal = async () => {
-  let items = [
-    `Auto`,
-    `Flux Surface`,
-    `Hyper Rose`,
-    `Bio Tunnel`,
-    `Liquid Aether`,
-    `Aurora Borealis`,
-    `Orb Balloons`,
-  ]
+  let items = App.visual_items
 
   App.show_items_modal(`visual`, {
     items,
@@ -49,6 +51,8 @@ App.open_visual_modal = async () => {
       App.apply_visual(mode)
       App.close_modal(`visual`)
     },
+    asters: [0],
+    active: App.get_active_visual_index(),
   })
 }
 
@@ -491,4 +495,8 @@ App.clear_visual = () => {
   let width = window.innerWidth
   let height = window.innerHeight
   App.background_canvas_ctx.clearRect(0, 0, width, height)
+}
+
+App.get_active_visual_index = () => {
+  return App.visual_items.map(x => x.toLowerCase()).indexOf(App.visual)
 }
