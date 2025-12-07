@@ -215,19 +215,19 @@ App.anim_liquid_aether = (c, w, h, f) => {
       x: Math.random() * w,
       y: Math.random() * h,
       speed: Math.random() * 1.5 + 0.5,
-      life: Math.random() * 100
+      life: Math.random() * 100,
     }))
   }
 
   // 2. Initialize Background Orbs (The Atmosphere)
-  if (!App.bg_orbs || App.bg_orbs.length !== orb_count) {
+  if (!App.bg_orbs || (App.bg_orbs.length !== orb_count)) {
     App.bg_orbs = Array(orb_count).fill().map((_, i) => ({
       x: Math.random() * w,
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 2,
       vy: (Math.random() - 0.5) * 2,
       radius: Math.random() * 200 + 300, // Huge radius
-      hue: i * 120 // Spread colors
+      hue: i * 120, // Spread colors
     }))
   }
 
@@ -235,7 +235,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
 
   // 3. The Fade: Use a dark purple/blue tint instead of pure black
   // This gives the "void" a subtle color instead of emptiness
-  c.globalCompositeOperation = 'source-over'
+  c.globalCompositeOperation = `source-over`
   c.fillStyle = `rgba(10, 5, 20, 0.1)`
   c.fillRect(0, 0, w, h)
 
@@ -243,7 +243,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
 
   // 4. Draw Background Orbs
   // These are huge, soft gradients that drift behind everything
-  c.globalCompositeOperation = 'lighter' // Additive blending for glow
+  c.globalCompositeOperation = `lighter` // Additive blending for glow
 
   App.bg_orbs.forEach(orb => {
     // Move orbs slowly
@@ -251,10 +251,21 @@ App.anim_liquid_aether = (c, w, h, f) => {
     orb.y += orb.vy + Math.cos(t) * 2
 
     // Bounce off walls
-    if (orb.x < -orb.radius) orb.x = w + orb.radius
-    if (orb.x > w + orb.radius) orb.x = -orb.radius
-    if (orb.y < -orb.radius) orb.y = h + orb.radius
-    if (orb.y > h + orb.radius) orb.y = -orb.radius
+    if (orb.x < -orb.radius) {
+      orb.x = w + orb.radius
+    }
+
+    if (orb.x > w + orb.radius) {
+      orb.x = -orb.radius
+    }
+
+    if (orb.y < -orb.radius) {
+      orb.y = h + orb.radius
+    }
+
+    if (orb.y > h + orb.radius) {
+      orb.y = -orb.radius
+    }
 
     // Draw the soft gradient
     const gradient = c.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius)
@@ -263,7 +274,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
     const pulse = 0.1 + Math.sin(t * 3 + orb.hue) * 0.05
 
     gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 60%, 40%, ${pulse})`)
-    gradient.addColorStop(1, 'rgba(0,0,0,0)')
+    gradient.addColorStop(1, `rgba(0,0,0,0)`)
 
     c.fillStyle = gradient
     c.beginPath()
@@ -301,21 +312,32 @@ App.anim_liquid_aether = (c, w, h, f) => {
     c.lineTo(p.x, p.y)
     c.stroke()
 
-    if (p.x < 0) p.x = w
-    if (p.x > w) p.x = 0
-    if (p.y < 0) p.y = h
-    if (p.y > h) p.y = 0
+    if (p.x < 0) {
+      p.x = w
+    }
+
+    if (p.x > w) {
+      p.x = 0
+    }
+
+    if (p.y < 0) {
+      p.y = h
+    }
+
+    if (p.y > h) {
+      p.y = 0
+    }
   })
 
   // Cleanup
-  c.globalCompositeOperation = 'source-over'
+  c.globalCompositeOperation = `source-over`
 }
 
 App.anim_orb_balloons = (c, w, h, f) => {
   // 1. Setup: Fewer objects, but much larger
   let orb_count = 8
 
-  if (!App.bg_orbs || App.bg_orbs.length !== orb_count) {
+  if (!App.bg_orbs || (App.bg_orbs.length !== orb_count)) {
     App.bg_orbs = Array(orb_count).fill().map((_, i) => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -323,7 +345,7 @@ App.anim_orb_balloons = (c, w, h, f) => {
       vy: (Math.random() - 0.5) * 3,
       base_radius: Math.random() * 150 + 100, // Base size
       hue: Math.random() * 360,
-      phase: Math.random() * Math.PI * 2 // Different starting point for pulsing
+      phase: Math.random() * Math.PI * 2, // Different starting point for pulsing
     }))
   }
 
@@ -344,10 +366,21 @@ App.anim_orb_balloons = (c, w, h, f) => {
     orb.y += orb.vy
 
     // Bounce off walls
-    if (orb.x < -orb.base_radius) orb.vx *= -1
-    if (orb.x > w + orb.base_radius) orb.vx *= -1
-    if (orb.y < -orb.base_radius) orb.vy *= -1
-    if (orb.y > h + orb.base_radius) orb.vy *= -1
+    if (orb.x < -orb.base_radius) {
+      orb.vx *= -1
+    }
+
+    if (orb.x > w + orb.base_radius) {
+      orb.vx *= -1
+    }
+
+    if (orb.y < -orb.base_radius) {
+      orb.vy *= -1
+    }
+
+    if (orb.y > h + orb.base_radius) {
+      orb.vy *= -1
+    }
 
     // Breathe: Radius expands and contracts smoothly using Sine waves
     // This makes it feel like "living" liquid
@@ -361,7 +394,7 @@ App.anim_orb_balloons = (c, w, h, f) => {
       0,
       orb.x,
       orb.y,
-      current_radius
+      current_radius,
     )
 
     // Color Logic: Rotate hue slowly over time so it never gets boring
