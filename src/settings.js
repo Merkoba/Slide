@@ -6,6 +6,7 @@ App.create_settings_modal = () => {
 
   let scope = DOM.create(`button`)
   scope.textContent = `Toggle Scope`
+  scope.title = `Show or hide the scope visualizer`
 
   DOM.ev(scope, `click`, () => {
     App.toggle_scope()
@@ -14,14 +15,15 @@ App.create_settings_modal = () => {
 
   let visual = DOM.create(`button`)
   visual.textContent = `Select Visual`
+  visual.title = `Change the background animation`
 
   DOM.ev(visual, `click`, () => {
     App.open_visual_modal()
     App.close_modal(`settings`)
   })
 
-  body.appendChild(scope)
   body.appendChild(visual)
+  body.appendChild(scope)
 }
 
 App.open_settings_modal = () => {
