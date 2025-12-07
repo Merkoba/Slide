@@ -85,7 +85,7 @@ App.playing = (extra) => {
 
     if (cache.filtered === App.last_code) {
       msg = `Playing: ${App.underspace(cache.name)}`
-      App.update_song_query_param(cache.name)
+      App.update_url(cache.name)
       break
     }
   }
