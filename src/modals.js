@@ -47,6 +47,7 @@ App.show_items_modal = async (id, args = {}) => {
   let def_args = {
     loaded: false,
     active: -1,
+    capitalize: true,
   }
 
   App.def_args(def_args, args)
@@ -82,7 +83,17 @@ App.show_items_modal = async (id, args = {}) => {
     for (let [i, item] of list.entries()) {
       let item_div = DOM.create(`div`)
       item_div.className = `modal-item`
-      item_div.textContent = App.underspace(item.text)
+      let name = item.text
+
+      if (args.capitalize) {
+        name = App.capitalize(name)
+      }
+
+      if (item.icon) {
+        name = `${item.icon} ${name}`
+      }
+
+      item_div.textContent = App.underspace(name)
       item_div.title = item.title
       DOM.ev(item_div, `click`, () => args.action(item))
 
