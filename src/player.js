@@ -53,7 +53,7 @@ App.stop_action = () => {
   App.stop_strudel()
   App.stop_code_scroll()
   App.clear_draw_context()
-  App.set_status(`Stopped`)
+  App.set_stop_status()
   App.set_song_context(``)
 }
 
@@ -94,11 +94,11 @@ App.strudel_update = async (code) => {
 
 App.playing = (extra) => {
   let msg = ``
-  let matched_song = App.get_matched_song()
+  let ms = App.get_matched_song()
 
-  if (matched_song) {
-    msg = `Playing: ${App.underspace(matched_song.name)}`
-    App.update_url(matched_song.name)
+  if (ms) {
+    msg = `Playing: ${ms.clean_name}`
+    App.update_url(ms.name)
   }
 
   if (!msg) {
@@ -111,4 +111,15 @@ App.playing = (extra) => {
   }
 
   App.set_status(msg)
+}
+
+App.set_stop_status = () => {
+  let ms = App.get_matched_song()
+
+  if (ms) {
+    App.set_status(`Stopped: ${ms.clean_name}`)
+  }
+  else {
+    App.set_status(`Stopped`)
+  }
 }

@@ -35,10 +35,11 @@ App.fetch_song_content = async (song_name) => {
 
     let cache = {}
     cache.name = song_name
+    cache.clean_name = App.underspace(song_name)
     cache.raw = content
     cache.filtered = App.filter_code(content)
     App.song_cache[song_name] = cache
-
+    App.last_code = content
     return content
   }
   catch (err) {
@@ -175,9 +176,9 @@ App.random_song = async () => {
 }
 
 App.clear_url_if_no_song = () => {
-  let matched_song = App.get_matched_song()
+  let ms = App.get_matched_song()
 
-  if (matched_song) {
+  if (ms) {
     return
   }
 
