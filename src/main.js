@@ -417,10 +417,6 @@ App.strudel_init = async () => {
     console.error(`Audio Failed:`, err)
     throw err
   }
-
-  App.status_debouncer = App.create_debouncer((status) => {
-    App.do_set_status(status)
-  }, 300)
 }
 
 App.playing = (extra) => {
@@ -718,6 +714,7 @@ App.start_events = async () => {
     })
   }
 
+  App.setup_status()
   App.setup_volume()
   App.setup_auto()
   App.setup_input()

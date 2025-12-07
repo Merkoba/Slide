@@ -90,10 +90,10 @@ App.playing = (extra) => {
   let msg = ``
 
   for (let name in App.song_cache) {
-    let content = App.song_cache[name]
+    let cache = App.song_cache[name]
 
-    if (content === App.last_code) {
-      msg = `Playing: ${App.underspace(App.current_song)}`
+    if (cache.filtered === App.last_code) {
+      msg = `Playing: ${App.underspace(cache.name)}`
       break
     }
   }

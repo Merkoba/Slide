@@ -32,7 +32,13 @@ App.fetch_song_content = async (song_name) => {
     }
 
     let content = await response.text()
-    App.song_cache[song_name] = content
+
+    let cache = {}
+    cache.name = song_name
+    cache.raw = content
+    cache.filtered = App.filter_code(content)
+    App.song_cache[song_name] = cache
+
     return content
   }
   catch (err) {

@@ -195,19 +195,6 @@ App.strudel_watch_status = () => {
   console.info(`Interval started.`)
 }
 
-App.set_status = (status) => {
-  if (!App.status_debouncer) {
-    return
-  }
-
-  App.status_debouncer.call(status)
-}
-
-App.do_set_status = (status) => {
-  let status_el = DOM.el(`#status`)
-  status_el.innerText = status
-}
-
 App.clear_status_watch = (set_cancelled = true) => {
   if (!App.fetch_timer) {
     return
