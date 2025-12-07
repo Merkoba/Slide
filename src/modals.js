@@ -135,6 +135,7 @@ App.open_modal = (id) => {
 App.do_open_modal = (modal) => {
   App.show_overlay()
   modal.classList.add(`active`)
+  App.beep_sound()
 }
 
 App.close_modal = (id) => {
