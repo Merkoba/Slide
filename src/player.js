@@ -98,16 +98,12 @@ App.playing = (extra) => {
     }
   }
 
-  if (App.current_song) {
-    msg = `Playing: ${App.underspace(App.current_song)}`
+  if (!msg) {
+    msg = `Playing 🥁`
   }
 
   if (extra) {
     msg = `${msg} - ${extra}`.trim()
-  }
-
-  if (!msg) {
-    msg = `Playing 🥁`
   }
 
   App.set_status(msg)
