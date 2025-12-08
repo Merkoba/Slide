@@ -130,5 +130,9 @@ App.set_stop_status = () => {
 }
 
 App.load_last_code = () => {
+  if (!App.last_code) {
+    return
+  }
+
   App.set_input(App.last_code)
 }
