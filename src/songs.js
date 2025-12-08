@@ -106,6 +106,10 @@ App.load_song_from_query = async () => {
   let requested_song = query_params.get(App.song_query_key)
   let requested_cpm = query_params.get(App.cpm_query_key)
 
+  if (!requested_song) {
+    return false
+  }
+
   if (requested_cpm) {
     let parsed_cpm = parseInt(requested_cpm, 10)
 
@@ -115,17 +119,11 @@ App.load_song_from_query = async () => {
     }
   }
 
-  if (!requested_song) {
-    return false
-  }
-
   try {
     App.set_status(`Loading ${requested_song}...`)
     let content = await App.fetch_song_content(requested_song)
-    App.restart_code_scroll()
     App.set_input(content)
     App.set_song_context(requested_song)
-    App.code_to_play = content
     App.set_status(`Loaded: ${App.underspace(requested_song)}`)
     return true
   }

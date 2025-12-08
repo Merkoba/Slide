@@ -136,3 +136,34 @@ App.load_last_code = () => {
 
   App.set_input(App.last_code)
 }
+
+App.load_code_from_query = async () => {
+  let query_params = new URLSearchParams(window.location.search)
+  let requested_code = query_params.get(App.code_query_key)
+  let requested_cpm = query_params.get(App.cpm_query_key)
+
+  if (!requested_code) {
+    return false
+  }
+
+  if (requested_cpm) {
+    let parsed_cpm = parseInt(requested_cpm, 10)
+
+    if (Number.isFinite(parsed_cpm)) {
+      App.update_tempo(parsed_cpm)
+      App.set_tempo()
+    }
+  }
+
+  try {
+    App.last_code = requested_code
+    App.load_last_code()
+    return true
+  }
+  catch (err) {
+    App.set_status(`Failed to load song: ${err.message}`)
+    console.error(`Failed to load song:`, err)
+  }
+
+  return false
+}

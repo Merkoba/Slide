@@ -27,6 +27,7 @@ const {evaluate, scheduler} = webaudioRepl({
 App.scheduler = scheduler
 
 App.app_name = `Slide`
+App.code_query_key = `code`
 App.song_query_key = `song`
 App.cpm_query_key = `cpm`
 App.current_song = ``
@@ -403,7 +404,9 @@ App.start_events = async () => {
   App.make_main_visible()
 
   if (!await App.load_song_from_query()) {
-    App.load_last_code()
+    if (!await App.load_code_from_query()) {
+      App.load_last_code()
+    }
   }
 }
 
@@ -439,6 +442,18 @@ App.update_url = (song_name = ``) => {
   }
   else {
     next_url.searchParams.delete(App.cpm_query_key)
+  }
+
+  let code = App.last_code || ``
+  code = code.strip()
+
+  if (code) {
+    if ((!song_name) && (code.length <= 1200)) {
+      next_url.searchParams.set(`code`, code)
+    }
+    else {
+      next_url.searchParams.delete(`code`)
+    }
   }
 
   window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
