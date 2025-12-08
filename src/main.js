@@ -444,8 +444,7 @@ App.update_url = (song_name = ``) => {
     next_url.searchParams.delete(App.cpm_query_key)
   }
 
-  let code = App.last_code || ``
-  code = code.strip()
+  let code = App.get_input().value.trim()
 
   if (code) {
     if ((!song_name) && (code.length <= 1200)) {
@@ -454,6 +453,9 @@ App.update_url = (song_name = ``) => {
     else {
       next_url.searchParams.delete(`code`)
     }
+  }
+  else {
+    next_url.searchParams.delete(App.code_query_key)
   }
 
   window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)

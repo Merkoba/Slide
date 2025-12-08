@@ -11,6 +11,7 @@ App.play_action = async (code = ``, force = false) => {
   }
 
   App.play_running = true
+  App.update_url()
   let ready = await App.ensure_strudel_ready()
 
   if (!ready) {
