@@ -4,6 +4,7 @@ App.auto_delay_storage_key = `slide.auto_delay`
 App.volume_storage_key = `slide.volume`
 App.visual_storage_key = `slide.visual`
 App.scope_storage_key = `slide.scope`
+App.colors_storage_key = `slide.colors`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
