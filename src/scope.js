@@ -506,6 +506,10 @@ App.init_scope_click_handler = () => {
     App.scope_is_drawing = false
     App.scope_last_point = null
   })
+
+  DOM.ev(canvas, `contextmenu`, (event) => {
+    event.preventDefault()
+  })
 }
 
 App.toggle_scope = () => {
@@ -606,8 +610,21 @@ App.check_scope_slide = () => {
   let b = App.mouse_up_coords
 
   if (Math.abs(a.x - b.x) >= App.scope_slide_distance) {
-    App.random_song()
+    if (a.x < b.x) {
+      App.random_song()
+    }
+    else {
+      App.next_visual()
+    }
+
+    App.clear_clicks()
   }
+}
+
+App.clear_clicks = () => {
+  setTimeout(() => {
+    App.scope_clicks = []
+  }, 100)
 }
 
 App.check_scope_panning = () => {

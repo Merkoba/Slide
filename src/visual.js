@@ -530,3 +530,15 @@ App.clear_visual = () => {
 App.get_active_visual_index = () => {
   return App.visual_items.map(x => x.text).indexOf(App.visual)
 }
+
+App.next_visual = () => {
+  let index = App.get_active_visual_index()
+  index += 1
+
+  if (index >= App.visual_items.length) {
+    index = 2
+  }
+
+  let visual = App.visual_items[index]
+  App.apply_visual(visual.text)
+}
