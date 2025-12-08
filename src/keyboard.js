@@ -20,9 +20,6 @@ App.start_keyboard = () => {
         App.stop_action()
       }
     }
-    else if (e.key === `Backspace`) {
-      input_buffer.pop()
-    }
     else if (e.key === `1`) {
       if (e.ctrlKey) {
         App.show_sounds_context()
