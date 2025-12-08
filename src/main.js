@@ -429,6 +429,7 @@ App.update_url = (song_name = ``) => {
   }
 
   let next_url = new URL(window.location.href)
+  let code = App.get_input().value.trim()
 
   if (song_name) {
     next_url.searchParams.set(App.song_query_key, song_name)
@@ -437,14 +438,12 @@ App.update_url = (song_name = ``) => {
     next_url.searchParams.delete(App.song_query_key)
   }
 
-  if (song_name) {
+  if (song_name || code) {
     next_url.searchParams.set(App.cpm_query_key, `${App.tempo}`)
   }
   else {
     next_url.searchParams.delete(App.cpm_query_key)
   }
-
-  let code = App.get_input().value.trim()
 
   if (code) {
     if (!song_name && (code.length <= 1200)) {
