@@ -150,6 +150,17 @@ body, html {
     border-radius: 25%;
 }
 
+.step-button-decrease::before {
+    content: "";
+    display: block;
+    width: 33%;     /* Length of the line */
+    height: 2px;        /* Thickness of the line */
+    background: currentColor; /* Matches your text color automatically */
+    border-radius: 1px; /* Rounded edges for the line */
+    text-align: center;
+    margin: 0 auto;
+}
+
 #volume-slider {
     width: 10rem;
     accent-color: var(--green);
@@ -316,6 +327,7 @@ button {
     color: rgb(225, 225, 225);
     font-size: 1.1rem;
     border-color: #888;
+    border-style: solid;
 }
 
 button:hover {
