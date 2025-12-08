@@ -444,3 +444,12 @@ App.restart_code_scroll = () => {
     App.reset_code_scroll_for_content(App.code_scroll_song_pause_ms)
   }
 }
+
+App.add_word_to_input = (word) => {
+  let textarea = DOM.el(`#code-input`)
+  let start_pos = textarea.selectionStart
+  let end_pos = textarea.selectionEnd
+  textarea.value = textarea.value.substring(0, start_pos) + word + textarea.value.substring(end_pos)
+  textarea.selectionStart = textarea.selectionEnd = start_pos + word.length
+  textarea.focus()
+}

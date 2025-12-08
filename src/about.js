@@ -16,6 +16,8 @@ App.create_about_modal = () => {
     <div class="about-item">Clicking the scope on the right produces right panning.</a></div>
     <div class="about-item">Ctrl+s = Starts playback / Updates code.</a></div>
     <div class="about-item">Escape = Closes top modal or stops playback.</a></div>
+    <div class="about-item">Typing sound(" and bank(" trigger an autocomplete context menu that is filterable.</a></div>
+    <div class="about-item">Ctrl+Enter shows this menu again on demand.</a></div>
   `
 }
 

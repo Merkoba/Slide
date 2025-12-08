@@ -45,22 +45,32 @@ App.strudel_banks = [
   `yeah`,
 ]
 
-App.show_sound_context = (event) => {
+App.show_sound_context = () => {
   let items = []
 
   for (let sound of App.strudel_sounds) {
     items.push({
       text: sound,
       action: () => {
-        console.log(sound)
+        App.add_word_to_input(sound)
       },
     })
   }
 
-  console.log(items)
   NeedContext.show({items})
 }
 
 App.show_bank_context = () => {
+  let items = []
 
+  for (let bank of App.strudel_banks) {
+    items.push({
+      text: bank,
+      action: () => {
+        App.add_word_to_input(bank)
+      },
+    })
+  }
+
+  NeedContext.show({items})
 }
