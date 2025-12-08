@@ -88,7 +88,9 @@ App.show_items_modal = async (id, args = {}) => {
       let name = item.alt_text || item.text
 
       if (args.icons) {
-        let item_icon = DOM.create(`div`, `modal-icon`)
+        let item_icon = DOM.create(`canvas`, `modal-icon`)
+        item_icon.width = 25
+        item_icon.height = 25
         item_div.appendChild(item_icon)
         jdenticon.update(item_icon, name)
       }

@@ -454,7 +454,9 @@ button:hover {
     font-size: 1.1rem;
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.9rem;
 }
 
 .modal-item:hover {
@@ -638,6 +640,6 @@ a.popup:hover {
 }
 
 .modal-icon {
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
 }
