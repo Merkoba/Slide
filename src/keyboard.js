@@ -27,12 +27,12 @@ App.start_keyboard = () => {
     }
     else if (e.key === `2`) {
       if (e.ctrlKey) {
-        App.show_banks_context()
+        App.show_notes_context()
       }
     }
     else if (e.key === `3`) {
       if (e.ctrlKey) {
-        App.show_notes_context()
+        App.show_banks_context()
       }
     }
   })

@@ -16,7 +16,7 @@ App.show_sounds_context = (event) => {
     })
   }
 
-  App.show_context(items, event)
+  App.show_context(items, event, `Sounds`)
 }
 
 App.show_notes_context = (event) => {
@@ -31,7 +31,7 @@ App.show_notes_context = (event) => {
     })
   }
 
-  App.show_context(items, event)
+  App.show_context(items, event, `Notes`)
 }
 
 App.show_banks_context = (event) => {
@@ -46,14 +46,16 @@ App.show_banks_context = (event) => {
     })
   }
 
-  App.show_context(items, event)
+  App.show_context(items, event, `Banks`)
 }
 
-App.show_context = (items, event) => {
+App.show_context = (items, event, title) => {
+  let args = {items, title}
+
   if (event) {
-    NeedContext.show({x: event.x, y: event.y, items})
+    args.x = event.x
+    args.y = event.y
   }
-  else {
-    NeedContext.show({items})
-  }
+
+  NeedContext.show(args)
 }

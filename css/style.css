@@ -702,3 +702,12 @@ a.popup:hover {
   outline: 1px solid #5c635c;
   animation: outline-hue-cycle 4s linear infinite;
 }
+
+#needcontext-container {
+    border-radius: 0 !important;
+}
+
+#needcontext-title {
+    background-color: rgb(78, 91, 106) !important;
+    color: white;
+}
