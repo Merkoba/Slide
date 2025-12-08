@@ -3,7 +3,9 @@ App.create_about_modal = () => {
   let title = DOM.el(`.modal-title`, modal)
   let version = `v${App.config.version}`
   title.textContent = `Slide ${version} | Merkoba | 2025`
+  title.id = `modal-title-about`
   let body = DOM.el(`.modal-body`, modal)
+  body.id = `modal-body-about`
 
   body.innerHTML = `
     <div class="about-item">Slide is a player for <a target=_blank class="popup" href="https://strudel.cc">strudel</a> code.</div>

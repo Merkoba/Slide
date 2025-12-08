@@ -648,3 +648,11 @@ a.popup:hover {
     pointer-events: none;
     opacity: 0.5;
 }
+
+#modal-title-about {
+    font-family: sans-serif;
+}
+
+#modal-body-about {
+    font-family: sans-serif;
+}
