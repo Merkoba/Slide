@@ -14,32 +14,26 @@ App.visual_items = [
   {
     text: `flux surface`,
     title: `A shimmering, flowing horizon where colors swirl like a sunset blending into dawn, a landscape in constant motion that feels alive and mysterious, like walking through a translucent, rippling lake of light`,
-    icon: `🌊`,
   },
   {
     text: `hyper rose`,
     title: `A surreal garden of glowing petals that pulse with vibrant energy, blossoms blooming in impossible hues, evoking a sense of wonder and infinite growth in a dreamlike meadow`,
-    icon: `🌹`,
   },
   {
     text: `bio tunnel`,
     title: `A lush, organic corridor woven with twisting vines and luminous flora, evoking the feeling of wandering through an underground rainforest alive with whispers of nature’s secret life`,
-    icon: `🍃`,
   },
   {
     text: `liquid aether`,
     title: `A flowing, translucent river of ethereal substance, shimmering with iridescent waves that pulse softly, inviting you to drift through an otherworldly sea of pure energy and serenity`,
-    icon: `💧`,
   },
   {
     text: `aurora borealis`,
     title: `A celestial dance of shimmering lights in the night sky, ribbons of green, pink, and purple swirling gracefully over icy mountains, evoking awe and the mysterious beauty of the polar skies`,
-    icon: `🌌`,
   },
   {
     text: `orb balloons`,
     title: `A whimsical cluster of floating orbs, each glowing softly like lanterns drifting lazily in a gentle breeze, creating a playful, dreamlike atmosphere of floating serenity and joyful levity`,
-    icon: `🎈`,
   },
 ]
 

@@ -48,6 +48,7 @@ App.show_items_modal = async (id, args = {}) => {
     loaded: false,
     active: -1,
     capitalize: true,
+    icons: true,
   }
 
   App.def_args(def_args, args)
@@ -82,18 +83,21 @@ App.show_items_modal = async (id, args = {}) => {
 
     for (let [i, item] of list.entries()) {
       let item_div = DOM.create(`div`)
+      let item_text = DOM.create(`div`)
       item_div.className = `modal-item`
       let name = item.alt_text || item.text
+
+      if (args.icons) {
+        let item_icon = DOM.create(`div`, `modal-icon`)
+        item_div.appendChild(item_icon)
+        jdenticon.update(item_icon, name)
+      }
 
       if (args.capitalize) {
         name = App.capitalize(name)
       }
 
-      if (item.icon) {
-        name = `${item.icon} ${name}`
-      }
-
-      item_div.textContent = App.underspace(name)
+      item_text.textContent = App.underspace(name)
       item_div.title = item.title
       DOM.ev(item_div, `click`, () => args.action(item))
 
@@ -101,6 +105,7 @@ App.show_items_modal = async (id, args = {}) => {
         item_div.classList.add(`modal-active-item`)
       }
 
+      item_div.appendChild(item_text)
       modal_list.appendChild(item_div)
     }
   }

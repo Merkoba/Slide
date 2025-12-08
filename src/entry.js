@@ -1,5 +1,6 @@
 import "./dom.js"
 import "./needcontext.js"
+import "./jdenticon.js"
 import "./mixer.js"
 import "./main.js"
 import "./filter.js"
