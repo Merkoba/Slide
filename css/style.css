@@ -360,6 +360,7 @@ button:hover {
     transition: color 3s ease;
     max-width: 30rem;
     word-break: break-all;
+    cursor: pointer;
 }
 
 #modal-overlay {

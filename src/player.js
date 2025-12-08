@@ -108,7 +108,13 @@ App.playing = (extra) => {
   }
 
   if (!msg) {
-    msg = `Playing 🥁`
+    if (App.beat_title) {
+      msg = `Playing: ${App.beat_title}`
+    }
+    else {
+      msg = `Playing 🥁`
+    }
+
     App.update_url()
   }
 

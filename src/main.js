@@ -30,6 +30,7 @@ App.app_name = `Slide`
 App.code_query_key = `code`
 App.song_query_key = `song`
 App.cpm_query_key = `cpm`
+App.beat_query_key = `beat`
 App.current_song = ``
 App.events_started = false
 App.audio_started = false
@@ -446,16 +447,18 @@ App.update_url = (song_name = ``) => {
     next_url.searchParams.delete(App.cpm_query_key)
   }
 
-  if (code) {
-    if (!song_name && (code.length <= App.code_url_max)) {
-      next_url.searchParams.set(`code`, code)
-    }
-    else {
-      next_url.searchParams.delete(`code`)
-    }
+  if (code && !song_name && (code.length <= App.code_url_max)) {
+    next_url.searchParams.set(App.code_query_key, code)
   }
   else {
     next_url.searchParams.delete(App.code_query_key)
+  }
+
+  if (!song_name && App.beat_title) {
+    next_url.searchParams.set(App.beat_query_key, App.beat_title)
+  }
+  else {
+    next_url.searchParams.delete(App.beat_query_key)
   }
 
   window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
