@@ -53,7 +53,7 @@ App.show_items_modal = async (id, args = {}) => {
   App.def_args(def_args, args)
   let loaded = args.loaded || false
   let modal = DOM.el(`#${id}-modal`)
-  let modal_list = DOM.el(`.modal-list`, modal)
+  let modal_list = DOM.el(`.modal-body`, modal)
   let filter_input = DOM.el(`.modal-filter`, modal)
 
   if (loaded) {

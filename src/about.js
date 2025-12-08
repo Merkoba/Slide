@@ -6,10 +6,16 @@ App.create_about_modal = () => {
   let body = DOM.el(`.modal-body`, modal)
 
   body.innerHTML = `
-    <p>Slide is a player for <a target=_blank class="popup" href="https://strudel.cc">strudel</a> code.</p>
-    <p>It's meant to allow automatic & seamless code updates.</a></p>
-    <p>There's a song picker to play elaborate tunes.</a></p>
-    <p>The code can be edited in real time and applied with Play.</a></p>
+    <div class="about-item">Slide is a player for <a target=_blank class="popup" href="https://strudel.cc">strudel</a> code.</div>
+    <div class="about-item">It's meant to allow automatic & seamless code updates.</a></div>
+    <div class="about-item">There's a song picker to play elaborate tunes.</a></div>
+    <div class="about-item">The code can be edited in real time and applied with Play.</a></div>
+    <div class="about-item">The scope visualizer can be clicked in the left/center/right.</a></div>
+    <div class="about-item">Clicking the scope produces a tone and a reverb affect.</a></div>
+    <div class="about-item">Clicking scope on the left produces left panning.</a></div>
+    <div class="about-item">Clicking scope on the right produces right panning.</a></div>
+    <div class="about-item">Ctrl+s = Save/update the code.</a></div>
+    <div class="about-item">Escape = Close modal or stop playback.</a></div>
   `
 }
 
