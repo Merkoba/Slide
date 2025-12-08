@@ -8,7 +8,7 @@ App.start_keyboard = () => {
   DOM.ev(document, `keydown`, (e) => {
     let now = Date.now()
 
-    if ((e.key.length === 1)) {
+    if (e.key.length === 1) {
       input_buffer.push({char: e.key, time: now})
 
       if (input_buffer.length > App.max_keboard_buffer) {
@@ -17,7 +17,7 @@ App.start_keyboard = () => {
     }
 
     input_buffer = input_buffer.filter((item) => {
-      return ((now - item.time) < App.keyboard_popup_delay)
+      return (now - item.time) < App.keyboard_popup_delay
     })
 
     let recent_text = input_buffer.map((item) => item.char).join(``)
@@ -56,7 +56,6 @@ App.start_keyboard = () => {
       else {
         App.stop_action()
       }
-
     }
     else if (e.key === `Enter`) {
       if (e.ctrlKey) {
