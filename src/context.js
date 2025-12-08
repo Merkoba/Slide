@@ -11,7 +11,7 @@ App.show_sound_context = () => {
     items.push({
       text: sound,
       action: () => {
-        App.add_word_to_input(`${sound} `)
+        App.add_word_to_input(sound)
       },
     })
   }
@@ -26,7 +26,7 @@ App.show_note_context = () => {
     items.push({
       text: note,
       action: () => {
-        App.add_word_to_input(`${note} `)
+        App.add_word_to_input(note)
       },
     })
   }
@@ -41,7 +41,7 @@ App.show_bank_context = () => {
     items.push({
       text: bank,
       action: () => {
-        App.add_word_to_input(`${bank}")`)
+        App.add_word_to_input(bank)
       },
     })
   }

@@ -394,7 +394,7 @@ button:hover {
     align-items: center;
     padding: 1rem;
     border-bottom: 1px solid #444;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .modal-header h2 {
@@ -661,9 +661,20 @@ a.popup:hover {
     font-family: sans-serif;
 }
 
+@keyframes outline-hue-cycle {
+  0% {outline-color: hsl(0, 50%, 50%);}
+  20% {outline-color: hsl(72, 50%, 50%);}
+  40% {outline-color: hsl(144, 50%, 50%);}
+  60% {outline-color: hsl(216, 50%, 50%);}
+  80% {outline-color: hsl(288, 50%, 50%);}
+  100% {outline-color: hsl(360, 50%, 50%);}
+}
+
 #modal-about-image {
-    width: 33px;
-    height: 33px;
-    border-radius: 10px;
-    user-select: none;
+  width: 33px;
+  height: 33px;
+  border-radius: 10px;
+  user-select: none;
+  outline: 1px solid #5c635c;
+  animation: outline-hue-cycle 4s linear infinite;
 }
