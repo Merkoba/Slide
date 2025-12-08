@@ -41,6 +41,7 @@ App.play_action = async (code = ``, force = false) => {
   App.clear_draw_context()
   App.start_color_cycle()
   App.clean_canvas()
+  App.update_title()
   App.is_playing = true
 
   try {

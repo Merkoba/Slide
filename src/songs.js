@@ -131,6 +131,7 @@ App.set_song_context = (song_name = ``) => {
 
   if (song_name) {
     App.update_url(App.current_song)
+    App.update_title()
   }
   else {
     App.clear_url_if_no_song()
@@ -174,6 +175,7 @@ App.clear_url_if_no_song = () => {
   }
 
   App.update_url()
+  App.update_title()
 }
 
 App.get_matched_song = () => {

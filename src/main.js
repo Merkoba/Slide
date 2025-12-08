@@ -470,6 +470,20 @@ App.get_query_params = () => {
   return new URLSearchParams(window.location.search)
 }
 
+App.update_title = () => {
+  let title = App.app_name
+  let ms = App.get_matched_song()
+
+  if (ms) {
+    title = `${title} - ${ms.clean_name}`
+  }
+  else if (App.beat_title) {
+    title = `${title} - ${App.beat_title}`
+  }
+
+  document.title = title
+}
+
 window.H = H_hydra
 window.initHydra = initHydra
 window.clearHydra = clearHydra
