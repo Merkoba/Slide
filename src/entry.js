@@ -1,4 +1,5 @@
 import "./dom.js"
+import "./needcontext.js"
 import "./mixer.js"
 import "./main.js"
 import "./filter.js"
@@ -18,6 +19,7 @@ import "./player.js"
 import "./settings.js"
 import "./status.js"
 import "./keyboard.js"
+import "./context.js"
 
 const start_app_events = () => {
   if (!window?.App?.start_events) {

@@ -1,4 +1,5 @@
 const App = {}
+NeedContext.init()
 
 import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
