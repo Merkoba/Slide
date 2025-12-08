@@ -102,21 +102,11 @@ App.load_song_from_query = async () => {
     return false
   }
 
-  let query_params = new URLSearchParams(window.location.search)
+  let query_params = App.get_query_params()
   let requested_song = query_params.get(App.song_query_key)
-  let requested_cpm = query_params.get(App.cpm_query_key)
 
   if (!requested_song) {
     return false
-  }
-
-  if (requested_cpm) {
-    let parsed_cpm = parseInt(requested_cpm, 10)
-
-    if (Number.isFinite(parsed_cpm)) {
-      App.update_tempo(parsed_cpm)
-      App.set_tempo()
-    }
   }
 
   try {

@@ -38,5 +38,8 @@ App.set_title = () => {
 
   App.beat_title = title.trim()
   App.update_url()
-  App.playing()
+
+  if (App.is_playing) {
+    App.playing()
+  }
 }

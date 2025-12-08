@@ -404,9 +404,11 @@ App.start_events = async () => {
   })
 
   App.make_main_visible()
+  App.set_cpm_from_query()
+  App.set_beat_title_from_query()
 
   if (!await App.load_song_from_query()) {
-    if (!await App.load_code_from_query()) {
+    if (!App.load_code_from_query()) {
       App.load_last_code()
     }
   }
@@ -462,6 +464,10 @@ App.update_url = (song_name = ``) => {
   }
 
   window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
+}
+
+App.get_query_params = () => {
+  return new URLSearchParams(window.location.search)
 }
 
 window.H = H_hydra
