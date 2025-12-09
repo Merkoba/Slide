@@ -173,7 +173,7 @@ App.input_caret_visible = (el) => {
   // 4. Check Visibility
   // Ensure the top of the caret is below the top scroll
   // AND the bottom of the caret is above the bottom scroll
-  if (caret_pixel_top >= scroll_top && caret_pixel_bottom <= scroll_bottom) {
+  if ((caret_pixel_top >= scroll_top) && (caret_pixel_bottom <= scroll_bottom)) {
     return true
   }
 
