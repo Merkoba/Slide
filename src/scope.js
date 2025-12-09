@@ -142,15 +142,41 @@ App.resize_scope_canvas = () => {
 
   App.scope_pixel_ratio = ratio
 
-  // Get the wrapper element
   let wrapper_el = DOM.el(`#code-input-wrapper`)
+  let container_el = DOM.el(`#scope-container`)
 
-  // Use wrapper width if found, otherwise fall back to existing logic
-  let width = (wrapper_el && wrapper_el.clientWidth) || App.scope_canvas_el.clientWidth || (App.scope_canvas_el.width / ratio) || 320
+  // Default fallback
+  let css_width = 320
+
+  if (wrapper_el && container_el) {
+    // Get the precise fractional width of the wrapper
+    let wrapper_rect = wrapper_el.getBoundingClientRect()
+    let total_width = wrapper_rect.width
+
+    // Calculate the precise border widths of the container
+    // This handles cases where zoom makes borders non-integer values
+    let container_style = window.getComputedStyle(container_el)
+    let border_left = parseFloat(container_style.borderLeftWidth) || 0
+    let border_right = parseFloat(container_style.borderRightWidth) || 0
+
+    // The canvas should be the total wrapper width minus the container borders
+    css_width = total_width - border_left - border_right
+  }
+  else {
+    css_width = App.scope_canvas_el.clientWidth || (App.scope_canvas_el.width / ratio)
+  }
+
   let height = App.scope_canvas_el.clientHeight || (App.scope_canvas_el.height / ratio) || 80
 
-  let scaled_width = Math.max(1, Math.round(width * ratio))
-  let scaled_height = Math.max(1, Math.round(height * ratio))
+  // 1. Set the CSS style explicitly (controls visual layout size)
+  // We use the fractional css_width here to align perfectly with the wrapper
+  App.scope_canvas_el.style.width = `${css_width}px`
+  App.scope_canvas_el.style.height = `${height}px`
+
+  // 2. Set the internal buffer size (controls resolution/sharpness)
+  // We round this to the nearest integer for valid canvas attributes
+  let scaled_width = Math.round(css_width * ratio)
+  let scaled_height = Math.round(height * ratio)
 
   if ((App.scope_canvas_el.width !== scaled_width) || (App.scope_canvas_el.height !== scaled_height)) {
     App.scope_canvas_el.width = scaled_width

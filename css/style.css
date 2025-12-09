@@ -110,6 +110,10 @@ body, html {
     margin-bottom: -1px;
 }
 
+#scope-canvas {
+    display: block;
+}
+
 #scope-visualizer.active {
     display: flex;
 }
