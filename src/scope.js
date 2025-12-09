@@ -119,7 +119,7 @@ App.setup_scope_canvas = () => {
     App.scope_canvas_ctx = context
   }
 
-  App.scope_debouncer.call()
+  App.resize_scope_canvas()
   return canvas
 }
 

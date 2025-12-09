@@ -401,7 +401,6 @@ App.start_events = async () => {
   App.init_tempo_controls()
   App.init_code_input_controls()
   App.start_keyboard()
-  App.max_input()
 
   DOM.ev(window, `resize`, () => {
     App.handle_scope_resize()
@@ -410,6 +409,7 @@ App.start_events = async () => {
   App.make_main_visible()
   App.set_cpm_from_query()
   App.set_beat_title_from_query()
+  App.max_input()
 
   if (!await App.load_song_from_query()) {
     if (!App.load_code_from_query()) {
