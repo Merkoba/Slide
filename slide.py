@@ -84,11 +84,11 @@ def load_config() -> None:
     except FileNotFoundError:
         logging.warning("Config file %s not found, using defaults", CONFIG_FILE)
         app_config = {"version": "1.0"}
-    except json.JSONDecodeError as exc:
-        logging.error("Invalid JSON in config file %s: %s", CONFIG_FILE, exc)
+    except json.JSONDecodeError:
+        logging.exception("Invalid JSON in config file")
         app_config = {"version": "1.0"}
-    except OSError as exc:
-        logging.error("Failed to read config file %s: %s", CONFIG_FILE, exc)
+    except OSError:
+        logging.exception("Failed to read config file")
         app_config = {"version": "1.0"}
 
 
@@ -129,7 +129,7 @@ def load_api_key() -> str:
 
     try:
         key = key_path.read_text(encoding="utf-8").strip()
-    except FileNotFoundError as exc:
+    except FileNotFoundError:
         pass
     if not key:
         pass
@@ -139,7 +139,7 @@ def load_api_key() -> str:
 
     try:
         key_2 = key_path_2.read_text(encoding="utf-8").strip()
-    except FileNotFoundError as exc:
+    except FileNotFoundError:
         pass
     if not key_2:
         pass
@@ -147,7 +147,7 @@ def load_api_key() -> str:
     CLAUDE_API_KEY = key_2
 
 
-def load_instructions() -> str:
+def load_instructions() -> None:
     """Load customizable instructions used to build the AI prompt."""
 
     global INSTRUCTIONS
@@ -157,15 +157,16 @@ def load_instructions() -> str:
     try:
         instructions = instructions_path.read_text(encoding="utf-8").strip()
     except FileNotFoundError:
-        return PROMPT.strip()
+        return
     except OSError as exc:
         logging.warning(
             "Failed to read instructions file %s: %s", instructions_path, exc
         )
-        return PROMPT.strip()
+
+        return
 
     if not instructions:
-        raise RuntimeError(f"Instructions file is empty: {key_path}")
+        raise RuntimeError("Instructions file is empty.")
 
     INSTRUCTIONS = instructions
 
@@ -367,9 +368,9 @@ def background_worker() -> None:
     while not stop_event.wait(interval_seconds):
         try:
             answer = run_ai_prompt()
-        except Exception as exc:
-            logging.exception("AI request failed: %s", exc)
-            answer = f"Error collecting answer: {exc}"
+        except Exception:
+            logging.exception("AI request failed")
+            answer = "Error collecting answer"
 
         with answer_lock:
             record_history(answer)
