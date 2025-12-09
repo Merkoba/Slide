@@ -224,7 +224,6 @@ body, html {
 
 #code-input.grow {
     text-shadow: var(--input-text-shadow);
-    font-size: 1.33rem;
 }
 
 #code-input.cursive {
