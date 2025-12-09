@@ -85,7 +85,7 @@ App.strudel_init = async () => {
     strudelMini.miniAllStrings()
 
     // Load samples and sounds in parallel
-    const ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
+    let ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
 
     console.info(`Loading samples and soundfonts...`)
 
@@ -134,7 +134,7 @@ App.reset_eval_state = () => {
 }
 
 App.report_eval_failure = (error) => {
-  const message = error?.message || App.last_eval_error || `Failed to evaluate Strudel code`
+  let message = error?.message || App.last_eval_error || `Failed to evaluate Strudel code`
   App.last_eval_error = message
   App.set_status(message)
 }
@@ -175,10 +175,10 @@ App.split_by_newlines = (block) => {
   let round = 0
   let square = 0
   let curly = 0
-  const parts = []
+  let parts = []
 
-  const flush = () => {
-    const trimmed = buffer.trim()
+  let flush = () => {
+    let trimmed = buffer.trim()
 
     if (trimmed) {
       parts.push(trimmed)
@@ -228,12 +228,12 @@ App.split_by_newlines = (block) => {
       continue
     }
 
-    const nextChar = block[i + 1]
-    const depthClear = (round === 0) && (square === 0) && (curly === 0)
-    const nextIsIndent = (nextChar === ` `) || (nextChar === `\t`)
-    const nextIsNewline = nextChar === `\n`
+    let next_char = block[i + 1]
+    let depth_clear = (round === 0) && (square === 0) && (curly === 0)
+    let next_is_indent = (next_char === ` `) || (next_char === `\t`)
+    let next_is_newline = next_char === `\n`
 
-    if (depthClear && !nextIsIndent && !nextIsNewline) {
+    if (depth_clear && !next_is_indent && !next_is_newline) {
       flush()
     }
   }
@@ -243,22 +243,22 @@ App.split_by_newlines = (block) => {
 }
 
 App.segment_code = (code) => {
-  const normalized = App.normalize_code(code)
+  let normalized = App.normalize_code(code)
 
   if (!normalized) {
     return []
   }
 
-  const coarse = normalized.split(/\n{2,}/g).map((block) => block.trim()).filter(Boolean)
-  const segments = []
+  let coarse = normalized.split(/\n{2,}/g).map((block) => block.trim()).filter(Boolean)
+  let segments = []
 
-  for (const block of coarse) {
+  for (let block of coarse) {
     if (!block.includes(`\n`)) {
       segments.push(block)
       continue
     }
 
-    const refined = App.split_by_newlines(block)
+    let refined = App.split_by_newlines(block)
 
     if (refined.length) {
       segments.push(...refined)
@@ -269,7 +269,7 @@ App.segment_code = (code) => {
   }
 
   if ((segments.length <= 1) && normalized.includes(`\n`)) {
-    const fallback = normalized.split(/\n+/g).map((line) => line.trim()).filter(Boolean)
+    let fallback = normalized.split(/\n+/g).map((line) => line.trim()).filter(Boolean)
 
     if (fallback.length > 1) {
       return fallback
@@ -280,17 +280,17 @@ App.segment_code = (code) => {
 }
 
 App.apply_partial_update = async (code) => {
-  const segments = App.segment_code(code)
+  let segments = App.segment_code(code)
 
   if (!segments.length) {
     return false
   }
 
-  const applied = []
+  let applied = []
   let skipped = 0
 
-  for (const segment of segments) {
-    const result = await App.run_eval(segment)
+  for (let segment of segments) {
+    let result = await App.run_eval(segment)
 
     if (result.ok) {
       applied.push(segment)
@@ -305,7 +305,7 @@ App.apply_partial_update = async (code) => {
     return false
   }
 
-  const sanitized = applied.join(`\n\n`)
+  let sanitized = applied.join(`\n\n`)
   App.set_input(sanitized)
 
   if (skipped > 0) {

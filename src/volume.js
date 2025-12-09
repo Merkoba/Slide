@@ -20,13 +20,13 @@ App.read_volume_value = (input_el) => {
     return App.volume
   }
 
-  const slider_value = input_el.valueAsNumber
+  let slider_value = input_el.valueAsNumber
 
   if (Number.isFinite(slider_value)) {
     return slider_value
   }
 
-  const numeric_value = parseInt(input_el.value, 10)
+  let numeric_value = parseInt(input_el.value, 10)
 
   if (Number.isFinite(numeric_value)) {
     return numeric_value
@@ -36,8 +36,8 @@ App.read_volume_value = (input_el) => {
 }
 
 App.refresh_volume_ui = () => {
-  const slider = App.get_volume_slider()
-  const display = App.get_volume_value()
+  let slider = App.get_volume_slider()
+  let display = App.get_volume_value()
 
   if (slider) {
     slider.value = `${App.volume}`
@@ -54,8 +54,8 @@ App.apply_volume = () => {
   }
 
   try {
-    const controller = getSuperdoughAudioController()
-    const destination_gain = controller?.output?.destinationGain
+    let controller = getSuperdoughAudioController()
+    let destination_gain = controller?.output?.destinationGain
 
     if (!destination_gain) {
       console.warn(`Destination gain node missing`)
@@ -84,10 +84,10 @@ App.update_volume = (percent) => {
 }
 
 App.init_volume_controls = () => {
-  const slider = App.get_volume_slider()
-  const container = DOM.el(`#volume-control`)
-  const decrement_button = DOM.el(`#volume-decrement`)
-  const increment_button = DOM.el(`#volume-increment`)
+  let slider = App.get_volume_slider()
+  let container = DOM.el(`#volume-control`)
+  let decrement_button = DOM.el(`#volume-decrement`)
+  let increment_button = DOM.el(`#volume-increment`)
 
   if (!slider) {
     return
@@ -100,7 +100,7 @@ App.init_volume_controls = () => {
     App.update_volume(App.read_volume_value(event.target))
   })
 
-  const step_volume = (direction) => {
+  let step_volume = (direction) => {
     App.update_volume(App.volume + (direction * App.volume_step))
   }
 

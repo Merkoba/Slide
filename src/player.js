@@ -81,7 +81,7 @@ App.strudel_update = async (code) => {
   await App.ensure_scope()
 
   App.set_tempo()
-  const full_result = await App.run_eval(code)
+  let full_result = await App.run_eval(code)
 
   if (full_result.ok) {
     App.playing()
@@ -89,7 +89,7 @@ App.strudel_update = async (code) => {
   }
 
   if (App.do_partial_updates) {
-    const partial_applied = await App.apply_partial_update(code)
+    let partial_applied = await App.apply_partial_update(code)
 
     if (partial_applied) {
       return
