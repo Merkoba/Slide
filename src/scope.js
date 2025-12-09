@@ -14,6 +14,8 @@ App.scope_animation_id = undefined
 App.scope_connected = false
 App.scope_pixel_ratio = 1
 App.scope_enabled = true
+App.scope_max_y = -1
+App.scope_min_y = -1
 
 App.scope_background = `#111111da`
 App.scope_color = `rgba(204, 198, 239, 1)`
@@ -35,6 +37,7 @@ App.scope_padding_amount = 0.9
 App.scope_enable_date = 0
 App.scope_click_lock = 250
 App.scope_debouncer_delay = 50
+App.max_scope_slide_y_dff = 45
 
 App.setup_scope = () => {
   App.scope_debouncer = App.create_debouncer(() => {
@@ -275,6 +278,20 @@ App.handle_scope_mouse_move = (event) => {
     let x = event.clientX - rect.left
     let y = event.clientY - rect.top
 
+    if (App.scope_max_y === -1) {
+      App.scope_max_y = y
+    }
+    else if (y > App.scope_max_y) {
+      App.scope_max_y = y
+    }
+
+    if (App.scope_min_y === -1) {
+      App.scope_min_y = y
+    }
+    else if (y < App.scope_min_y) {
+      App.scope_min_y = y
+    }
+
     if (App.scope_last_point) {
       let lastX = App.scope_last_point.x
       let lastY = App.scope_last_point.y
@@ -479,6 +496,9 @@ App.init_scope_click_handler = () => {
   }
 
   DOM.ev(canvas, `mousedown`, (event) => {
+    App.scope_max_y = -1
+    App.scope_min_y = -1
+
     if (App.scope_mouse_enabled()) {
       App.handle_scope_mouse_down(event)
     }
@@ -490,12 +510,6 @@ App.init_scope_click_handler = () => {
     }
   })
 
-  DOM.ev(canvas, `mouseup`, (event) => {
-    if (App.scope_mouse_enabled()) {
-      App.handle_scope_mouse_up(event)
-    }
-  })
-
   DOM.ev(canvas, `click`, (event) => {
     if (App.scope_mouse_enabled()) {
       App.handle_scope_click(event)
@@ -503,6 +517,10 @@ App.init_scope_click_handler = () => {
   })
 
   DOM.ev(document, `mouseup`, (event) => {
+    if (App.scope_mouse_enabled()) {
+      App.handle_scope_mouse_up(event)
+    }
+
     App.scope_is_drawing = false
     App.scope_last_point = null
   })
@@ -608,6 +626,11 @@ App.get_scope_coords = (event) => {
 App.check_scope_slide = () => {
   let a = App.mouse_down_coords
   let b = App.mouse_up_coords
+  let y_diff = Math.abs(App.scope_max_y - App.scope_min_y)
+
+  if (y_diff >= App.max_scope_slide_y_dff) {
+    return
+  }
 
   if (Math.abs(a.x - b.x) >= App.scope_slide_distance) {
     if (a.x < b.x) {
