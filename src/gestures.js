@@ -249,12 +249,10 @@ App.square_gesture = () => {
       return get_sq_dist(p, a)
     }
 
-    let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / len_sq
+    let t = (((p.x - a.x) * (b.x - a.x)) + ((p.y - a.y) * (b.y - a.y))) / len_sq
     t = Math.max(0, Math.min(1, t))
-    return get_sq_dist(p, {
-      x: a.x + (t * (b.x - a.x)),
-      y: a.y + (t * (b.y - a.y)),
-    })
+
+    return get_sq_dist(p, {x: a.x + (t * (b.x - a.x)), y: a.y + (t * (b.y - a.y))})
   }
 
   let simplify_path = (points, tolerance) => {
@@ -286,7 +284,10 @@ App.square_gesture = () => {
 
   // --- Detection Logic ---
 
-  let min_x = Infinity, max_x = -Infinity, min_y = Infinity, max_y = -Infinity
+  let min_x = Infinity
+  let max_x = -Infinity
+  let min_y = Infinity
+  let max_y = -Infinity
 
   for (let i = 0; i < len; i++) {
     let p = clicks[i]
@@ -301,7 +302,8 @@ App.square_gesture = () => {
   let end = clicks[len - 1]
   let gap = Math.hypot(start.x - end.x, start.y - end.y)
 
-  if ((gap / diag) > 0.35) {
+  // 1. Check if the shape is closed relative to its size
+  if ((gap / diag) > 0.4) {
     return false
   }
 
@@ -309,22 +311,53 @@ App.square_gesture = () => {
   let height = max_y - min_y
   let ratio = width / height
 
-  if ((ratio < 0.7) || (ratio > 1.4)) {
+  // 2. Removed strict square limits (0.7-1.4).
+  // Allow anything that isn't a flat line.
+  if ((ratio < 0.15) || (ratio > 6.0)) {
     return false
   }
 
-  // STRICTER: Lowered tolerance from 0.12 (12%) to 0.05 (5%)
-  // This is the key fix.
-  // At 5% tolerance, a curve (circle) cannot be simplified to 4 lines.
-  // It will retain many vertices to preserve the curve shape.
-  // A square (straight lines) will still simplify to ~5 vertices.
-  let tolerance = diag * 0.05
+  // 3. Simplify the path
+  let tolerance = diag * 0.06 // Slightly relaxed tolerance
   let simple_shape = simplify_path(clicks, tolerance)
   let v_count = simple_shape.length
 
-  // Now we reject anything with too many vertices.
-  // If v_count is > 6, it implies the shape was curved (a circle), so we return false.
-  return (v_count >= 5) && (v_count <= 6)
+  // A closed rectangle usually has 5 points (Start, TL, TR, BR, End/Start)
+  // We allow 4 (if corners match perfectly) to 6 (if slightly messy)
+  if ((v_count < 4) || (v_count > 6)) {
+    return false
+  }
+
+  // 4. Angle Check (The key to "Flexible but Accurate")
+  // Check if corners are roughly orthogonal (90 degrees)
+  // A triangle will fail this, but a wide rectangle will pass
+  let right_angles = 0
+
+  for (let i = 1; i < (v_count - 1); i++) {
+    let prev = simple_shape[i - 1]
+    let curr = simple_shape[i]
+    let next = simple_shape[i + 1]
+
+    let dx1 = curr.x - prev.x
+    let dy1 = curr.y - prev.y
+    let dx2 = next.x - curr.x
+    let dy2 = next.y - curr.y
+
+    let dot = (dx1 * dx2) + (dy1 * dy2)
+    let mag1 = Math.hypot(dx1, dy1)
+    let mag2 = Math.hypot(dx2, dy2)
+
+    // Cosine of angle. 0 means 90 degrees.
+    // We allow a range of +/- 0.5 (approx 60 to 120 degrees)
+    let cos_angle = dot / (mag1 * mag2)
+
+    if (Math.abs(cos_angle) < 0.5) {
+      right_angles++
+    }
+  }
+
+  // We need at least 2 decent corners to confirm it's rect-like
+  return right_angles >= 2
 }
 
 App.cycle_panning = (amount, iterations) => {
