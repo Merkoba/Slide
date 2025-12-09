@@ -334,14 +334,7 @@ App.init_code_input_controls = () => {
       }
 
       DOM.ev(wrapper, `mouseover`, () => {
-        let max_button = DOM.el(`#code-input-max`)
-
-        if (App.input_is_maxed()) {
-          max_button.classList.add(`disabled`)
-        }
-        else {
-          max_button.classList.remove(`disabled`)
-        }
+        App.check_max_button()
       })
     }
 
@@ -506,6 +499,7 @@ App.max_input = () => {
   let diff = App.get_input_diff()
   wrapper.style.height = `${diff}px`
   wrapper.style.width = `${max_width}%`
+  App.check_max_button()
 }
 
 App.get_input_diff = () => {
@@ -515,4 +509,15 @@ App.get_input_diff = () => {
   let height_sum = top_height + scope_height + controls_height
   let total_height = App.viewport_height()
   return total_height - height_sum
+}
+
+App.check_max_button = () => {
+  let max_button = DOM.el(`#code-input-max`)
+
+  if (App.input_is_maxed()) {
+    max_button.classList.add(`disabled`)
+  }
+  else {
+    max_button.classList.remove(`disabled`)
+  }
 }
