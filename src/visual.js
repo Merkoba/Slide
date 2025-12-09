@@ -536,6 +536,10 @@ App.next_visual = () => {
   index += 1
 
   if (index >= App.visual_items.length) {
+    index = 0
+  }
+
+  if (index <= 1) {
     index = 2
   }
 
