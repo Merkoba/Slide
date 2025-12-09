@@ -723,11 +723,13 @@ a.popup:hover {
 
 #needcontext-container {
     border-radius: 0 !important;
+    border: 4px solid #9c9ac5 !important;
+    min-width: 6rem !important;
 }
 
 #needcontext-title {
     background-color: rgb(78, 91, 106) !important;
-    color: white;
+    color: white !important;
 }
 
 .modal-body hr {
