@@ -43,6 +43,7 @@ App.triangle_gesture = () => {
   let get_sq_dist = (p1, p2) => {
     let dx = p1.x - p2.x
     let dy = p1.y - p2.y
+
     return (dx * dx) + (dy * dy)
   }
 
@@ -56,10 +57,36 @@ App.triangle_gesture = () => {
     let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / len_sq
     t = Math.max(0, Math.min(1, t))
 
-    return get_sq_dist(p, {x:a.x + (t * (b.x - a.x)), y:a.y + (t * (b.y - a.y))})
+    return get_sq_dist(p, {
+      x: a.x + (t * (b.x - a.x)),
+      y: a.y + (t * (b.y - a.y)),
+    })
   }
 
-  // ramer-douglas-peucker simplification
+  let get_angle = (p1, p2, p3) => {
+    let v1 = {
+      x: p1.x - p2.x,
+      y: p1.y - p2.y,
+    }
+    let v2 = {
+      x: p3.x - p2.x,
+      y: p3.y - p2.y,
+    }
+
+    let dot = (v1.x * v2.x) + (v1.y * v2.y)
+    let mag1 = Math.sqrt((v1.x * v1.x) + (v1.y * v1.y))
+    let mag2 = Math.sqrt((v2.x * v2.x) + (v2.y * v2.y))
+
+    if ((mag1 * mag2) === 0) {
+      return 0
+    }
+
+    let cosine = dot / (mag1 * mag2)
+    cosine = Math.max(-1, Math.min(1, cosine))
+
+    return Math.acos(cosine) * (180 / Math.PI)
+  }
+
   let simplify_path = (points, tolerance) => {
     if (points.length <= 2) {
       return points
@@ -71,6 +98,7 @@ App.triangle_gesture = () => {
 
     for (let i = 1; i < end; i++) {
       let sq_dist = get_point_line_dist(points[i], points[0], points[end])
+
       if (sq_dist > max_sq_dist) {
         max_sq_dist = sq_dist
         index = i
@@ -80,6 +108,7 @@ App.triangle_gesture = () => {
     if (max_sq_dist > (tolerance * tolerance)) {
       let left = simplify_path(points.slice(0, index + 1), tolerance)
       let right = simplify_path(points.slice(index), tolerance)
+
       return left.slice(0, left.length - 1).concat(right)
     }
 
@@ -90,12 +119,13 @@ App.triangle_gesture = () => {
     let len = points.length
 
     if (len < 10) {
-      return false // ignore tiny accidental clicks
+      return false
     }
 
-    // 1. check if shape is closed
-    // determine bounding box to get a relative scale for tolerance
-    let min_x = Infinity, max_x = -Infinity, min_y = Infinity, max_y = -Infinity
+    let min_x = Infinity
+    let max_x = -Infinity
+    let min_y = Infinity
+    let max_y = -Infinity
 
     for (let i = 0; i < len; i++) {
       min_x = Math.min(min_x, points[i].x)
@@ -109,21 +139,37 @@ App.triangle_gesture = () => {
     let end = points[len - 1]
     let gap = Math.hypot(start.x - end.x, start.y - end.y)
 
-    // if the gap is larger than 20% of the shape size, it's not closed
-    if ((gap / diag) > 0.2) {
+    // relaxed: allow a 15% gap relative to size
+    if ((gap / diag) > 0.15) {
       return false
     }
 
-    // 2. simplify the path
-    // tolerance is how much curve we allow. 15% of size is a good baseline for "messy" mouse drawing
-    let tolerance = diag * 0.15
+    // relaxed: allow 12% curvature (wobble)
+    let tolerance = diag * 0.12
     let simple_shape = simplify_path(points, tolerance)
-
-    // 3. count vertices
-    // a drawn triangle usually simplifies to 4 points: start, corner 1, corner 2, end (which is near start)
-    // sometimes 3 if start/end align perfectly with a corner
     let v_count = simple_shape.length
-    return (v_count === 3) || (v_count === 4)
+
+    if ((v_count < 3) || (v_count > 4)) {
+      return false
+    }
+
+    let corners = simple_shape.slice(0, 3)
+
+    let angles = [
+      get_angle(corners[2], corners[0], corners[1]),
+      get_angle(corners[0], corners[1], corners[2]),
+      get_angle(corners[1], corners[2], corners[0]),
+    ]
+
+    for (let i = 0; i < 3; i++) {
+      // strictness: reject only very thin slivers (< 15 degrees)
+      // or essentially flat lines (> 165 degrees)
+      if ((angles[i] < 15) || (angles[i] > 165)) {
+        return false
+      }
+    }
+
+    return true
   }
 
   return detect_triangle(App.scope_clicks)
