@@ -98,10 +98,6 @@ App.load_song = async (song_name) => {
 }
 
 App.load_song_from_query = async () => {
-  if (!window || !window.location) {
-    return false
-  }
-
   let query_params = App.get_query_params()
   let requested_song = query_params.get(App.song_query_key)
 

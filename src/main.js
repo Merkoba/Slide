@@ -423,10 +423,6 @@ App.set_title = (title) => {
 }
 
 App.update_url = (song_name = ``) => {
-  if (!window?.history?.replaceState) {
-    return
-  }
-
   let next_url = new URL(window.location.href)
   let code = App.get_input().value.trim()
 

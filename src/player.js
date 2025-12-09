@@ -6,6 +6,8 @@ App.reset_playing = () => {
 }
 
 App.play_action = async (code = ``, force = false) => {
+  console.info(`🔮 Play Action`)
+
   if (App.play_running) {
     return
   }
@@ -55,6 +57,7 @@ App.play_action = async (code = ``, force = false) => {
 }
 
 App.stop_action = () => {
+  console.info(`🔮 Stop Action`)
   App.stop_status_watch()
   App.stop_strudel()
   App.stop_code_scroll()
@@ -81,6 +84,7 @@ App.strudel_update = async (code) => {
   await App.ensure_scope()
 
   App.set_tempo()
+  App.update_url()
   let full_result = await App.run_eval(code)
 
   if (full_result.ok) {
@@ -105,7 +109,6 @@ App.playing = (extra) => {
 
   if (ms) {
     msg = `Playing: ${ms.clean_name}`
-    App.update_url(ms.name)
   }
 
   if (!msg) {
@@ -115,8 +118,6 @@ App.playing = (extra) => {
     else {
       msg = `Playing 🥁`
     }
-
-    App.update_url()
   }
 
   if (extra) {
