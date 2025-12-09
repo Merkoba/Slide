@@ -13,26 +13,27 @@ App.create_about_modal = () => {
 
   body.innerHTML = `
     <div class="about-item">Slide is a music player that uses <a target=_blank class="popup" href="https://strudel.cc">strudel</a> code.</div>
-    <div class="about-item">It's meant to allow automatic & seamless code updates.</a></div>
-    <div class="about-item">There's a song picker to play elaborate tunes.</a></div>
-    <div class="about-item">The code can be edited in real time and applied with Play.</a></div>
-    <div class="about-item">The scope visualizer can be clicked in the left/center/right.</a></div>
-    <div class="about-item">Clicking the scope produces a tone and a reverb affect.</a></div>
-    <div class="about-item">Clicking the scope on the left produces left panning.</a></div>
-    <div class="about-item">Clicking the scope on the right produces right panning.</a></div>
-    <div class="about-item">A straight line to the left on the scope sets the next visual.</a></div>
-    <div class="about-item">A straight line to the right on the scope opens a random song.</a></div>
-    <div class="about-item">Ctrl+s = Starts playback / Updates code.</a></div>
-    <div class="about-item">Escape = Closes top modal or stops playback.</a></div>
-    <div class="about-item">Ctrl+1 = Show the sound context.</a></div>
-    <div class="about-item">Ctrl+2 = Show the note context.</a></div>
-    <div class="about-item">Ctrl+3 = Show the bank context.</a></div>
-    <div class="about-item">Try drawing a triangle on the scope.</a></div>
-    <div class="about-item">Try drawing a rectangle on the scope.</a></div>
-    <div class="about-item">Try drawing a circle on the scope.</a></div>
-    <div class="about-item">Credit: Gemini</a></div>
-    <div class="about-item">Credit: ChatGPT</a></div>
-    <div class="about-item">Credit: Claude</a></div>
+    <div class="about-item">It's meant to allow automatic & seamless code updates.</div>
+    <div class="about-item">There's a song picker to play elaborate tunes.</div>
+    <div class="about-item">The code can be edited in real time and applied with Play.</div>
+    <div class="about-item">The scope visualizer can be clicked in the left/center/right.</div>
+    <div class="about-item">Clicking the scope produces a tone and a reverb affect.</div>
+    <div class="about-item">Clicking the scope on the left produces left panning.</div>
+    <div class="about-item">Clicking the scope on the right produces right panning.</div>
+    <div class="about-item">A straight line to the left on the scope sets the next visual.</div>
+    <div class="about-item">A straight line to the right on the scope opens a random song.</div>
+    <div class="about-item">Ctrl+s = Starts playback / Updates code.</div>
+    <div class="about-item">Escape = Closes top modal or stops playback.</div>
+    <div class="about-item">Ctrl+1 = Show the sound context.</div>
+    <div class="about-item">Ctrl+2 = Show the note context.</div>
+    <div class="about-item">Ctrl+3 = Show the bank context.</div>
+    <div class="about-item">Try drawing a triangle on the scope.</div>
+    <div class="about-item">Try drawing a rectangle on the scope.</div>
+    <div class="about-item">Try drawing a circle on the scope.</div>
+    <hr>
+    <div class="about-item">Credit: Gemini</div>
+    <div class="about-item">Credit: ChatGPT</div>
+    <div class="about-item">Credit: Claude</div>
   `
 }
 

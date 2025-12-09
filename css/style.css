@@ -700,6 +700,7 @@ a.popup:hover {
 
 #modal-body-about {
     font-family: sans-serif;
+    overflow-x: hidden;
 }
 
 @keyframes outline-hue-cycle {
@@ -727,4 +728,9 @@ a.popup:hover {
 #needcontext-title {
     background-color: rgb(78, 91, 106) !important;
     color: white;
+}
+
+.modal-body hr {
+    color: #737373;
+    width: 100%;
 }
