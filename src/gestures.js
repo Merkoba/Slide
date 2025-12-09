@@ -16,7 +16,10 @@ App.check_scope_slide = () => {
     }
 
     App.clear_clicks()
+    return true
   }
+
+  return false
 }
 
 App.check_scope_panning = () => {

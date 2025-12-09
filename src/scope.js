@@ -320,17 +320,20 @@ App.handle_scope_mouse_move = (event) => {
 
 App.handle_scope_mouse_up = (event) => {
   App.mouse_up_coords = App.get_scope_coords(event)
-
-  if ((Date.now() - App.scope_mousedown_date) <= App.scope_beep_delay) {
-    App.splash_reverb(2)
-
-    if (!App.check_scope_panning()) {
-      App.beep_sound()
-    }
-  }
+  let slided = false
 
   if ((Date.now() - App.scope_mousedown_date) <= App.scope_slide_delay) {
-    App.check_scope_slide()
+    slided = App.check_scope_slide()
+  }
+
+  if (!slided) {
+    if ((Date.now() - App.scope_mousedown_date) <= App.scope_beep_delay) {
+      App.splash_reverb(2)
+
+      if (!App.check_scope_panning()) {
+        App.beep_sound()
+      }
+    }
   }
 
   if (App.triangle_gesture()) {
