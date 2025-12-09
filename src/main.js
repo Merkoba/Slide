@@ -426,6 +426,10 @@ App.update_url = (song_name = ``) => {
   let next_url = new URL(window.location.href)
   let code = App.get_input().value.trim()
 
+  if (!song_name) {
+    song_name = App.get_song_name()
+  }
+
   if (song_name) {
     next_url.searchParams.set(App.song_query_key, song_name)
   }
