@@ -132,12 +132,13 @@ App.triangle_gesture = () => {
 App.circle_gesture = () => {
   let clicks = App.scope_clicks
 
-  // Safety check: prevent crash if array doesn't exist yet
-  if (!clicks || !Array.isArray(clicks)) { return false }
+  // Safety check
+  if (!clicks || !Array.isArray(clicks)) {
+    return false
+  }
 
   let len = clicks.length
 
-  // allow slightly fewer points for quick circles
   if (len < 8) {
     return false
   }
@@ -149,7 +150,6 @@ App.circle_gesture = () => {
   let sum_x = 0
   let sum_y = 0
 
-  // 1. get bounds and centroid sum
   for (let i = 0; i < len; i++) {
     let p = clicks[i]
 
@@ -173,30 +173,26 @@ App.circle_gesture = () => {
     sum_y += p.y
   }
 
-  // 2. check closure
   let diag = Math.hypot(max_x - min_x, max_y - min_y)
   let start = clicks[0]
   let end = clicks[len - 1]
   let gap = Math.hypot(start.x - end.x, start.y - end.y)
 
-  // RELAXED: was 0.2 (20%). Now 0.35 (35%).
-  // Allows the start and end points to be further apart (sloppy finish).
+  // 1. Closure Check
   if ((gap / diag) > 0.35) {
     return false
   }
 
-  // 3. check aspect ratio (width vs height)
+  // 2. Aspect Ratio Check
   let width = max_x - min_x
   let height = max_y - min_y
   let ratio = width / height
 
-  // RELAXED: was 0.6 to 1.6. Now 0.4 to 2.5.
-  // This allows "squashed" ovals to pass as circles.
   if ((ratio < 0.4) || (ratio > 2.5)) {
     return false
   }
 
-  // 4. check circularity (standard deviation of radius)
+  // 3. Circularity Check
   let center_x = sum_x / len
   let center_y = sum_y / len
   let sum_r = 0
@@ -221,25 +217,24 @@ App.circle_gesture = () => {
   let std_dev = Math.sqrt(sum_sq_diff / len)
   let score = std_dev / avg_r
 
-  // RELAXED: was 0.15. Now 0.3.
-  // This is the "wobble factor". 0.3 allows for very shaky hands
-  // or irregular speeds, while still rejecting squares (which are usually > 0.35).
-  return score < 0.3
+  // RELAXED: Increased from 0.3 to 0.35
+  // This allows "potato" circles to pass, while the Square check (below)
+  // will now reject circles, removing the conflict.
+  return score < 0.35
 }
 
 App.square_gesture = () => {
   let clicks = App.scope_clicks
 
-  // Safety check
-  if (!clicks || !Array.isArray(clicks)) { return false }
+  if (!clicks || !Array.isArray(clicks)) {
+    return false
+  }
 
   let len = clicks.length
 
   if (len < 10) {
     return false
   }
-
-  // --- Helper Functions (defined locally to keep it self-contained) ---
 
   let get_sq_dist = (p1, p2) => {
     let dx = p1.x - p2.x
@@ -249,11 +244,13 @@ App.square_gesture = () => {
 
   let get_point_line_dist = (p, a, b) => {
     let len_sq = get_sq_dist(a, b)
-    if (len_sq === 0) return get_sq_dist(p, a)
+
+    if (len_sq === 0) {
+      return get_sq_dist(p, a)
+    }
 
     let t = ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / len_sq
     t = Math.max(0, Math.min(1, t))
-
     return get_sq_dist(p, {
       x: a.x + (t * (b.x - a.x)),
       y: a.y + (t * (b.y - a.y))
@@ -279,13 +276,11 @@ App.square_gesture = () => {
       let right = simplify_path(points.slice(index), tolerance)
       return left.slice(0, left.length - 1).concat(right)
     }
-
     return [points[0], points[end]]
   }
 
   // --- Detection Logic ---
 
-  // 1. Get bounds
   let min_x = Infinity, max_x = -Infinity, min_y = Infinity, max_y = -Infinity
 
   for (let i = 0; i < len; i++) {
@@ -296,34 +291,31 @@ App.square_gesture = () => {
     max_y = Math.max(max_y, p.y)
   }
 
-  // 2. Check Closure
   let diag = Math.hypot(max_x - min_x, max_y - min_y)
   let start = clicks[0]
   let end = clicks[len - 1]
   let gap = Math.hypot(start.x - end.x, start.y - end.y)
 
-  // Gap must be less than 35% of total size (lenient closure)
   if ((gap / diag) > 0.35) { return false }
 
-  // 3. Check Aspect Ratio (Distinguish Square from Rectangle)
   let width = max_x - min_x
   let height = max_y - min_y
   let ratio = width / height
 
-  // A square is roughly 1:1. We allow 0.7 to 1.4.
-  // If it's outside this, it's a rectangle, not a square.
   if (ratio < 0.7 || ratio > 1.4) { return false }
 
-  // 4. Simplify and Count Corners
-  // Tolerance: 12% of the diagonal size handles "messy" lines well
-  let tolerance = diag * 0.12
+  // STRICTER: Lowered tolerance from 0.12 (12%) to 0.05 (5%)
+  // This is the key fix.
+  // At 5% tolerance, a curve (circle) cannot be simplified to 4 lines.
+  // It will retain many vertices to preserve the curve shape.
+  // A square (straight lines) will still simplify to ~5 vertices.
+  let tolerance = diag * 0.05
   let simple_shape = simplify_path(clicks, tolerance)
   let v_count = simple_shape.length
 
-  // A closed square usually simplifies to 5 points:
-  // Start -> Corner 1 -> Corner 2 -> Corner 3 -> End (near Start)
-  // We accept 5 or 6 (in case of a small over-draw hook)
-  return (v_count === 5 || v_count === 6)
+  // Now we reject anything with too many vertices.
+  // If v_count is > 6, it implies the shape was curved (a circle), so we return false.
+  return (v_count >= 5 && v_count <= 6)
 }
 
 App.cycle_panning = (amount, iterations) => {
