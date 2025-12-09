@@ -398,40 +398,9 @@ App.restore_input = () => {
 
 App.input_is_maxed = () => {
   let wrapper = DOM.el(`#code-input-wrapper`)
-
-  if (!wrapper) {
-    return
-  }
-
-  let buffer = 2
-  let main = DOM.el(`#main`)
-  let main_width = window.innerWidth
-
-  let style = getComputedStyle(document.documentElement)
-  let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
-  let max_width = parseInt(style.getPropertyValue(`--input_max_width`))
-  let cheight = wrapper.offsetHeight
-  let cwidth = wrapper.getBoundingClientRect().width
-
-  if (main) {
-    let main_style = getComputedStyle(main)
-    let padding_left = parseFloat(main_style.paddingLeft) || 0
-    let padding_right = parseFloat(main_style.paddingRight) || 0
-    let client_width = main.clientWidth || main.getBoundingClientRect().width
-    main_width = Math.max(0, client_width - padding_left - padding_right)
-  }
-
-  let max_width_px = (max_width / 100) * main_width
-
-  if (Math.abs(cheight - max_height) > buffer) {
-    return false
-  }
-
-  if (Math.abs(cwidth - max_width_px) > buffer) {
-    return false
-  }
-
-  return true
+  let diff = App.get_input_diff()
+  let height = parseInt(wrapper.style.height)
+  return Math.abs(diff - height) <= 2
 }
 
 App.restart_code_scroll = () => {
@@ -534,14 +503,16 @@ App.max_input = () => {
   let wrapper = DOM.el(`#code-input-wrapper`)
   let style = getComputedStyle(document.documentElement)
   let max_width = parseInt(style.getPropertyValue(`--input_max_width`))
+  let diff = App.get_input_diff()
+  wrapper.style.height = `${diff}px`
+  wrapper.style.width = `${max_width}%`
+}
 
+App.get_input_diff = () => {
   let top_height = App.get_top_height()
   let scope_height = App.get_scope_height()
   let controls_height = App.get_controls_height()
   let height_sum = top_height + scope_height + controls_height
   let total_height = App.viewport_height()
-  let diff = total_height - height_sum
-
-  wrapper.style.height = `${diff}px`
-  wrapper.style.width = `${max_width}%`
+  return total_height - height_sum
 }
