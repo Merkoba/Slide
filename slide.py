@@ -468,7 +468,7 @@ def songs_assets(filename):
     return send_from_directory("songs", filename)
 
 
-@app.get("/song/<path:song_name>", methods=["GET"])  # type: ignore
+@app.route("/song/<path:song_name>", methods=["GET"])  # type: ignore
 def song_shortcut(song_name: str):
     """Render HTML page with song name in title and meta tags."""
 
