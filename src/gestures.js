@@ -253,18 +253,22 @@ App.square_gesture = () => {
     t = Math.max(0, Math.min(1, t))
     return get_sq_dist(p, {
       x: a.x + (t * (b.x - a.x)),
-      y: a.y + (t * (b.y - a.y))
+      y: a.y + (t * (b.y - a.y)),
     })
   }
 
   let simplify_path = (points, tolerance) => {
-    if (points.length <= 2) return points
+    if (points.length <= 2) {
+      return points
+    }
+
     let max_sq_dist = 0
     let index = 0
     let end = points.length - 1
 
     for (let i = 1; i < end; i++) {
       let sq_dist = get_point_line_dist(points[i], points[0], points[end])
+
       if (sq_dist > max_sq_dist) {
         max_sq_dist = sq_dist
         index = i
@@ -276,6 +280,7 @@ App.square_gesture = () => {
       let right = simplify_path(points.slice(index), tolerance)
       return left.slice(0, left.length - 1).concat(right)
     }
+
     return [points[0], points[end]]
   }
 
@@ -296,13 +301,17 @@ App.square_gesture = () => {
   let end = clicks[len - 1]
   let gap = Math.hypot(start.x - end.x, start.y - end.y)
 
-  if ((gap / diag) > 0.35) { return false }
+  if ((gap / diag) > 0.35) {
+    return false
+  }
 
   let width = max_x - min_x
   let height = max_y - min_y
   let ratio = width / height
 
-  if (ratio < 0.7 || ratio > 1.4) { return false }
+  if ((ratio < 0.7) || (ratio > 1.4)) {
+    return false
+  }
 
   // STRICTER: Lowered tolerance from 0.12 (12%) to 0.05 (5%)
   // This is the key fix.
@@ -315,7 +324,7 @@ App.square_gesture = () => {
 
   // Now we reject anything with too many vertices.
   // If v_count is > 6, it implies the shape was curved (a circle), so we return false.
-  return (v_count >= 5 && v_count <= 6)
+  return (v_count >= 5) && (v_count <= 6)
 }
 
 App.cycle_panning = (amount, iterations) => {
