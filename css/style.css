@@ -1,16 +1,16 @@
 :root {
-  --green: #94dd94;
+    --green: #94dd94;
 
-  --input_width: 88%;
-  --input_height: 420px;
+    --input_width: 88%;
+    --input_height: 420px;
 
-  --input_max_width: 88%;
-  --input_max_height: 680px;
+    --input_max_width: 88%;
+    --input_max_height: 680px;
 
-  --input_min_width: 600px;
-  --input_min_height: 200px;
+    --input_min_width: 600px;
+    --input_min_height: 200px;
 
-  --alpha_background: #111111da;
+    --alpha_background: #111111da;
 }
 
 body, html {
