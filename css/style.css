@@ -5,7 +5,6 @@
     --input_height: 420px;
 
     --input_max_width: 88%;
-    --input_max_height: 680px;
 
     --input_min_width: 600px;
     --input_min_height: 200px;
@@ -193,7 +192,6 @@ body, html {
     height: var(--input_height);
     min-width: var(--input_min_width);
     min-height: var(--input_min_height);
-    max-height: var(--input_max_height);
     max-width: var(--input_width);
     resize: none;
     box-sizing: border-box;

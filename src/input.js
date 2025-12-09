@@ -299,10 +299,9 @@ App.init_code_input_controls = () => {
             let style = getComputedStyle(document.documentElement)
             let min_width = parseInt(style.getPropertyValue(`--input_min_width`))
             let min_height = parseInt(style.getPropertyValue(`--input_min_height`))
-            let max_height = parseInt(style.getPropertyValue(`--input_max_height`))
 
             new_width = Math.max(min_width, new_width)
-            new_height = Math.max(min_height, Math.min(max_height, new_height))
+            new_height = Math.max(min_height, new_height)
 
             wrapper.style.width = `${new_width}px`
             wrapper.style.height = `${new_height}px`
