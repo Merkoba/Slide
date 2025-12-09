@@ -31,7 +31,7 @@ App.scope_clicks = []
 App.scope_click_time = 3 * 1000
 App.scope_click_size = 18
 App.scope_is_drawing = false
-App.scope_click_distance = 180
+App.scope_click_distance = 120
 App.scope_mousedown_date = 0
 App.scope_beep_delay = 300
 App.scope_slide_delay = 800
@@ -324,17 +324,17 @@ App.handle_scope_mouse_move = (event) => {
     }
 
     if (App.scope_last_point) {
-      let lastX = App.scope_last_point.x
-      let lastY = App.scope_last_point.y
+      let last_x = App.scope_last_point.x
+      let last_y = App.scope_last_point.y
 
-      let dx = x - lastX
-      let dy = y - lastY
+      let dx = x - last_x
+      let dy = y - last_y
       let distance = Math.sqrt(dx * dx + dy * dy)
       let steps = Math.ceil(distance / App.scope_click_distance)
 
       for (let i = 1; i <= steps; i++) {
-        let intermediateX = lastX + (dx * i / steps)
-        let intermediateY = lastY + (dy * i / steps)
+        let intermediateX = last_x + (dx * i / steps)
+        let intermediateY = last_y + (dy * i / steps)
         App.scope_clicks.push({x: intermediateX, y: intermediateY, timestamp: Date.now()})
       }
     }
