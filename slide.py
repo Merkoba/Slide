@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import os
 import json
@@ -5,8 +7,16 @@ import atexit
 import logging
 import threading
 from pathlib import Path
-from typing import Dict, Optional, List
-from flask import Flask, Response, send_from_directory, redirect, url_for, render_template, request
+from typing import Optional
+
+from flask import (
+    Flask,
+    Response,
+    send_from_directory,
+    render_template,
+    request,
+)
+
 from litellm import completion
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -39,400 +49,448 @@ CLAUDE_API_KEY_FILE = os.getenv("LITELLM_KEY_FILE", "keys/claude_api_key.txt")
 STATE_FILE = os.getenv("STATE_FILE", "status.txt")
 INSTRUCTIONS = ""
 INSTRUCTIONS_FILE = os.getenv("INSTRUCTIONS_FILE", "instructions.txt")
-REQUEST_INTERVAL_MINUTES = max(1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{MINUTES}")))
+
+REQUEST_INTERVAL_MINUTES = max(
+    1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{MINUTES}"))
+)
+
 DEFAULT_ANSWER = ""
 SONG_LIST_LIMIT = 100
-
 CONFIG_FILE = "config/config.json"
 app_config = {}
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 
 app = Flask(__name__)
 stop_event = threading.Event()
 answer_lock = threading.Lock()
 worker_thread: Optional[threading.Thread] = None
 status_observer: Optional[Observer] = None
-HISTORY: List[str] = []
+HISTORY: list[str] = []
+
 
 def load_config() -> None:
-	"""Load application configuration from config.json."""
+    """Load application configuration from config.json."""
 
-	global app_config
+    global app_config
 
-	config_path = Path(CONFIG_FILE)
+    config_path = Path(CONFIG_FILE)
 
-	try:
-		config_content = config_path.read_text(encoding="utf-8")
-		app_config = json.loads(config_content)
-		logging.info("Loaded config: %s", app_config)
-	except FileNotFoundError:
-		logging.warning("Config file %s not found, using defaults", CONFIG_FILE)
-		app_config = {"version": "1.0"}
-	except json.JSONDecodeError as exc:
-		logging.error("Invalid JSON in config file %s: %s", CONFIG_FILE, exc)
-		app_config = {"version": "1.0"}
-	except OSError as exc:
-		logging.error("Failed to read config file %s: %s", CONFIG_FILE, exc)
-		app_config = {"version": "1.0"}
+    try:
+        config_content = config_path.read_text(encoding="utf-8")
+        app_config = json.loads(config_content)
+        logging.info("Loaded config: %s", app_config)
+    except FileNotFoundError:
+        logging.warning("Config file %s not found, using defaults", CONFIG_FILE)
+        app_config = {"version": "1.0"}
+    except json.JSONDecodeError as exc:
+        logging.error("Invalid JSON in config file %s: %s", CONFIG_FILE, exc)
+        app_config = {"version": "1.0"}
+    except OSError as exc:
+        logging.error("Failed to read config file %s: %s", CONFIG_FILE, exc)
+        app_config = {"version": "1.0"}
+
 
 def strip_markdown_code_fences(text: str) -> str:
-	"""Remove triple-backtick markdown fences that may wrap code blocks."""
+    """Remove triple-backtick markdown fences that may wrap code blocks."""
 
-	if not text:
-		return text
+    if not text:
+        return text
 
-	lines = text.strip().splitlines()
-	cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
+    lines = text.strip().splitlines()
+    cleaned_lines = [line for line in lines if not line.strip().startswith("```")]
 
-	cleaned = "\n".join(cleaned_lines).strip()
-	return cleaned if cleaned else text.strip()
+    cleaned = "\n".join(cleaned_lines).strip()
+    return cleaned if cleaned else text.strip()
+
 
 def resolve_model_name(raw_name: str) -> str:
-	"""Normalize user-provided identifiers to LiteLLM's provider format."""
+    """Normalize user-provided identifiers to LiteLLM's provider format."""
 
-	name = raw_name.strip()
+    name = raw_name.strip()
 
-	if name.startswith("google/"):
-		return f"gemini/{name.split('/', 1)[1]}"
+    if name.startswith("google/"):
+        return f"gemini/{name.split('/', 1)[1]}"
 
-	if "/" not in name:
-		return f"gemini/{name}"
+    if "/" not in name:
+        return f"gemini/{name}"
 
-	return name
+    return name
+
 
 def load_api_key() -> str:
-	"""Load the provider key from api_key.txt, raising if it cannot be read."""
+    """Load the provider key from api_key.txt, raising if it cannot be read."""
 
-	global GOOGLE_API_KEY
-	global CLAUDE_API_KEY
+    global GOOGLE_API_KEY
+    global CLAUDE_API_KEY
 
-	key_path = Path(GOOGLE_API_KEY_FILE)
+    key_path = Path(GOOGLE_API_KEY_FILE)
 
-	try:
-		key = key_path.read_text(encoding="utf-8").strip()
-	except FileNotFoundError as exc:
-		pass
-	if not key:
-		pass
+    try:
+        key = key_path.read_text(encoding="utf-8").strip()
+    except FileNotFoundError as exc:
+        pass
+    if not key:
+        pass
 
-	GOOGLE_API_KEY = key
-	key_path_2 = Path(CLAUDE_API_KEY_FILE)
+    GOOGLE_API_KEY = key
+    key_path_2 = Path(CLAUDE_API_KEY_FILE)
 
-	try:
-		key_2 = key_path_2.read_text(encoding="utf-8").strip()
-	except FileNotFoundError as exc:
-		pass
-	if not key_2:
-		pass
+    try:
+        key_2 = key_path_2.read_text(encoding="utf-8").strip()
+    except FileNotFoundError as exc:
+        pass
+    if not key_2:
+        pass
 
-	CLAUDE_API_KEY = key_2
+    CLAUDE_API_KEY = key_2
+
 
 def load_instructions() -> str:
-	"""Load customizable instructions used to build the AI prompt."""
+    """Load customizable instructions used to build the AI prompt."""
 
-	global INSTRUCTIONS
+    global INSTRUCTIONS
 
-	instructions_path = Path(INSTRUCTIONS_FILE)
+    instructions_path = Path(INSTRUCTIONS_FILE)
 
-	try:
-		instructions = instructions_path.read_text(encoding="utf-8").strip()
-	except FileNotFoundError:
-		return PROMPT.strip()
-	except OSError as exc:
-		logging.warning("Failed to read instructions file %s: %s", instructions_path, exc)
-		return PROMPT.strip()
+    try:
+        instructions = instructions_path.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return PROMPT.strip()
+    except OSError as exc:
+        logging.warning(
+            "Failed to read instructions file %s: %s", instructions_path, exc
+        )
+        return PROMPT.strip()
 
-	if not instructions:
-		raise RuntimeError(f"Instructions file is empty: {key_path}")
+    if not instructions:
+        raise RuntimeError(f"Instructions file is empty: {key_path}")
 
-	INSTRUCTIONS = instructions
+    INSTRUCTIONS = instructions
+
 
 def read_status_file() -> str:
-	"""Read the raw status text from disk, falling back to DEFAULT_ANSWER."""
+    """Read the raw status text from disk, falling back to DEFAULT_ANSWER."""
 
-	status_path = Path(STATE_FILE)
+    status_path = Path(STATE_FILE)
 
-	try:
-		return status_path.read_text(encoding="utf-8")
-	except FileNotFoundError:
-		return DEFAULT_ANSWER
-	except OSError as exc:
-		logging.warning("Failed to read status file %s: %s", status_path, exc)
-		return DEFAULT_ANSWER
+    try:
+        return status_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return DEFAULT_ANSWER
+    except OSError as exc:
+        logging.warning("Failed to read status file %s: %s", status_path, exc)
+        return DEFAULT_ANSWER
+
 
 def load_status() -> str:
-	"""Return the cached AI response from disk if available."""
+    """Return the cached AI response from disk if available."""
 
-	cached = read_status_file()
+    cached = read_status_file()
 
-	if not cached:
-		return DEFAULT_ANSWER
+    if not cached:
+        return DEFAULT_ANSWER
 
-	record_history(cached)
-	return cached
+    record_history(cached)
+    return cached
+
 
 def persist_answer(answer: str) -> None:
-	"""Persist the latest answer so it can be served without a fresh fetch."""
+    """Persist the latest answer so it can be served without a fresh fetch."""
 
-	status_path = Path(STATE_FILE)
+    status_path = Path(STATE_FILE)
 
-	try:
-		status_path.write_text(answer, encoding="utf-8")
-	except OSError as exc:
-		logging.warning("Failed to write status file %s: %s", status_path, exc)
+    try:
+        status_path.write_text(answer, encoding="utf-8")
+    except OSError as exc:
+        logging.warning("Failed to write status file %s: %s", status_path, exc)
+
 
 def record_history(entry: str) -> None:
-	"""Keep a bounded, in-memory sequence of recent beats.
+    """Keep a bounded, in-memory sequence of recent beats.
 
-	Callers should hold answer_lock when invoking from threaded contexts.
-	"""
+    Callers should hold answer_lock when invoking from threaded contexts.
+    """
 
-	if not entry or entry == DEFAULT_ANSWER:
-		return
+    if not entry or entry == DEFAULT_ANSWER:
+        return
 
-	HISTORY.append(entry)
+    HISTORY.append(entry)
 
-	if len(HISTORY) > MAX_HISTORY:
-		del HISTORY[:-MAX_HISTORY]
+    if len(HISTORY) > MAX_HISTORY:
+        del HISTORY[:-MAX_HISTORY]
+
 
 class StatusFileHandler(FileSystemEventHandler):
-	"""Watch for changes to status.txt and update history."""
+    """Watch for changes to status.txt and update history."""
 
-	def __init__(self, status_filename: str):
-		super().__init__()
-		self.status_filename = status_filename
+    def __init__(self, status_filename: str):
+        super().__init__()
+        self.status_filename = status_filename
 
-	def on_modified(self, event):
-		if event.is_directory:
-			return
+    def on_modified(self, event):
+        if event.is_directory:
+            return
 
-		if Path(event.src_path).name == self.status_filename:
-			logging.info("Detected change in %s, updating history", self.status_filename)
-			content = read_status_file()
+        if Path(event.src_path).name == self.status_filename:
+            logging.info(
+                "Detected change in %s, updating history", self.status_filename
+            )
+            content = read_status_file()
 
-			with answer_lock:
-				record_history(content)
+            with answer_lock:
+                record_history(content)
+
 
 def start_status_watcher() -> None:
-	"""Start watching status.txt for external changes."""
+    """Start watching status.txt for external changes."""
 
-	global status_observer
+    global status_observer
 
-	if status_observer and status_observer.is_alive():
-		return
+    if status_observer and status_observer.is_alive():
+        return
 
-	status_path = Path(STATE_FILE)
-	watch_dir = str(status_path.parent.resolve())
-	status_filename = status_path.name
+    status_path = Path(STATE_FILE)
+    watch_dir = str(status_path.parent.resolve())
+    status_filename = status_path.name
 
-	handler = StatusFileHandler(status_filename)
-	status_observer = Observer()
-	status_observer.schedule(handler, watch_dir, recursive=False)
-	status_observer.start()
-	logging.info("Started watching %s for changes", STATE_FILE)
+    handler = StatusFileHandler(status_filename)
+    status_observer = Observer()
+    status_observer.schedule(handler, watch_dir, recursive=False)
+    status_observer.start()
+    logging.info("Started watching %s for changes", STATE_FILE)
+
 
 def stop_status_watcher() -> None:
-	"""Stop the status file watcher."""
+    """Stop the status file watcher."""
 
-	global status_observer
+    global status_observer
 
-	if status_observer:
-		status_observer.stop()
-		status_observer.join(timeout=2)
-		status_observer = None
+    if status_observer:
+        status_observer.stop()
+        status_observer.join(timeout=2)
+        status_observer = None
+
 
 def get_beats() -> str:
-	with answer_lock:
-		beats = list(HISTORY[-MAX_HISTORY:])
+    with answer_lock:
+        beats = list(HISTORY[-MAX_HISTORY:])
 
-	s = ""
+    s = ""
 
-	if len(beats) > 0:
-		for i, beat in enumerate(beats):
-			s += f"\n\nBEAT {i + 1}:\n\n"
-			s += beat
-	else:
-		s = "There is no history yet, this is the first beat."
+    if len(beats) > 0:
+        for i, beat in enumerate(beats):
+            s += f"\n\nBEAT {i + 1}:\n\n"
+            s += beat
+    else:
+        s = "There is no history yet, this is the first beat."
 
-	return s.strip()
+    return s.strip()
+
 
 def make_prompt() -> str:
-	global PROMPT
-	global INSTRUCTIONS
+    global PROMPT
+    global INSTRUCTIONS
 
-	items = [PROMPT]
+    items = [PROMPT]
 
-	if USE_INSTRUCTIONS:
-		instructions = f"""Here are the instructions on how to write strudel code:
+    if USE_INSTRUCTIONS:
+        instructions = f"""Here are the instructions on how to write strudel code:
 
 {INSTRUCTIONS}
 		""".strip()
 
-		items.append(instructions)
+        items.append(instructions)
 
-	if len(HISTORY) > 0:
-		beats = f"""Here are the last {len(HISTORY)} beats (from older to newer):
+    if len(HISTORY) > 0:
+        beats = f"""Here are the last {len(HISTORY)} beats (from older to newer):
 
 {get_beats()}
 		""".strip()
 
-		items.append(beats)
+        items.append(beats)
 
-	PROMPT = "\n\n".join(items).strip()
-	return PROMPT
+    PROMPT = "\n\n".join(items).strip()
+    return PROMPT
+
 
 def run_ai_prompt() -> str:
-	"""Send the hardcoded prompt through LiteLLM and capture the text body."""
+    """Send the hardcoded prompt through LiteLLM and capture the text body."""
 
-	print("Getting answer")
-	model = resolve_model_name(MODEL)
+    print("Getting answer")
+    model = resolve_model_name(MODEL)
 
-	messages = [
-		{"role": "system", "content": "Respond with clear, user-friendly summaries."},
-		{"role": "user", "content": make_prompt()},
-	]
+    messages = [
+        {"role": "system", "content": "Respond with clear, user-friendly summaries."},
+        {"role": "user", "content": make_prompt()},
+    ]
 
-	response = completion(
-		model=model,
-		messages=messages,
-		api_key=get_api_key(),
-		timeout=30,
-	)
+    response = completion(
+        model=model,
+        messages=messages,
+        api_key=get_api_key(),
+        timeout=30,
+    )
 
-	message = response.choices[0].message
-	content = message.get("content") if isinstance(message, dict) else getattr(message, "content", "")
+    message = response.choices[0].message
+    content = (
+        message.get("content")
+        if isinstance(message, dict)
+        else getattr(message, "content", "")
+    )
 
-	if content:
-		return strip_markdown_code_fences(content)
+    if content:
+        return strip_markdown_code_fences(content)
 
-	return "Received empty response from model."
+    return "Received empty response from model."
+
 
 def get_api_key():
-	if "gemini" in MODEL:
-		return GOOGLE_API_KEY
-	elif "claude" in MODEL:
-		return CLAUDE_API_KEY
+    if "gemini" in MODEL:
+        return GOOGLE_API_KEY
+    elif "claude" in MODEL:
+        return CLAUDE_API_KEY
 
-	return ""
+    return ""
+
 
 def background_worker() -> None:
-	"""Continuously refresh the cached answer on a fixed cadence."""
+    """Continuously refresh the cached answer on a fixed cadence."""
 
-	interval_seconds = REQUEST_INTERVAL_MINUTES * 60
+    interval_seconds = REQUEST_INTERVAL_MINUTES * 60
 
-	while not stop_event.wait(interval_seconds):
-		try:
-			answer = run_ai_prompt()
-		except Exception as exc:
-			logging.exception("AI request failed: %s", exc)
-			answer = f"Error collecting answer: {exc}"
+    while not stop_event.wait(interval_seconds):
+        try:
+            answer = run_ai_prompt()
+        except Exception as exc:
+            logging.exception("AI request failed: %s", exc)
+            answer = f"Error collecting answer: {exc}"
 
-		with answer_lock:
-			record_history(answer)
+        with answer_lock:
+            record_history(answer)
 
-		persist_answer(answer)
+        persist_answer(answer)
+
 
 def start_worker_if_needed() -> None:
-	global worker_thread
+    global worker_thread
 
-	if worker_thread and worker_thread.is_alive():
-		return
+    if worker_thread and worker_thread.is_alive():
+        return
 
-	worker_thread = threading.Thread(target=background_worker, name="ai-poller", daemon=True)
-	worker_thread.start()
+    worker_thread = threading.Thread(
+        target=background_worker, name="ai-poller", daemon=True
+    )
+    worker_thread.start()
+
 
 @app.get("/")
 def index():
-	"""Serve the main HTML page."""
+    """Serve the main HTML page."""
 
-	song_name = request.args.get("song", "")
-	song_value = re.sub(r"_+", " ", song_name) if song_name else ""
-	beat_title = request.args.get("beat", "")
-	beat_value = re.sub(r"_+", " ", beat_title) if beat_title else ""
-	song_display = song_name or beat_title or ""
-	return render_template("index.jinja", song_name=song_name, song_display=song_display, config=app_config)
+    song_name = request.args.get("song", "")
+    song_value = re.sub(r"_+", " ", song_name) if song_name else ""
+    beat_title = request.args.get("beat", "")
+    beat_value = re.sub(r"_+", " ", beat_title) if beat_title else ""
+    song_display = song_name or beat_title or ""
+
+    return render_template(
+        "index.jinja", song_name=song_name, song_display=song_display, config=app_config
+    )
+
 
 @app.get("/strudel/<path:path>")
 def strudel_files(path: str) -> Response:
-	"""Serve strudel library files."""
+    """Serve strudel library files."""
 
-	return send_from_directory("strudel", path)
+    return send_from_directory("strudel", path)
+
 
 @app.get("/status")
 def get_status() -> Response:
-	"""Expose the most recent status as plain text."""
+    """Expose the most recent status as plain text."""
 
-	status = read_status_file()
+    status = read_status_file()
 
-	if status == DEFAULT_ANSWER and len(HISTORY):
-		status = HISTORY[-1]
+    if status == DEFAULT_ANSWER and len(HISTORY):
+        status = HISTORY[-1]
 
-	return Response(status, mimetype="text/plain")
+    return Response(status, mimetype="text/plain")
+
 
 @app.route("/dist/<path:filename>")
 def dist_assets(filename):
     return send_from_directory("dist", filename)
 
+
 @app.route("/css/<path:filename>")
 def css_assets(filename):
     return send_from_directory("css", filename)
+
 
 @app.route("/img/<path:filename>")
 def img_assets(filename):
     return send_from_directory("img", filename)
 
+
 @app.route("/config/<path:filename>")
 def config_assets(filename):
     return send_from_directory("config", filename)
 
+
 @app.route("/songs/list")
 def list_songs() -> Response:
-	"""Return list of song files without extension."""
-	songs_dir = Path("songs")
+    """Return list of song files without extension."""
+    songs_dir = Path("songs")
 
-	if not songs_dir.exists():
-		return Response("[]", mimetype="application/json")
+    if not songs_dir.exists():
+        return Response("[]", mimetype="application/json")
 
-	song_paths = list(songs_dir.glob("*.js"))
-	song_paths.sort(key=lambda path: path.stat().st_mtime, reverse=True)
-	song_files = [path.stem for path in song_paths[:SONG_LIST_LIMIT]]
+    song_paths = list(songs_dir.glob("*.js"))
+    song_paths.sort(key=lambda path: path.stat().st_mtime, reverse=True)
+    song_files = [path.stem for path in song_paths[:SONG_LIST_LIMIT]]
 
-	return Response(json.dumps(song_files), mimetype="application/json")
+    return Response(json.dumps(song_files), mimetype="application/json")
+
 
 @app.route("/songs/<path:filename>")
 def songs_assets(filename):
-	return send_from_directory("songs", filename)
+    return send_from_directory("songs", filename)
 
 
 @app.get("/song/<path:song_name>")
 def song_shortcut(song_name: str):
-	"""Render HTML page with song name in title and meta tags."""
+    """Render HTML page with song name in title and meta tags."""
 
-	song_display = re.sub(r"_+", " ", song_name)
-	return render_template("index.html", song_name=song_name, song_display=song_display)
+    song_display = re.sub(r"_+", " ", song_name)
+    return render_template("index.html", song_name=song_name, song_display=song_display)
+
 
 def shutdown_worker() -> None:
-	stop_event.set()
-	stop_status_watcher()
+    stop_event.set()
+    stop_status_watcher()
 
-	if worker_thread:
-		worker_thread.join(timeout=2)
+    if worker_thread:
+        worker_thread.join(timeout=2)
+
 
 def main() -> None:
-	load_config()
-	load_status()
+    load_config()
+    load_status()
 
-	if ENABLE_AI_INTERVAL:
-		load_api_key()
-		load_instructions()
-		start_worker_if_needed()
-	else:
-		logging.info("AI interval disabled; worker not started")
+    if ENABLE_AI_INTERVAL:
+        load_api_key()
+        load_instructions()
+        start_worker_if_needed()
+    else:
+        logging.info("AI interval disabled; worker not started")
 
-	start_status_watcher()
-	atexit.register(shutdown_worker)
-	app.run(host="0.0.0.0", port=PORT, debug=False)
+    start_status_watcher()
+    atexit.register(shutdown_worker)
+    app.run(host="0.0.0.0", port=PORT, debug=False)
+
 
 if __name__ == "__main__":
-	main()
+    main()
