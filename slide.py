@@ -291,7 +291,6 @@ def get_beats() -> str:
 
 def make_prompt() -> str:
     global PROMPT
-    global INSTRUCTIONS
 
     items = [PROMPT]
 
