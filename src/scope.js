@@ -44,6 +44,7 @@ App.scope_debouncer_delay = 50
 App.max_scope_slide_y_dff = 45
 App.scope_click_level_time = 2.8 * 1000
 App.many_clicks_amount = 100
+App.scope_gestures_enabled = false
 
 App.setup_scope = () => {
   App.scope_debouncer = App.create_debouncer(() => {
@@ -293,6 +294,11 @@ App.handle_scope_mouse_down = (event) => {
   App.mouse_down_coords = App.get_scope_coords(event)
   App.scope_mousedown_date = Date.now()
   App.scope_is_drawing = true
+
+  if (App.scope_clicks.length === 0) {
+    App.scope_gestures_enabled = true
+  }
+
   App.handle_scope_click(event)
 }
 
@@ -352,7 +358,10 @@ App.handle_scope_mouse_up = (event) => {
     slided = App.check_scope_slide()
   }
 
-  if (!slided) {
+  if (slided) {
+    App.scope_gestures_enabled = false
+  }
+  else {
     if ((Date.now() - App.scope_mousedown_date) <= App.scope_beep_delay) {
       App.splash_reverb(2)
 
@@ -361,25 +370,27 @@ App.handle_scope_mouse_up = (event) => {
       }
     }
 
-    if (App.triangle_gesture()) {
-      App.gesture_function(2, () => {
-        App.grow_input()
-      })
-    }
-    else if (App.square_gesture()) {
-      App.gesture_function(3, () => {
-        App.cursive_input()
-      })
-    }
-    else if (App.circle_gesture()) {
-      App.gesture_function(4, () => {
-        App.mirror_input()
-      })
-    }
-    else if (App.scope_clicks.length >= App.many_clicks_amount) {
-      App.gesture_function(5, () => {
-        App.grow_input()
-      })
+    if (App.scope_gestures_enabled) {
+      if (App.triangle_gesture()) {
+        App.gesture_function(2, () => {
+          App.grow_input()
+        })
+      }
+      else if (App.square_gesture()) {
+        App.gesture_function(3, () => {
+          App.cursive_input()
+        })
+      }
+      else if (App.circle_gesture()) {
+        App.gesture_function(4, () => {
+          App.mirror_input()
+        })
+      }
+      else if (App.scope_clicks.length >= App.many_clicks_amount) {
+        App.gesture_function(5, () => {
+          App.grow_input()
+        })
+      }
     }
   }
 }
