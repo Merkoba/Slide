@@ -361,7 +361,6 @@ App.handle_scope_mouse_up = (event) => {
       if (!App.check_scope_panning()) {
         App.beep_sound()
       }
-
     }
 
     return
