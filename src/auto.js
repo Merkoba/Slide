@@ -57,6 +57,7 @@ App.create_auto_modal = () => {
   let title = DOM.el(`.modal-title`, modal)
   title.textContent = `Auto Mode`
   let body = DOM.el(`.modal-body`, modal)
+  body.id = `modal-body-auto`
   let info = DOM.create(`div`, ``, `auto-info`)
   info.textContent = `Code will be fetched periodically`
   let select = DOM.create(`select`, `modal-select`, `auto-delay`)

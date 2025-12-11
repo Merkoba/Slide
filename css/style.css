@@ -736,3 +736,8 @@ a.popup:hover {
     color: #737373;
     width: 100%;
 }
+
+#modal-body-auto {
+    gap: 1rem;
+    padding-bottom: 1rem;
+}
