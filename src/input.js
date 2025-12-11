@@ -24,6 +24,8 @@ App.create_editor = () => {
     tabSize: 4,
     lineWrapping: true,
     indentUnit: 4,
+    smartIndent: false, // Disables context-aware indentation (like after `{`)
+    enterMode: `flat`, // Optional: Force cursor to start of line (column 0) on Enter
   })
 
   App.editor.getWrapperElement().id = `codemirror-wrapper`

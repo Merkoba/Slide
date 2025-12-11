@@ -254,7 +254,8 @@ App.anim_hyper_rose = (c, w, h, f) => {
 App.anim_liquid_aether = (c, w, h, f) => {
   let particle_count = 250
   let particle_speed = 0.6
-  let orb_count = 5
+  // Increased count to ensure the screen is fully covered in color
+  let orb_count = 12
 
   // --- INIT ---
   if (
@@ -267,7 +268,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
       speed: particle_speed,
       life: Math.random() * 100,
       angle_offset: Math.random() * Math.PI * 2,
-      size: Math.random() * 4 + 2, // Radius between 2px and 6px
+      size: (Math.random() * 4) + 2,
     }))
   }
 
@@ -280,16 +281,18 @@ App.anim_liquid_aether = (c, w, h, f) => {
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 1,
       vy: (Math.random() - 0.5) * 1,
-      radius: Math.random() * 200 + 300,
-      hue: i * 80,
+      // Massive radius (400px - 900px) to wash the whole background
+      radius: (Math.random() * 500) + 400,
+      hue: i * 50,
     }))
   }
 
   // --- RENDER ---
 
   // 3. Fade Background
+  // Reduced opacity (0.1) and slightly brighter color to prevent pitch black trails
   c.globalCompositeOperation = `source-over`
-  c.fillStyle = `rgba(8, 5, 16, 0.2)`
+  c.fillStyle = `rgba(15, 10, 30, 0.1)`
   c.fillRect(0, 0, w, h)
 
   let t = f * 0.002
@@ -298,14 +301,14 @@ App.anim_liquid_aether = (c, w, h, f) => {
   c.globalCompositeOperation = `lighter`
 
   App.bg_orbs.forEach(orb => {
-    orb.x += orb.vx + Math.sin(t) * 1
-    orb.y += orb.vy + Math.cos(t) * 1
+    orb.x += orb.vx + (Math.sin(t) * 1)
+    orb.y += orb.vy + (Math.cos(t) * 1)
 
     if (orb.x < -orb.radius) {
       orb.x = w + orb.radius
     }
 
-    if (orb.x > w + orb.radius) {
+    if (orb.x > (w + orb.radius)) {
       orb.x = -orb.radius
     }
 
@@ -313,14 +316,16 @@ App.anim_liquid_aether = (c, w, h, f) => {
       orb.y = h + orb.radius
     }
 
-    if (orb.y > h + orb.radius) {
+    if (orb.y > (h + orb.radius)) {
       orb.y = -orb.radius
     }
 
     let gradient = c.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius)
-    let pulse = 0.1 + Math.sin((t * 2) + orb.hue) * 0.05
+    // Much stronger pulse (base 0.4 instead of 0.1)
+    let pulse = 0.4 + (Math.sin((t * 2) + orb.hue) * 0.2)
 
-    gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 60%, 30%, ${pulse})`)
+    // Increased Lightness to 60% for vivid colors (was 30%)
+    gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 80%, 60%, ${pulse})`)
     gradient.addColorStop(1, `rgba(0,0,0,0)`)
 
     c.fillStyle = gradient
@@ -329,8 +334,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
     c.fill()
   })
 
-  // 5. Draw Foreground Particles (Big & Prominent)
-  // Use 'source-over' for solid paint, or 'lighter' for glowing overlaps
+  // 5. Draw Foreground Particles
   c.globalCompositeOperation = `source-over`
 
   let zoom = 0.0005
@@ -341,23 +345,19 @@ App.anim_liquid_aether = (c, w, h, f) => {
     if (p.life <= 0) {
       p.x = Math.random() * w
       p.y = Math.random() * h
-      p.life = 100 + Math.random() * 100
-      p.size = Math.random() * 4 + 2
+      p.life = 100 + (Math.random() * 100)
+      p.size = (Math.random() * 4) + 2
     }
 
     c.beginPath()
 
-    // Increased Lightness (80%) and Opacity (0.8) for prominence
-    let hue = (f * 0.1 + p.x * 0.02 + p.y * 0.02) % 360
-    let alpha = Math.min(p.life / 50, 0.8) // Fade out at end, cap at 0.8
+    let hue = ((f * 0.1) + (p.x * 0.02) + (p.y * 0.02)) % 360
+    let alpha = Math.min((p.life / 50), 0.8)
 
     c.fillStyle = `hsla(${hue}, 90%, 80%, ${alpha})`
-
-    // Using arc() instead of lineTo() creates the "Orb/Bubble" look
     c.arc(p.x, p.y, p.size, 0, Math.PI * 2)
     c.fill()
 
-    // Physics
     let angle = (Math.cos((p.x * zoom) + t) + Math.sin((p.y * zoom) + t)) + p.angle_offset
 
     p.x += Math.cos(angle) * p.speed
