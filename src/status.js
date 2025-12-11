@@ -13,10 +13,10 @@ App.setup_status = () => {
 
   DOM.ev(status, `wheel`, (event) => {
     if (event.deltaY < 0) {
-      status.scrollLeft -= 12
+      status.scrollLeft -= 20
     }
     else if (event.deltaY > 0) {
-      status.scrollLeft += 12
+      status.scrollLeft += 20
     }
   })
 }
