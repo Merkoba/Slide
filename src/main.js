@@ -359,6 +359,10 @@ App.start_events = async () => {
     App.stop_action()
   })
 
+  DOM.ev(`#btn-new`, `click`, () => {
+    App.new_beat()
+  })
+
   DOM.ev(`#btn-songs`, `click`, () => {
     App.open_songs_modal()
   })
@@ -497,6 +501,16 @@ App.get_controls_height = () => {
 
 App.loading = () => {
   App.set_status(`Loading...`)
+}
+
+App.new_beat = () => {
+  if (confirm(`Start a new beat?`)) {
+    App.last_code = ``
+    App.current_song = ``
+    App.set_input(``)
+    App.stop_action()
+    App.focus_input()
+  }
 }
 
 window.H = H_hydra
