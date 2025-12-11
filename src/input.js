@@ -95,7 +95,7 @@ App.set_input = (code) => {
   }
 
   App.document.setValue(code)
-  code_input.scrollTop = 0
+  App.scroll_input_to_top()
   App.reset_code_scroll_for_content()
 }
 
@@ -138,15 +138,12 @@ App.code_scroll_tick = (timestamp) => {
   }
 
   App.code_scroll_pause_until = 0
-
   let delta = timestamp - App.code_scroll_last_ts
   App.code_scroll_last_ts = timestamp
   let distance = (App.code_scroll_speed_px_per_second * delta) / 1000
-  let target = input.scrollTop + (distance * App.code_scroll_direction)
-
+  let target = App.get_input_scroll() + (distance * App.code_scroll_direction)
   let max_scroll = Math.max(0, input.scrollHeight - input.clientHeight)
-
-  input.scrollTop = target
+  App.set_input_scroll(target)
 
   if (max_scroll <= 0) {
     App.stop_code_scroll()
@@ -155,13 +152,13 @@ App.code_scroll_tick = (timestamp) => {
 
   // FIX: Only check the bottom boundary if we are actually moving DOWN (direction > 0).
   // Otherwise, the tolerance calculation will snag us as we try to scroll up/away.
-  if ((App.code_scroll_direction > 0) && ((Math.ceil(input.scrollTop) + 1) >= max_scroll)) {
-    input.scrollTop = max_scroll
+  if ((App.code_scroll_direction > 0) && ((Math.ceil(App.get_input_scroll()) + 1) >= max_scroll)) {
+    App.set_input_scroll(max_scroll)
     App.reset_code_scroll_for_content({direction: -1})
   }
   // FIX: Only check top boundary if moving UP (direction < 0).
-  else if ((App.code_scroll_direction < 0) && (input.scrollTop <= 0)) {
-    input.scrollTop = 0
+  else if ((App.code_scroll_direction < 0) && (App.get_input_scroll() <= 0)) {
+    App.scroll_input_to_top()
     App.reset_code_scroll_for_content({direction: 1})
   }
 
@@ -225,7 +222,7 @@ App.init_code_input_controls = () => {
   if (top_button) {
     DOM.ev(top_button, `click`, (event) => {
       event.preventDefault()
-      code_input.scrollTop = 0
+      App.scroll_input_to_top()
       App.reset_code_scroll_for_content()
     })
   }
@@ -233,7 +230,7 @@ App.init_code_input_controls = () => {
   if (bottom_button) {
     DOM.ev(bottom_button, `click`, (event) => {
       event.preventDefault()
-      code_input.scrollTop = code_input.scrollHeight
+      App.scroll_input_to_bottom()
       App.reset_code_scroll_for_content({direction: -1})
     })
   }
@@ -429,7 +426,7 @@ App.restart_code_scroll = () => {
   let code_input = App.get_input()
 
   if (code_input) {
-    code_input.scrollTop = 0
+    App.scroll_input_to_top()
   }
 
   if (App.code_scroll_active) {
@@ -550,4 +547,22 @@ App.check_max_button = () => {
   else {
     max_button.classList.remove(`disabled`)
   }
+}
+
+App.set_input_scroll = (v_amount) => {
+  App.editor.scrollTo(null, v_amount)
+}
+
+App.scroll_input_to_top = () => {
+  App.set_input_scroll(0)
+}
+
+App.scroll_input_to_bottom = () => {
+  let scroll_info = App.editor.getScrollInfo()
+  App.editor.scrollTo(null, scroll_info.height)
+}
+
+App.get_input_scroll = () => {
+  let scroll_info = App.editor.getScrollInfo()
+  return scroll_info.top
 }

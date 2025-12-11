@@ -326,11 +326,11 @@ App.ensure_strudel_ready = async () => {
 }
 
 App.restart_code_scroll = () => {
-  let code_input = App.get_input()
-
-  if (code_input) {
-    code_input.scrollTop = 0
+  if (!App.editor) {
+    return
   }
+
+  App.scroll_input_to_top()
 
   if (App.code_scroll_active) {
     App.defer_code_scroll(App.code_scroll_song_pause_ms)
