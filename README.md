@@ -6,6 +6,8 @@
 
 ![](img/screenshot_3.png)
 
+![](img/screenshot_4.png)
+
 ---
 
 `Slide` is a web application that plays dynamic `strudel` music.
