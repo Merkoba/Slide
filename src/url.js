@@ -33,7 +33,7 @@ App.load_song_from_query = async () => {
     let content = await App.fetch_song_content(requested_song)
     App.set_input(content)
     App.set_song_context(requested_song)
-    App.set_status(`Loaded: ${App.underspace(requested_song)}`)
+    App.set_status(`Loaded: ${App.clean_song_name(requested_song)}`)
     return true
   }
   catch (err) {

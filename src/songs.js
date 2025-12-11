@@ -32,10 +32,11 @@ App.fetch_song_content = async (song_name) => {
     }
 
     let content = await response.text()
+    let clean_name = App.clean_song_name(song_name)
 
     let cache = {}
     cache.name = song_name
-    cache.clean_name = App.underspace(song_name)
+    cache.clean_name = clean_name
     cache.raw = content
     cache.filtered = App.filter_code(content)
     App.song_cache[song_name] = cache
@@ -89,7 +90,6 @@ App.load_song = async (song_name) => {
 
     await App.play_action(content, true)
     App.set_song_context(song_name)
-    App.set_status(`Playing: ${App.underspace(song_name)}`)
   }
   catch (err) {
     App.set_status(`Failed to load song: ${err.message}`)
@@ -160,4 +160,8 @@ App.get_song_name = (clean = false) => {
   }
 
   return song_name
+}
+
+App.clean_song_name = (name) => {
+  return App.capitalize(App.underspace(name))
 }
