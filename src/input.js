@@ -16,21 +16,20 @@ App.setup_input = () => {
 }
 
 App.create_editor = () => {
-	App.editor = CodeMirror.fromTextArea(App.get_input(),
-		{
-			lineNumbers: false,
-			theme: `nord`,
-			indentWithTabs: true,
-			tabSize: 4,
-			lineWrapping: true,
-			indentUnit: 4
-		})
+  App.editor = CodeMirror.fromTextArea(App.get_input(), {
+    lineNumbers: false,
+    theme: `nord`,
+    indentWithTabs: true,
+    tabSize: 4,
+    lineWrapping: true,
+    indentUnit: 4,
+  })
 
   App.editor.getWrapperElement().id = `codemirror-wrapper`
-	App.document = App.editor.getDoc()
-	App.editor.setOption(`mode`, `clike`)
-	App.editor.refresh()
-	App.editor.focus()
+  App.document = App.editor.getDoc()
+  App.editor.setOption(`mode`, `clike`)
+  App.editor.refresh()
+  App.editor.focus()
 }
 
 App.get_input = () => {
