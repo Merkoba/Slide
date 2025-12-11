@@ -92,6 +92,7 @@ export default [
         jdenticon: "readonly",
         browser: "readonly",
         CodeMirror: "readonly",
+        lz: "readonly",
       }
     }
   }
