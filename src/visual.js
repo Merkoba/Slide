@@ -239,52 +239,54 @@ App.anim_hyper_rose = (c, w, h, f) => {
 }
 
 App.anim_liquid_aether = (c, w, h, f) => {
-  const particle_count = 1000
-  const orb_count = 5
+  let particle_count = 250
+  let orb_count = 5
 
   // --- INIT ---
-  // 1. Initialize Foreground Particles (The Liquid)
-  if (!App.flow_particles || (App.flow_particles.length !== particle_count)) {
+  if (
+    !App.flow_particles ||
+    (App.flow_particles.length !== particle_count)
+  ) {
     App.flow_particles = Array(particle_count).fill().map(() => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      speed: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 0.5 + 0.2, // Slower movement for heavier particles
       life: Math.random() * 100,
+      angle_offset: Math.random() * Math.PI * 2,
+      size: Math.random() * 4 + 2, // Radius between 2px and 6px
     }))
   }
 
-  // 2. Initialize Background Orbs (The Atmosphere)
-  if (!App.bg_orbs || (App.bg_orbs.length !== orb_count)) {
+  if (
+    !App.bg_orbs ||
+    (App.bg_orbs.length !== orb_count)
+  ) {
     App.bg_orbs = Array(orb_count).fill().map((_, i) => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 2,
-      vy: (Math.random() - 0.5) * 2,
-      radius: Math.random() * 200 + 300, // Huge radius
-      hue: i * 120, // Spread colors
+      vx: (Math.random() - 0.5) * 1,
+      vy: (Math.random() - 0.5) * 1,
+      radius: Math.random() * 200 + 300,
+      hue: i * 80,
     }))
   }
 
   // --- RENDER ---
 
-  // 3. The Fade: Use a dark purple/blue tint instead of pure black
-  // This gives the "void" a subtle color instead of emptiness
+  // 3. Fade Background
   c.globalCompositeOperation = `source-over`
-  c.fillStyle = `rgba(10, 5, 20, 0.1)`
+  c.fillStyle = `rgba(8, 5, 16, 0.2)`
   c.fillRect(0, 0, w, h)
 
-  const t = f * 0.002
+  let t = f * 0.002
 
   // 4. Draw Background Orbs
-  // These are huge, soft gradients that drift behind everything
-  c.globalCompositeOperation = `lighter` // Additive blending for glow
+  c.globalCompositeOperation = `lighter`
 
   App.bg_orbs.forEach(orb => {
-    // Move orbs slowly
-    orb.x += orb.vx + Math.sin(t) * 2
-    orb.y += orb.vy + Math.cos(t) * 2
+    orb.x += orb.vx + Math.sin(t) * 1
+    orb.y += orb.vy + Math.cos(t) * 1
 
-    // Bounce off walls
     if (orb.x < -orb.radius) {
       orb.x = w + orb.radius
     }
@@ -301,13 +303,10 @@ App.anim_liquid_aether = (c, w, h, f) => {
       orb.y = -orb.radius
     }
 
-    // Draw the soft gradient
-    const gradient = c.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius)
+    let gradient = c.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius)
+    let pulse = 0.1 + Math.sin((t * 2) + orb.hue) * 0.05
 
-    // Pulse the alpha for a "breathing" effect
-    const pulse = 0.1 + Math.sin(t * 3 + orb.hue) * 0.05
-
-    gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 60%, 40%, ${pulse})`)
+    gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 60%, 30%, ${pulse})`)
     gradient.addColorStop(1, `rgba(0,0,0,0)`)
 
     c.fillStyle = gradient
@@ -316,55 +315,56 @@ App.anim_liquid_aether = (c, w, h, f) => {
     c.fill()
   })
 
-  // 5. Draw Foreground Liquid (High Detail)
-  c.lineWidth = 0.5
-  let zoom = 0.002 + Math.sin(t * 0.5) * 0.001
+  // 5. Draw Foreground Particles (Big & Prominent)
+  // Use 'source-over' for solid paint, or 'lighter' for glowing overlaps
+  c.globalCompositeOperation = `source-over`
+
+  let zoom = 0.0005
 
   App.flow_particles.forEach((p) => {
     p.life--
+
     if (p.life <= 0) {
       p.x = Math.random() * w
       p.y = Math.random() * h
       p.life = 100 + Math.random() * 100
+      p.size = Math.random() * 4 + 2
     }
 
     c.beginPath()
 
-    // Color: Sync particle hue with the background loop slightly
-    let hue = (f * 0.2 + p.x * 0.05 + p.y * 0.05) % 360
-    let light = 40 + (p.speed * 30)
+    // Increased Lightness (80%) and Opacity (0.8) for prominence
+    let hue = (f * 0.1 + p.x * 0.02 + p.y * 0.02) % 360
+    let alpha = Math.min(p.life / 50, 0.8) // Fade out at end, cap at 0.8
 
-    // Higher opacity for foreground to pop against the new background
-    c.strokeStyle = `hsla(${hue}, 80%, ${light}%, 0.6)`
-    c.moveTo(p.x, p.y)
+    c.fillStyle = `hsla(${hue}, 90%, 80%, ${alpha})`
 
-    const angle = (Math.cos(p.x * zoom + t) + Math.sin(p.y * zoom + t)) * Math.PI * 2
+    // Using arc() instead of lineTo() creates the "Orb/Bubble" look
+    c.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+    c.fill()
 
-    p.x += Math.cos(angle) * p.speed * 2
-    p.y += Math.sin(angle) * p.speed * 2
+    // Physics
+    let angle = (Math.cos((p.x * zoom) + t) + Math.sin((p.y * zoom) + t)) + p.angle_offset
 
-    c.lineTo(p.x, p.y)
-    c.stroke()
+    p.x += Math.cos(angle) * p.speed
+    p.y += Math.sin(angle) * p.speed
 
-    if (p.x < 0) {
-      p.x = w
+    if (p.x < -10) {
+      p.x = w + 10
     }
 
-    if (p.x > w) {
-      p.x = 0
+    if (p.x > (w + 10)) {
+      p.x = -10
     }
 
-    if (p.y < 0) {
-      p.y = h
+    if (p.y < -10) {
+      p.y = h + 10
     }
 
-    if (p.y > h) {
-      p.y = 0
+    if (p.y > (h + 10)) {
+      p.y = -10
     }
   })
-
-  // Cleanup
-  c.globalCompositeOperation = `source-over`
 }
 
 App.anim_orb_balloons = (c, w, h, f) => {
