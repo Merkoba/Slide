@@ -38,7 +38,7 @@ App.visual_items = [
 ]
 
 App.start_visual = () => {
-  App.visual = App.visual || `flux surface`
+  App.visual = App.visual || `auto`
   App.background_canvas = DOM.el(`#background-canvas`)
   App.background_canvas_ctx = App.background_canvas.getContext(`2d`)
 
