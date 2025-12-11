@@ -196,36 +196,38 @@ App.anim_flux_surface = (c, w, h, f) => {
 App.anim_hyper_rose = (c, w, h, f) => {
   let cx = w / 2
   let cy = h / 2
-  let max_r = Math.max(w, h) * 0.8 // Large enough to fill most of the screen
-  let t = f * 0.002
+  let max_r = (Math.max(w, h) * 0.8)
+  let t = (f * 0.002)
+  let two_pi = (Math.PI * 2)
 
-  c.lineWidth = 1
-  c.globalCompositeOperation = `lighter` // Key for the "energy" look
+  // increased line width slightly to compensate for fewer layers
+  c.lineWidth = 2
+  c.globalCompositeOperation = `lighter`
 
-  // Draw multiple rotated layers to create density
-  for (let layer = 0; layer < 15; layer++) {
-    let p = layer / 15
-    let radius_scale = max_r * (1 - p) // Inner layers are smaller
+  // reduced layers from 15 to 8 for performance
+  for (let layer = 0; layer < 8; layer++) {
+    let p = (layer / 8)
+    let radius_scale = (max_r * (1 - p))
 
-    // Color logic: Inner hot (yellow/white), Outer cool (blue/purple)
-    let hue = (f * 0.2 + layer * 10) % 360
-    c.strokeStyle = `hsla(${hue}, 80%, 50%, 0.5)`
+    // spacing out the colors a bit more (* 15) to keep the spectrum wide
+    let hue = ((f * 0.2) + (layer * 15)) % 360
+    c.strokeStyle = `hsla(${hue}, 80%, 50%, 0.6)`
 
     c.beginPath()
 
-    // Draw the "Rose" shape (Maurer Rose inspired)
-    // We loop angle 'a' a lot to get a dense mesh
-    for (let a = 0; a < Math.PI * 4; a += 0.05) {
-      // The magic math: varying radius based on angle and time
-      // The '7' and '3' determine the petal count/shape
-      let r_mod = Math.sin(a * 7 + t * 5) * Math.cos(a * 3 - t)
-      let r = radius_scale * (0.5 + 0.5 * r_mod)
+    // optimization: shape closes at 2*PI, so 4*PI was redundant overdraw
+    // optimization: increased step to 0.1 (less CPU, same visual smoothness)
+    for (let a = 0; a < two_pi; a += 0.1) {
 
-      // Rotate the whole layer
-      let rotation = t * (layer + 1)
+      // pre-calculate the rotation for this point
+      // ((a * 7) + (t * 5)) is the petal frequency
+      let r_mod = (Math.sin((a * 7) + (t * 5)) * Math.cos((a * 3) - t))
+      let r = (radius_scale * (0.5 + (0.5 * r_mod)))
 
-      let x = cx + Math.cos(a + rotation) * r
-      let y = cy + Math.sin(a + rotation) * r
+      let theta = (a + (t * (layer + 1)))
+
+      let x = (cx + (Math.cos(theta) * r))
+      let y = (cy + (Math.sin(theta) * r))
 
       c.lineTo(x, y)
     }
@@ -234,7 +236,6 @@ App.anim_hyper_rose = (c, w, h, f) => {
     c.stroke()
   }
 
-  // Reset composite so we don't break the next frame's fade
   c.globalCompositeOperation = `source-over`
 }
 
