@@ -377,7 +377,7 @@ button:hover {
     font-size: 1.2rem;
     margin-left: 0.5rem;
     transition: color 3s ease;
-    max-width: 50rem;
+    max-width: 42rem;
     cursor: pointer;
     white-space: nowrap;
     overflow-x: auto;
