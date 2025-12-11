@@ -253,6 +253,7 @@ App.anim_hyper_rose = (c, w, h, f) => {
 
 App.anim_liquid_aether = (c, w, h, f) => {
   let particle_count = 250
+  let particle_speed = 0.6
   let orb_count = 5
 
   // --- INIT ---
@@ -263,7 +264,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
     App.flow_particles = Array(particle_count).fill().map(() => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      speed: 0.7,
+      speed: particle_speed,
       life: Math.random() * 100,
       angle_offset: Math.random() * Math.PI * 2,
       size: Math.random() * 4 + 2, // Radius between 2px and 6px

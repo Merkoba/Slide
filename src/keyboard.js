@@ -38,15 +38,50 @@ App.start_keyboard = () => {
   })
 }
 
-App.bank_hint_func = (cm) => {
+App.generic_hint = (cm, callback, items) => {
   let cursor = cm.getCursor()
+  let token = cm.getTokenAt(cursor)
 
-  return {
-    list: App.strudel_banks,
-    from: cursor,
-    to: cursor
+  // Strip quotes to get the search term (e.g., "Ak" from "Akai")
+  let current_word = token.string.replace(/['"]/g, "")
+
+  // Filter the list
+  let suggestions = items.filter(bank =>
+    bank.toLowerCase().startsWith(current_word.toLowerCase())
+  )
+
+  // Debugging: Check if we actually found anything
+  if (suggestions.length === 0) {
+    console.log("⚠️ No matches found for:", current_word)
   }
+  else {
+    console.log(`✅ Found ${suggestions.length} matches`)
+  }
+
+  // Pass the result to CodeMirror's callback
+  callback({
+    list: suggestions,
+    from: {line: cursor.line, ch: token.start + 1}, // +1 to skip open quote
+    to: {line: cursor.line, ch: token.end}
+  })
 }
+
+App.sounds_hint = (cm, callback) => {
+  App.generic_hint(cm, callback, App.strudel_sounds)
+}
+
+App.notes_hint = (cm, callback) => {
+  App.generic_hint(cm, callback, App.strudel_notes)
+}
+
+App.banks_hint = (cm, callback) => {
+  App.generic_hint(cm, callback, App.strudel_banks)
+}
+
+// ⚡ ESSENTIAL: Tell CodeMirror this function is async
+App.sounds_hint.async = true
+App.notes_hint.async = true
+App.banks_hint.async = true
 
 App.sound_hint_func = (cm) => {
   let cursor = cm.getCursor()
@@ -59,25 +94,32 @@ App.sound_hint_func = (cm) => {
 }
 
 App.setup_editor_autocomplete = () => {
-  // Add this inside App.create_editor()
   App.editor.on(`inputRead`, (cm, change) => {
-    // change.text is an array of the strings that were inserted
-    let typed_char = change.text[0]
-
-    // Only trigger if the user just typed a quote
-    if (typed_char === `"` || typed_char === `'`) {
+    if (change.text[0] === `"` || change.text[0] === `'`) {
       let cursor = cm.getCursor()
       let line = cm.getLine(cursor.line)
       let text_before = line.slice(0, cursor.ch)
 
-      // Check for bank("
-      if (text_before.endsWith(`bank("`) || text_before.endsWith(`bank('`)) {
-        // completeSingle: false prevents it from auto-picking if there's only 1 option
-        cm.showHint({hint: App.bank_hint_func, completeSingle: false})
+      if (text_before.endsWith(`note("`)) {
+        cm.showHint({
+          hint: App.notes_hint,
+          completeSingle: false,
+          container: document.body
+        })
       }
-      // Check for sound("
-      else if (text_before.endsWith(`sound("`) || text_before.endsWith(`sound('`)) {
-        cm.showHint({hint: App.sound_hint_func, completeSingle: false})
+      else if (text_before.endsWith(`bank("`)) {
+        cm.showHint({
+          hint: App.banks_hint,
+          completeSingle: false,
+          container: document.body
+        })
+      }
+      else if (text_before.endsWith(`sound("`)) {
+        cm.showHint({
+          hint: App.sounds_hint,
+          completeSingle: false,
+          container: document.body
+        })
       }
     }
   })

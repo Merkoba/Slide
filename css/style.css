@@ -745,24 +745,10 @@ a.popup:hover {
     padding-bottom: 1rem;
 }
 
-/* Force the autocomplete menu to be on top of everything */
 .CodeMirror-hints {
-  z-index: 9999 !important;
-
-  /* Dark theme styling */
-  background-color: #1a1a1a;
-  border: 1px solid #555;
-  border-radius: 4px;
-  color: #eeeeee;
-  font-family: monospace;
-  font-size: 14px;
-
-  /* Ensure it has a shadow to stand out */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-/* Style for the currently selected item */
-.CodeMirror-hint-active {
-  background-color: #4c566a; /* Nord-ish blue-grey */
-  color: #ffffff;
+  z-index: 2147483647 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  border: 2px solid #9c9ac5 !important;
 }
