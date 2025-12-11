@@ -13,6 +13,7 @@ App.input_grow_time = 2.8 * 1000
 App.setup_input = () => {
   App.start_input_resize_observer()
   App.create_editor()
+  App.setup_editor_autocomplete()
 }
 
 App.create_editor = () => {
