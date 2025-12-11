@@ -29,11 +29,11 @@ App.load_song_from_query = async () => {
   }
 
   try {
-    let name = App.clean_song_name(requested_song)
-    App.set_status(`Loading ${name}...`)
+    App.loading()
     let content = await App.fetch_song_content(requested_song)
     App.set_input(content)
     App.set_song_context(requested_song)
+    let name = App.clean_song_name(requested_song)
     App.set_status(`Loaded: ${name}`)
     return true
   }

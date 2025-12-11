@@ -495,6 +495,10 @@ App.get_controls_height = () => {
   return App.get_el_height(el)
 }
 
+App.loading = () => {
+  App.set_status(`Loading...`)
+}
+
 window.H = H_hydra
 window.initHydra = initHydra
 window.clearHydra = clearHydra
