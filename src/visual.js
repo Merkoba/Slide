@@ -250,7 +250,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
     App.flow_particles = Array(particle_count).fill().map(() => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      speed: Math.random() * 0.5 + 0.2, // Slower movement for heavier particles
+      speed: 0.7,
       life: Math.random() * 100,
       angle_offset: Math.random() * Math.PI * 2,
       size: Math.random() * 4 + 2, // Radius between 2px and 6px
