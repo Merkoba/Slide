@@ -352,7 +352,7 @@ App.anim_liquid_aether = (c, w, h, f) => {
     c.beginPath()
 
     let hue = ((f * 0.1) + (p.x * 0.02) + (p.y * 0.02)) % 360
-    let alpha = Math.min((p.life / 50), 0.8)
+    let alpha = Math.min(p.life / 50, 0.8)
 
     c.fillStyle = `hsla(${hue}, 90%, 80%, ${alpha})`
     c.arc(p.x, p.y, p.size, 0, Math.PI * 2)
