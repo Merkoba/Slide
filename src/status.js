@@ -3,7 +3,7 @@ App.beat_title = ``
 App.setup_status = () => {
   App.status_debouncer = App.create_debouncer((status) => {
     App.do_set_status(status)
-  }, 300)
+  }, 200)
 
   let status = App.get_status()
 
@@ -34,8 +34,10 @@ App.set_status = (status) => {
 }
 
 App.do_set_status = (status) => {
-  let status_el = App.get_status()
-  status_el.innerText = status
+  let el = App.get_status()
+  el.scrollTop = 0
+  el.scrollLeft = 0
+  el.innerText = status
 }
 
 App.ask_for_title = () => {
