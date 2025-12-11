@@ -59,17 +59,12 @@ App.stop_color_cycle = () => {
 
   App.color_index = 0
   let color = App.cycle_colors[0]
-  let code_input = App.get_input()
   let volume_value = DOM.el(`#volume-value`)
   let volume_slider = DOM.el(`#volume-slider`)
   let tempo_value = DOM.el(`#tempo-value`)
   let tempo_slider = DOM.el(`#tempo-slider`)
   let status_el = DOM.el(`#status`)
   let image_el = DOM.el(`#image`)
-
-  if (code_input) {
-    code_input.style.color = color
-  }
 
   if (volume_value) {
     volume_value.style.color = color
@@ -120,9 +115,7 @@ App.restore_interface_colors = () => {
 }
 
 App.do_color_interface = (color) => {
-  let input = App.get_input()
-  input.style.borderColor = color
-
+  App.set_input_border(color)
   let scope = App.get_scope_container()
   scope.style.borderColor = color
 }

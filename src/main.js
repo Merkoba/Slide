@@ -326,10 +326,6 @@ App.ensure_strudel_ready = async () => {
 }
 
 App.restart_code_scroll = () => {
-  if (!App.editor) {
-    return
-  }
-
   App.scroll_input_to_top()
 
   if (App.code_scroll_active) {

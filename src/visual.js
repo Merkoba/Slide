@@ -249,9 +249,8 @@ App.anim_hyper_rose = (c, w, h, f) => {
 }
 
 App.anim_liquid_aether = (c, w, h, f) => {
-  let particle_count = 250
+  let particle_count = 80
   let particle_speed = 0.6
-  // Increased count to ensure the screen is fully covered in color
   let orb_count = 12
 
   // --- INIT ---
@@ -259,14 +258,18 @@ App.anim_liquid_aether = (c, w, h, f) => {
     !App.flow_particles ||
     (App.flow_particles.length !== particle_count)
   ) {
-    App.flow_particles = Array(particle_count).fill().map(() => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      speed: particle_speed,
-      life: Math.random() * 100,
-      angle_offset: Math.random() * Math.PI * 2,
-      size: (Math.random() * 4) + 2,
-    }))
+    App.flow_particles = Array(particle_count).fill().map(() => {
+      let life = Math.random() * 100
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        speed: particle_speed,
+        life: life,
+        max_life: life,
+        angle_offset: Math.random() * Math.PI * 2,
+        size: (Math.random() * 4) + 2,
+      }
+    })
   }
 
   if (
@@ -278,7 +281,6 @@ App.anim_liquid_aether = (c, w, h, f) => {
       y: Math.random() * h,
       vx: (Math.random() - 0.5) * 1,
       vy: (Math.random() - 0.5) * 1,
-      // Massive radius (400px - 900px) to wash the whole background
       radius: (Math.random() * 500) + 400,
       hue: i * 50,
     }))
@@ -287,7 +289,6 @@ App.anim_liquid_aether = (c, w, h, f) => {
   // --- RENDER ---
 
   // 3. Fade Background
-  // Reduced opacity (0.1) and slightly brighter color to prevent pitch black trails
   c.globalCompositeOperation = `source-over`
   c.fillStyle = `rgba(15, 10, 30, 0.1)`
   c.fillRect(0, 0, w, h)
@@ -318,10 +319,8 @@ App.anim_liquid_aether = (c, w, h, f) => {
     }
 
     let gradient = c.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius)
-    // Much stronger pulse (base 0.4 instead of 0.1)
     let pulse = 0.4 + (Math.sin((t * 2) + orb.hue) * 0.2)
 
-    // Increased Lightness to 60% for vivid colors (was 30%)
     gradient.addColorStop(0, `hsla(${orb.hue + f * 0.1}, 80%, 60%, ${pulse})`)
     gradient.addColorStop(1, `rgba(0,0,0,0)`)
 
@@ -343,13 +342,22 @@ App.anim_liquid_aether = (c, w, h, f) => {
       p.x = Math.random() * w
       p.y = Math.random() * h
       p.life = 100 + (Math.random() * 100)
+      p.max_life = p.life
       p.size = (Math.random() * 4) + 2
     }
 
     c.beginPath()
 
     let hue = ((f * 0.1) + (p.x * 0.02) + (p.y * 0.02)) % 360
-    let alpha = Math.min(p.life / 50, 0.8)
+
+    // Fade in based on distance from birth (max_life - life)
+    // Fade out based on distance to death (life)
+    let fade_in = (p.max_life - p.life) / 50
+    let fade_out = p.life / 50
+    let alpha = Math.min(fade_in, fade_out, 0.8)
+
+    // Safety check to ensure alpha is never negative
+    alpha = Math.max(0, alpha)
 
     c.fillStyle = `hsla(${hue}, 90%, 80%, ${alpha})`
     c.arc(p.x, p.y, p.size, 0, Math.PI * 2)

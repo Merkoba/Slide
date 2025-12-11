@@ -4,7 +4,7 @@ App.code_scroll_direction = 1
 App.code_scroll_active = false
 App.code_scroll_speed_px_per_second = 80
 App.code_scroll_pause_until = 0
-App.code_scroll_wheel_pause_ms = 350
+App.code_scroll_wheel_pause_ms = 1000
 App.code_scroll_song_pause_ms = 1.2 * 1000
 App.code_scroll_pending_delay_ms = 0
 App.input_mirror_time = 2.8 * 1000
@@ -18,7 +18,9 @@ App.setup_input = () => {
 }
 
 App.create_editor = () => {
-  App.editor = CodeMirror.fromTextArea(App.get_input(), {
+  let textarea = DOM.el(`#code-input`)
+
+  App.editor = CodeMirror.fromTextArea(textarea, {
     lineNumbers: false,
     theme: `nord`,
     indentWithTabs: true,
@@ -37,7 +39,7 @@ App.create_editor = () => {
 }
 
 App.get_input = () => {
-  return DOM.el(`#code-input`)
+  return DOM.el(`#codemirror-wrapper`)
 }
 
 App.get_input_wrapper = () => {
@@ -89,12 +91,6 @@ App.reset_code_scroll_for_content = (options = {}) => {
 }
 
 App.set_input = (code) => {
-  const code_input = App.get_input()
-
-  if (!code_input) {
-    return
-  }
-
   App.document.setValue(code)
   App.scroll_input_to_top()
   App.reset_code_scroll_for_content()
@@ -169,12 +165,6 @@ App.start_code_scroll = () => {
     return
   }
 
-  let input = App.get_input()
-
-  if (!input) {
-    return
-  }
-
   let max_scroll = Math.max(0, App.get_input_height() - App.get_input_client_height())
 
   if (max_scroll <= 0) {
@@ -209,7 +199,6 @@ App.stop_code_scroll = () => {
 
 App.init_code_input_controls = () => {
   let wrapper = App.get_input_wrapper()
-  let code_input = App.get_input()
   let scroll_button = DOM.el(`#code-input-scroll`)
   let max_button = App.get_max_button()
   let top_button = DOM.el(`#code-input-top`)
@@ -274,114 +263,114 @@ App.init_code_input_controls = () => {
     })
   }
 
-  if (code_input) {
-    DOM.ev(code_input, `pointerdown`, (event) => {
-      if (!App.code_scroll_active) {
-        return
-      }
+  let input = App.get_input()
 
-      let target = event.target
-      let rect = target.getBoundingClientRect()
-      let is_resize_handle = (event.clientX > (rect.right - 20)) && (event.clientY > (rect.bottom - 20))
+  DOM.ev(input, `pointerdown`, (event) => {
+    if (!App.code_scroll_active) {
+      return
+    }
 
-      if (is_resize_handle) {
-        return
-      }
+    let target = event.target
+    let rect = target.getBoundingClientRect()
+    let is_resize_handle = (event.clientX > (rect.right - 20)) && (event.clientY > (rect.bottom - 20))
 
-      App.stop_code_scroll()
-    })
+    if (is_resize_handle) {
+      return
+    }
 
-    if (wrapper) {
-      let resize_handle = DOM.el(`#resize-handle`)
+    App.stop_code_scroll()
+  })
 
-      if (resize_handle) {
-        let is_resizing = false
+  if (wrapper) {
+    let resize_handle = DOM.el(`#resize-handle`)
 
-        DOM.ev(resize_handle, `mousedown`, (event) => {
-          event.preventDefault()
-          is_resizing = true
-          document.body.style.userSelect = `none`
-          document.body.style.cursor = `se-resize`
+    if (resize_handle) {
+      let is_resizing = false
 
-          App.activate_top_input_controls()
-          App.activate_bottom_input_controls()
+      DOM.ev(resize_handle, `mousedown`, (event) => {
+        event.preventDefault()
+        is_resizing = true
+        document.body.style.userSelect = `none`
+        document.body.style.cursor = `se-resize`
 
-          resize_handle.style.opacity = `1`
-          resize_handle.style.pointerEvents = `auto`
-          resize_handle.classList.add(`active`)
+        App.activate_top_input_controls()
+        App.activate_bottom_input_controls()
 
-          let start_x = event.clientX
-          let start_y = event.clientY
-          let start_width = wrapper.offsetWidth
-          let start_height = wrapper.offsetHeight
+        resize_handle.style.opacity = `1`
+        resize_handle.style.pointerEvents = `auto`
+        resize_handle.classList.add(`active`)
 
-          let mouse_move = (move_event) => {
-            if (!is_resizing) {return}
+        let start_x = event.clientX
+        let start_y = event.clientY
+        let start_width = wrapper.offsetWidth
+        let start_height = wrapper.offsetHeight
 
-            let new_width = start_width + (move_event.clientX - start_x)
-            let new_height = start_height + (move_event.clientY - start_y)
+        let mouse_move = (move_event) => {
+          if (!is_resizing) {return}
 
-            let style = getComputedStyle(document.documentElement)
-            let min_width = parseInt(style.getPropertyValue(`--input_min_width`))
-            let min_height = parseInt(style.getPropertyValue(`--input_min_height`))
+          let new_width = start_width + (move_event.clientX - start_x)
+          let new_height = start_height + (move_event.clientY - start_y)
 
-            new_width = Math.max(min_width, new_width)
-            new_height = Math.max(min_height, new_height)
+          let style = getComputedStyle(document.documentElement)
+          let min_width = parseInt(style.getPropertyValue(`--input_min_width`))
+          let min_height = parseInt(style.getPropertyValue(`--input_min_height`))
 
-            wrapper.style.width = `${new_width}px`
-            wrapper.style.height = `${new_height}px`
-          }
+          new_width = Math.max(min_width, new_width)
+          new_height = Math.max(min_height, new_height)
 
-          let mouse_up = () => {
-            is_resizing = false
-            document.body.style.userSelect = ``
-            document.body.style.cursor = ``
+          wrapper.style.width = `${new_width}px`
+          wrapper.style.height = `${new_height}px`
+        }
 
-            App.deactivate_top_input_controls()
-            App.deactivate_bottom_input_controls()
+        let mouse_up = () => {
+          is_resizing = false
+          document.body.style.userSelect = ``
+          document.body.style.cursor = ``
 
-            resize_handle.style.opacity = ``
-            resize_handle.style.pointerEvents = ``
-            resize_handle.classList.remove(`active`)
+          App.deactivate_top_input_controls()
+          App.deactivate_bottom_input_controls()
 
-            document.removeEventListener(`mousemove`, mouse_move)
-            document.removeEventListener(`mouseup`, mouse_up)
-          }
+          resize_handle.style.opacity = ``
+          resize_handle.style.pointerEvents = ``
+          resize_handle.classList.remove(`active`)
 
-          document.addEventListener(`mousemove`, mouse_move)
-          document.addEventListener(`mouseup`, mouse_up)
-        })
+          document.removeEventListener(`mousemove`, mouse_move)
+          document.removeEventListener(`mouseup`, mouse_up)
+        }
 
-        DOM.ev(resize_handle, `dblclick`, (event) => {
-          App.restore_input()
-        })
-      }
+        document.addEventListener(`mousemove`, mouse_move)
+        document.addEventListener(`mouseup`, mouse_up)
+      })
 
-      DOM.ev(wrapper, `mouseover`, () => {
-        App.check_max_button()
+      DOM.ev(resize_handle, `dblclick`, (event) => {
+        App.restore_input()
       })
     }
 
-    DOM.ev(code_input, `wheel`, (event) => {
-      if (!App.code_scroll_active) {
-        return
-      }
-
-      if (window.performance?.now) {
-        App.code_scroll_pause_until = window.performance.now() + App.code_scroll_wheel_pause_ms
-      }
-      else {
-        App.code_scroll_pause_until = App.code_scroll_wheel_pause_ms
-      }
-
-      if (event.deltaY < 0) {
-        App.code_scroll_direction = -1
-      }
-      else if (event.deltaY > 0) {
-        App.code_scroll_direction = 1
-      }
-    }, {passive: true})
+    DOM.ev(wrapper, `mouseover`, () => {
+      App.check_max_button()
+    })
   }
+
+  DOM.ev(input, `wheel`, (event) => {
+    if (!App.code_scroll_active) {
+      return
+    }
+
+    if (window.performance?.now) {
+      App.code_scroll_pause_until = window.performance.now() + App.code_scroll_wheel_pause_ms
+    }
+    else {
+      App.code_scroll_pause_until = App.code_scroll_wheel_pause_ms
+    }
+
+    if (event.deltaY < 0) {
+      App.code_scroll_direction = -1
+    }
+    else if (event.deltaY > 0) {
+      App.code_scroll_direction = 1
+    }
+  }, {passive: true})
 }
 
 // Add a ResizeObserver to resize the scope canvas when the wrapper is resized
@@ -423,11 +412,7 @@ App.input_is_maxed = () => {
 }
 
 App.restart_code_scroll = () => {
-  let code_input = App.get_input()
-
-  if (code_input) {
-    App.scroll_input_to_top()
-  }
+  App.scroll_input_to_top()
 
   if (App.code_scroll_active) {
     App.defer_code_scroll(App.code_scroll_song_pause_ms)
@@ -585,4 +570,9 @@ App.get_input_height = () => {
 App.get_input_client_height = () => {
   let info = App.editor.getScrollInfo()
   return info.clientHeight
+}
+
+App.set_input_border = (color) => {
+  let input = App.get_input()
+  input.style.borderColor = color
 }
