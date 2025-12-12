@@ -1,6 +1,5 @@
 App.code_query_key = `code`
 App.song_query_key = `song`
-App.cpm_query_key = `cpm`
 App.beat_query_key = `beat`
 App.url_query_key = `url`
 
@@ -17,13 +16,6 @@ App.update_url = (song_name = ``) => {
   }
   else {
     next_url.searchParams.delete(App.song_query_key)
-  }
-
-  if (song_name || code) {
-    next_url.searchParams.set(App.cpm_query_key, `${App.tempo}`)
-  }
-  else {
-    next_url.searchParams.delete(App.cpm_query_key)
   }
 
   if (!song_name && App.beat_url) {
@@ -118,20 +110,6 @@ App.load_song_from_query = async () => {
   }
 
   return false
-}
-
-App.set_cpm_from_query = () => {
-  let query_params = App.get_query_params()
-  let requested_cpm = query_params.get(App.cpm_query_key)
-
-  if (requested_cpm) {
-    let parsed_cpm = parseInt(requested_cpm, 10)
-
-    if (Number.isFinite(parsed_cpm)) {
-      App.update_tempo(parsed_cpm)
-      App.set_tempo()
-    }
-  }
 }
 
 App.set_beat_title_from_query = () => {

@@ -100,7 +100,6 @@ App.on_tempo_change = (is_final = false, value_override = undefined) => {
     App.schedule_tempo_commit(() => {
       App.persist_tempo()
       App.set_tempo()
-      App.update_url()
     })
   }
 }
@@ -128,7 +127,6 @@ App.init_tempo_controls = () => {
       slider.value = App.default_cpm
       App.update_tempo(App.default_cpm)
       App.set_tempo()
-      App.update_url()
     }
   })
 

@@ -390,7 +390,6 @@ App.start_events = async () => {
   })
 
   App.make_main_visible()
-  App.set_cpm_from_query()
   App.set_beat_title_from_query()
   App.max_input()
 
