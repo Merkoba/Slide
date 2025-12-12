@@ -5,7 +5,7 @@ import "./libs/needcontext.js"
 import "./libs/jdenticon.js"
 import "./libs/lz-string.js"
 import "./libs/codemirror/lib/codemirror.js"
-import "./libs/codemirror/mode/clike/clike.js"
+import "./libs/codemirror/mode/javascript/javascript.js"
 import "./libs/codemirror/addon/hint/show-hint.js"
 
 import "./mixer.js"
