@@ -23,7 +23,7 @@ App.fetch_songs_list = async () => {
   }
 }
 
-App.fetch_song_content = async (song_name) => {
+App.fetch_song_code = async (song_name) => {
   try {
     let response = await fetch(`/songs/${song_name}.js`)
 
@@ -79,7 +79,7 @@ App.load_song = async (song_name) => {
 
   try {
     App.set_status(`Loading ${song_name}...`)
-    let content = await App.fetch_song_content(song_name)
+    let content = await App.fetch_song_code(song_name)
     App.stop_status_watch()
     App.stop_color_cycle()
     App.clear_draw_context()

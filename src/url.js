@@ -30,8 +30,9 @@ App.load_song_from_query = async () => {
 
   try {
     App.loading()
-    let content = await App.fetch_song_content(requested_song)
-    App.set_input(content)
+    let code = await App.fetch_song_code(requested_song)
+    App.set_input(code)
+    App.set_song_tempo(code)
     App.set_song_context(requested_song)
     let name = App.clean_song_name(requested_song)
     App.set_status(`Loaded: ${name}`)

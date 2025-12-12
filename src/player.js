@@ -84,8 +84,7 @@ App.strudel_update = async (code) => {
 
   console.info(`Updating 💨`)
   await App.ensure_scope()
-
-  App.set_tempo()
+  App.set_song_tempo(code)
   App.update_url()
   let full_result = await App.run_eval(code)
 
