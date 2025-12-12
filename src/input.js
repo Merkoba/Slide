@@ -12,7 +12,6 @@ App.input_grow_time = 2.8 * 1000
 App.lines_enabled = true
 
 App.setup_input = () => {
-  App.start_input_resize_observer()
   App.create_editor()
   App.setup_editor_autocomplete()
   App.max_button = App.get_max_button()
@@ -414,10 +413,11 @@ App.init_code_input_controls = () => {
 
           document.removeEventListener(`mousemove`, mouse_move)
           document.removeEventListener(`mouseup`, mouse_up)
+          App.scope_debouncer.call()
         }
 
-        document.addEventListener(`mousemove`, mouse_move)
-        document.addEventListener(`mouseup`, mouse_up)
+        DOM.ev(document, `mousemove`, mouse_move)
+        DOM.ev(document, `mouseup`, mouse_up)
       })
 
       DOM.ev(resize_handle, `dblclick`, (event) => {
@@ -435,22 +435,6 @@ App.init_code_input_controls = () => {
       App.stop_code_scroll()
     }
   }, {passive: true})
-}
-
-// Add a ResizeObserver to resize the scope canvas when the wrapper is resized
-App.start_input_resize_observer = () => {
-  let wrapper = App.get_input_wrapper()
-
-  if (!wrapper) {
-    return
-  }
-
-  let observer = new ResizeObserver(() => {
-    App.scope_debouncer.call()
-    App.enable_max_button()
-  })
-
-  observer.observe(wrapper)
 }
 
 App.restore_input = () => {
