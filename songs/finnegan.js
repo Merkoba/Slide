@@ -1,4 +1,5 @@
-// Author: madprops
+// Finnegan
+// By madprops
 setcpm(60)
 
 let s1 = stack(

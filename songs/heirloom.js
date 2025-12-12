@@ -1,4 +1,5 @@
-// Author: madprops
+// Heirloom
+// by madprops
 setcpm(25)
 
 let s1 = stack(
