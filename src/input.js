@@ -85,7 +85,7 @@ App.create_editor = () => {
   ]
 
   let start_state = EditorState.create({
-    doc: `// Initial content here`,
+    doc: ``,
     extensions,
   })
 
