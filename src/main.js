@@ -4,7 +4,7 @@ import {initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
 import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
-import {cleanupDraw} from "@strudel.cycles/draw"
+import {Drawer, cleanupDraw} from "@strudel.cycles/draw"
 import {initHydra, clearHydra, H as H_hydra} from "@strudel.cycles/hydra"
 import {LZString} from "./libs/lz-string.js"
 
@@ -23,6 +23,7 @@ const {evaluate, scheduler} = webaudioRepl({
   },
 })
 
+App.evaluate = evaluate
 App.scheduler = scheduler
 
 App.app_name = `Slide`
@@ -65,55 +66,6 @@ App.get_config = async () => {
   }
 }
 
-// 1. Export a setup function to the global window object
-// This allows your HTML/Flask templates to call it easily.
-App.strudel_init = async () => {
-  if (App.audio_started) {
-    console.info(`Audio already initialized`)
-    return
-  }
-
-  console.info(`Initializing Audio...`)
-
-  try {
-    console.info(`Loading scope...`)
-    await App.ensure_scope()
-    console.info(`Scope loaded`)
-
-    // This must be called in response to a user interaction
-    console.info(`Initializing audio context...`)
-    await initAudio()
-
-    // Enable mini-notation for strings
-    strudelMini.miniAllStrings()
-
-    // Load samples and sounds in parallel
-    let ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
-
-    console.info(`Loading samples and soundfonts...`)
-
-    await Promise.all([
-      registerSynthSounds(),
-      registerSoundfonts(),
-      samples(`github:tidalcycles/dirt-samples`),
-      samples(`${ds}/tidal-drum-machines.json`),
-    ])
-
-    App.audio_started = true
-    App.apply_volume()
-    console.info(`Audio Ready.`)
-
-    if (App.code_to_play) {
-      App.play_action(App.code_to_play)
-      App.code_to_play = ``
-    }
-  }
-  catch (err) {
-    console.error(`Audio Failed:`, err)
-    throw err
-  }
-}
-
 App.clear_draw_context = () => {
   try {
     cleanupDraw(true)
@@ -131,25 +83,6 @@ App.report_eval_failure = (error) => {
   let message = error?.message || App.last_eval_error || `Failed to evaluate Strudel code`
   App.last_eval_error = message
   App.set_status(message)
-}
-
-App.run_eval = async (code) => {
-  App.reset_eval_state()
-  code = App.filter_code(code)
-  App.set_input(code)
-
-  try {
-    await evaluate(code)
-  }
-  catch (err) {
-    return {ok: false, error: err}
-  }
-
-  if (App.has_error) {
-    return {ok: false, error: new Error(App.last_eval_error || `Evaluation error`)}
-  }
-
-  return {ok: true}
 }
 
 App.normalize_code = (code = ``) => {
@@ -375,6 +308,7 @@ App.start_events = async () => {
     })
   }
 
+  App.setup_player()
   App.setup_status()
   App.setup_volume()
   App.setup_auto()
@@ -470,3 +404,6 @@ window.H = H_hydra
 window.initHydra = initHydra
 window.clearHydra = clearHydra
 window.lz = LZString
+window.Drawer = Drawer
+window.strudelMini = strudelMini
+window.registerSoundfonts = registerSoundfonts
