@@ -509,6 +509,7 @@ App.max_input = (just_check = false) => {
     wrapper.style.height = `${diff}px`
     wrapper.style.width = `${max_width}%`
     App.check_max_button()
+    App.editor.refresh()
   }
 
   return [diff, max_width]
