@@ -21,8 +21,8 @@ App.create_editor = () => {
   let textarea = DOM.el(`#code-input`)
 
   App.editor = CodeMirror.fromTextArea(textarea, {
-    lineNumbers: false,
     theme: `nord`,
+    lineNumbers: true,
     indentWithTabs: true,
     tabSize: 4,
     lineWrapping: true,
