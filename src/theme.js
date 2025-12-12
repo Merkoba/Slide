@@ -47,7 +47,7 @@ App.editor_theme = {
     borderTop: `2px solid #3B4252`,
   },
   ".cm-search": {
-    display: `flex`,
+    display: `block`,
     alignItems: `center`,
     gap: `8px`,
     padding: `8px 12px`,
@@ -100,7 +100,7 @@ App.editor_theme = {
     background: `transparent`,
   },
   ".cm-panel.cm-search [name='close']:hover": {
-    color: `#BF616A`, // Nord Red
+    color: `#C3C3C3`,
   },
   // Highlight colors
   ".cm-searchMatch": {
