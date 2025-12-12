@@ -522,29 +522,29 @@ App.draw_scope_frame = () => {
   let now = Date.now()
   App.scope_clicks = App.scope_clicks.filter(click => (now - click.timestamp) < App.scope_click_time)
 
-for (let click of App.scope_clicks) {
-  let age = (now - click.timestamp)
-  let angle = 0
+  for (let click of App.scope_clicks) {
+    let age = (now - click.timestamp)
+    let angle = 0
 
-  if (App.scope_click_level > 1) {
-    angle = (age * App.scope_click_rotation_speed)
+    if (App.scope_click_level > 1) {
+      angle = (age * App.scope_click_rotation_speed)
+    }
+
+    App.scope_canvas_ctx.fillStyle = App[`scope_click_color_${App.scope_click_level}`]
+
+    // pass the angle as the last argument
+    App.draw_star(
+      App.scope_canvas_ctx,
+      click.x,
+      click.y,
+      3,
+      5,
+      App.scope_click_size,
+      angle
+    )
+
+    App.scope_canvas_ctx.fill()
   }
-
-  App.scope_canvas_ctx.fillStyle = App[`scope_click_color_${App.scope_click_level}`]
-
-  // pass the angle as the last argument
-  App.draw_star(
-    App.scope_canvas_ctx,
-    click.x,
-    click.y,
-    3,
-    5,
-    App.scope_click_size,
-    angle
-  )
-
-  App.scope_canvas_ctx.fill()
-}
 
   App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
 }
