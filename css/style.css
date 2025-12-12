@@ -210,7 +210,6 @@ body, html {
     background: var(--alpha_background);
     color: var(--green);
     border: 1px solid #444;
-    padding: 10px;
     font-size: 1.1rem;
     outline: none;
     transition: color 3s ease, var(--border-transition);
