@@ -598,9 +598,9 @@ App.toggle_lines = () => {
 }
 
 App.enable_lines = () => {
-  App.editor.setOption("lineNumbers", true)
+  App.editor.setOption(`lineNumbers`, true)
 }
 
 App.disable_lines = () => {
-  App.editor.setOption("lineNumbers", false)
+  App.editor.setOption(`lineNumbers`, false)
 }
