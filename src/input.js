@@ -33,7 +33,7 @@ App.create_editor = () => {
     history, drawSelection, dropCursor, // Core basics
     indentOnInput, bracketMatching, closeBrackets, rectangularSelection, crosshairCursor, // UI basics
     keymap, defaultKeymap, historyKeymap, indentWithTab, // Keymaps
-    highlightSelectionMatches, searchKeymap, search,
+    highlightSelectionMatches, searchKeymap, search, selectNextOccurrence,
     javascript, nord, vscodeKeymap, Prec,
   } = window.CM
 
@@ -53,10 +53,12 @@ App.create_editor = () => {
     nord,
     theme,
     App.compartment.of(gutter_extensions),
+    EditorState.allowMultipleSelections.of(true),
 
     Prec.highest(
       keymap.of([
-        ...vscodeKeymap, // Contains "Mod-d" -> selectNextOccurrence
+        {key: "Mod-d", run: selectNextOccurrence, preventDefault: true},
+        ...vscodeKeymap,
       ])
     ),
 

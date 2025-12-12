@@ -27702,6 +27702,7 @@
     highlightSelectionMatches,
     searchKeymap,
     search,
+    selectNextOccurrence,
   };
 
 })();
