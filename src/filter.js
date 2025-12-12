@@ -11,9 +11,6 @@ App.filter_code = (code) => {
   // Remove setcpm() calls with any arguments
   code = code.replace(/setcpm\s*\([^)]*\)/gi, ``)
 
-  // Remove .cpm() calls with any arguments
-  code = code.replace(/\._?cpm\s*\([^)]*\)/gi, ``)
-
   // Replace multiple empty lines with single empty line
   code = code.replace(/\n\s*\n\s*\n+/g, `\n\n`)
 
