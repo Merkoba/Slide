@@ -27705,6 +27705,9 @@
     selectNextOccurrence,
     copyLineDown,
     copyLineUp,
+    StateField,
+    StateEffect,
+    Decoration,
   };
 
 })();

@@ -40,6 +40,7 @@ App.create_editor = () => {
   App.compartment = new Compartment()
   let container = DOM.el(`#code-input-wrapper`)
   let theme = EditorView.theme(App.editor_theme, {dark: true})
+  App.setup_strudel_mirror()
 
   // Group all extensions that render in the gutter
   let gutter_extensions = [
@@ -73,6 +74,7 @@ App.create_editor = () => {
     rectangularSelection(),
     crosshairCursor(),
     highlightSelectionMatches(),
+    App.highlight_extension,
 
     keymap.of([
       ...defaultKeymap,

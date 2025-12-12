@@ -4,19 +4,25 @@ App.play_running = false
 App.setup_player = () => {
   App.drawer = new Drawer((active_haps) => {
     let locations = []
-    console.log(active_haps)
 
-    // for (let hap of active_haps) {
-    //   if (hap.context && hap.context.location) {
-    //     locations.push(hap.context.location)
-    //   }
-    // }
+    for (let hap of active_haps) {
+      // 1. Check for PLURAL 'locations'
+      if (hap.context && hap.context.locations) {
+        // 2. Add all locations from this event to our master list
+        locations.push(...hap.context.locations)
+      }
+      // Fallback for older versions or different event types
+      else if (hap.context && hap.context.location) {
+        locations.push(hap.context.location)
+      }
+    }
 
-    // if (App.editor) {
-    //   App.editor.dispatch({
-    //     effects: setHighlight.of(locations)
-    //   })
-    // }
+    if (App.editor) {
+      // 3. Dispatch the list (which is now full of objects like {start: 1746, end: 1749})
+      App.editor.dispatch({
+        effects: App.set_highlight.of(locations)
+      })
+    }
   }, [0, 0])
 }
 
