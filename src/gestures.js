@@ -1,3 +1,8 @@
+App.max_scope_slide_y_dff = 50
+App.scope_panning_zone = 100
+App.scope_padding_amount = 0.9
+App.scope_slide_distance = 180
+
 App.check_scope_slide = () => {
   let a = App.mouse_down_coords
   let b = App.mouse_up_coords
