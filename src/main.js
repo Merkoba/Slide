@@ -327,15 +327,6 @@ App.ensure_strudel_ready = async () => {
   return true
 }
 
-App.restart_code_scroll = () => {
-  App.scroll_input_to_top()
-
-  if (App.code_scroll_active) {
-    App.defer_code_scroll(App.code_scroll_song_pause_ms)
-    App.reset_code_scroll_for_content(App.code_scroll_song_pause_ms)
-  }
-}
-
 App.start_events = async () => {
   if (App.events_started) {
     return

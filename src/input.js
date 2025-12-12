@@ -151,6 +151,10 @@ App.reset_code_scroll_for_content = (options = {}) => {
 }
 
 App.set_input = (code) => {
+  if (App.get_input_value() === code) {
+    return
+  }
+
   App.editor.dispatch({
     changes: {
       from: 0,

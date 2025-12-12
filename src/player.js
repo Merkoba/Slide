@@ -39,7 +39,7 @@ App.play_action = async (code = ``, force = false) => {
   }
 
   App.stop_status_watch()
-  App.restart_code_scroll()
+  App.restart_code_scroll(false)
   App.last_code = code
   App.stor_save_code()
   App.clear_draw_context()
@@ -145,4 +145,15 @@ App.load_last_code = () => {
   }
 
   App.set_input(App.last_code)
+}
+
+App.restart_code_scroll = (to_top = true) => {
+  if (to_top) {
+    App.scroll_input_to_top()
+  }
+
+  if (App.code_scroll_active) {
+    App.defer_code_scroll(App.code_scroll_song_pause_ms)
+    App.reset_code_scroll_for_content(App.code_scroll_song_pause_ms)
+  }
 }
