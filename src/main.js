@@ -26,10 +26,6 @@ const {evaluate, scheduler} = webaudioRepl({
 App.scheduler = scheduler
 
 App.app_name = `Slide`
-App.code_query_key = `code`
-App.song_query_key = `song`
-App.cpm_query_key = `cpm`
-App.beat_query_key = `beat`
 App.current_song = ``
 App.events_started = false
 App.audio_started = false
@@ -343,6 +339,10 @@ App.start_events = async () => {
     App.play_action(next_code, true)
   })
 
+  DOM.ev(`#btn-url`, `click`, () => {
+    App.get_beat_url()
+  })
+
   DOM.ev(`#btn-auto`, `click`, () => {
     App.open_auto_modal()
   })
@@ -395,8 +395,10 @@ App.start_events = async () => {
   App.max_input()
 
   if (!await App.load_song_from_query()) {
-    if (!App.load_code_from_query()) {
-      App.load_last_code()
+    if (!App.load_url_from_query()) {
+      if (!App.load_code_from_query()) {
+        App.load_last_code()
+      }
     }
   }
 }
@@ -412,46 +414,6 @@ App.set_title = (title) => {
   }
 
   document.title = App.app_name
-}
-
-App.update_url = (song_name = ``) => {
-  let next_url = new URL(window.location.href)
-  let code = App.get_input_value().trim()
-
-  if (!song_name) {
-    song_name = App.get_song_name()
-  }
-
-  if (song_name) {
-    next_url.searchParams.set(App.song_query_key, song_name)
-  }
-  else {
-    next_url.searchParams.delete(App.song_query_key)
-  }
-
-  if (song_name || code) {
-    next_url.searchParams.set(App.cpm_query_key, `${App.tempo}`)
-  }
-  else {
-    next_url.searchParams.delete(App.cpm_query_key)
-  }
-
-  if (code && !song_name && (code.length <= App.code_url_max)) {
-    let compressed_code = App.compress_string(code)
-    next_url.searchParams.set(App.code_query_key, compressed_code)
-  }
-  else {
-    next_url.searchParams.delete(App.code_query_key)
-  }
-
-  if (!song_name && App.beat_title) {
-    next_url.searchParams.set(App.beat_query_key, App.beat_title)
-  }
-  else {
-    next_url.searchParams.delete(App.beat_query_key)
-  }
-
-  window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
 }
 
 App.get_query_params = () => {

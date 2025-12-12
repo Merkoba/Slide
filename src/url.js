@@ -1,3 +1,56 @@
+App.code_query_key = `code`
+App.song_query_key = `song`
+App.cpm_query_key = `cpm`
+App.beat_query_key = `beat`
+App.url_query_key = `url`
+
+App.update_url = (song_name = ``) => {
+  let next_url = new URL(window.location.href)
+  let code = App.get_input_value().trim()
+
+  if (!song_name) {
+    song_name = App.get_song_name()
+  }
+
+  if (song_name) {
+    next_url.searchParams.set(App.song_query_key, song_name)
+  }
+  else {
+    next_url.searchParams.delete(App.song_query_key)
+  }
+
+  if (song_name || code) {
+    next_url.searchParams.set(App.cpm_query_key, `${App.tempo}`)
+  }
+  else {
+    next_url.searchParams.delete(App.cpm_query_key)
+  }
+
+  if (!song_name && App.beat_url) {
+    next_url.searchParams.set(App.url_query_key, App.beat_url)
+  }
+  else {
+    next_url.searchParams.delete(App.url_query_key)
+  }
+
+  if (code && !song_name && !App.beat_url && (code.length <= App.code_url_max)) {
+    let compressed_code = App.compress_string(code)
+    next_url.searchParams.set(App.code_query_key, compressed_code)
+  }
+  else {
+    next_url.searchParams.delete(App.code_query_key)
+  }
+
+  if (!song_name && App.beat_title) {
+    next_url.searchParams.set(App.beat_query_key, App.beat_title)
+  }
+  else {
+    next_url.searchParams.delete(App.beat_query_key)
+  }
+
+  window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
+}
+
 App.load_code_from_query = () => {
   let query_params = new URLSearchParams(window.location.search)
   let hash = query_params.get(App.code_query_key)
@@ -10,6 +63,27 @@ App.load_code_from_query = () => {
     let code = App.uncompress_string(hash)
     App.last_code = code
     App.load_last_code()
+    return true
+  }
+  catch (err) {
+    App.set_status(`Failed to load song: ${err.message}`)
+    console.error(`Failed to load song:`, err)
+  }
+
+  return false
+}
+
+App.load_url_from_query = () => {
+  let query_params = new URLSearchParams(window.location.search)
+  let url = query_params.get(App.url_query_key)
+
+  if (!url) {
+    return false
+  }
+
+  try {
+    App.beat_url = url
+    App.load_beat_url()
     return true
   }
   catch (err) {
@@ -66,5 +140,54 @@ App.set_beat_title_from_query = () => {
 
   if (beat_title) {
     App.beat_title = beat_title
+  }
+}
+
+App.get_beat_url = () => {
+  let url = prompt(`Enter URL`)
+
+  if (!url) {
+    return
+  }
+
+  App.beat_url = url.trim()
+  App.load_beat_url()
+}
+
+App.load_beat_url = async () => {
+  App.update_url()
+
+  if (!App.beat_url) {
+    return
+  }
+
+  try {
+    App.loading()
+    let response = await fetch(App.beat_url)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch the beat at ${App.beat_url}`)
+    }
+
+    let content = await response.text()
+
+    if (!content) {
+      return
+    }
+
+    content = content.trim()
+
+    if (!content) {
+      return
+    }
+
+    App.last_code = content
+    App.set_input(content)
+    App.set_status(`Loaded URL 🌐`)
+    App.update_url()
+  }
+  catch (err) {
+    console.error(err)
+    App.playing()
   }
 }
