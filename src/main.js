@@ -407,3 +407,6 @@ window.lz = LZString
 window.Drawer = Drawer
 window.strudelMini = strudelMini
 window.registerSoundfonts = registerSoundfonts
+window.registerSynthSounds = registerSynthSounds
+window.initAudio = initAudio
+window.samples = samples
