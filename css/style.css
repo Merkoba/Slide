@@ -1,5 +1,4 @@
 :root {
-    --green: #94dd94;
     --input_width: 88%;
     --input_height: 420px;
     --input_max_width: 88%;
@@ -9,6 +8,7 @@
     --input-text-shadow: 0 0 0.2rem currentcolor;
     --border-transition: border-color 100ms;
     --buttons-gap: 0.62rem;
+    --green: #94dd94;
 }
 
 body, html {
