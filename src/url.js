@@ -161,6 +161,8 @@ App.load_beat_url = async () => {
       return
     }
 
+    App.stop_action()
+    App.stop_status_watch()
     App.last_code = code
     App.set_input(code)
     App.set_song_tempo(code)
