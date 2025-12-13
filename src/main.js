@@ -406,15 +406,15 @@ App.new_beat = () => {
 }
 
 App.start_resize_observer = () => {
-  let main = App.get_main()
-
   let observer = new ResizeObserver((entries) => {
     App.max_debouncer.call()
   })
 
-  if (main) {
-    observer.observe(main)
-  }
+  observer.observe(App.get_main())
+
+  DOM.ev(window, `resize`, () => {
+    App.max_debouncer.call()
+  })
 }
 
 window.H = H_hydra

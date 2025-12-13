@@ -25,7 +25,7 @@ App.setup_input = () => {
 
   App.max_debouncer = App.create_debouncer(() => {
     App.max_input_if_larger()
-  }, 500)
+  }, 300)
 }
 
 App.create_editor = () => {
