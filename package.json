@@ -5,6 +5,7 @@
     "vite": "latest",
     "eslint": "~9.11.1",
     "globals": "~15.9.0",
+    "fast-glob": "latest",
     "codemirror": "latest",
     "@codemirror/lang-javascript": "latest",
     "@codemirror/autocomplete": "latest",

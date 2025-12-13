@@ -1,4 +1,3 @@
-import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
 import {initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
@@ -6,7 +5,7 @@ import {transpiler} from "@strudel.cycles/transpiler"
 import {registerSoundfonts} from "@strudel.cycles/soundfonts"
 import {Drawer, cleanupDraw} from "@strudel.cycles/draw"
 import {initHydra, clearHydra, H as H_hydra} from "@strudel.cycles/hydra"
-import {LZString} from "./libs/lz-string.js"
+import {LZString} from "../libs/lz-string.js"
 
 App.last_eval_error = ``
 
