@@ -6264,7 +6264,7 @@
               if (this.dom.contains(tile.dom)) {
                   if (tile.isText())
                       return new DOMPos(tile.dom, Math.min(tile.dom.nodeValue.length, offset));
-                  return tile.domPosFor(offset, side);
+                  return tile.domPosFor(offset, tile.flags & 16 /* TileFlag.Before */ ? 1 : tile.flags & 32 /* TileFlag.After */ ? -1 : side);
               }
               let parent = found.tile.parent, saw = false;
               for (let ch of parent.children) {
@@ -6896,12 +6896,14 @@
                               this.builder.addBlockWidget(widget);
                           }
                           else {
+                              this.builder.ensureLine(null);
                               this.builder.addInlineWidget(widget, activeMarks, openMarks);
                               openMarks = activeMarks.length;
                           }
                       }
                   }
                   else if (tile.isText()) {
+                      this.builder.ensureLine(null);
                       if (!from && to == tile.length) {
                           this.builder.addText(tile.text, activeMarks, openMarks, this.cache.reuse(tile));
                       }
@@ -6920,6 +6922,7 @@
                       this.cache.add(tile);
                   }
                   else if (tile instanceof MarkTile) {
+                      this.builder.ensureLine(null);
                       this.builder.addMark(tile, activeMarks, openMarks);
                       this.cache.reused.set(tile, 1 /* Reused.Full */);
                       openMarks = activeMarks.length;
@@ -7347,7 +7350,7 @@
           let { anchorNode, anchorOffset } = view.observer.selectionRange;
           if (!sel || !cursor.empty || !cursor.assoc || !sel.modify)
               return;
-          let line = this.lineAt(cursor.head);
+          let line = this.lineAt(cursor.head, cursor.assoc);
           if (!line)
               return;
           let lineStart = line.posAtStart;
@@ -7426,7 +7429,7 @@
           let after, afterOff = -1, afterBad = false;
           this.tile.blockTiles((tile, off) => {
               if (tile.isWidget()) {
-                  if ((tile.flags & 32 /* TileFlag.After */) && before)
+                  if ((tile.flags & 32 /* TileFlag.After */) && off >= pos)
                       return true;
                   if (tile.flags & 16 /* TileFlag.Before */)
                       beforeBad = true;
@@ -7464,8 +7467,8 @@
           }
           return tile.coordsIn(offset, side);
       }
-      lineAt(pos) {
-          let { tile } = this.tile.resolveBlock(pos, 1);
+      lineAt(pos, side) {
+          let { tile } = this.tile.resolveBlock(pos, side);
           return tile.isLine() ? tile : null;
       }
       coordsForChar(pos) {
@@ -8011,7 +8014,10 @@
       if (block.type != BlockType.Text)
           return yOffset < (block.top + block.bottom) / 2 ? new PosAssoc(block.from, 1) : new PosAssoc(block.to, -1);
       // Here we know we're in a line, so run the logic for inline layout
-      return posAtCoordsInline(view, view.docView.lineAt(block.from), block.from, x, y);
+      let line = view.docView.lineAt(block.from, 2);
+      if (!line || line.length != block.length)
+          line = view.docView.lineAt(block.from, -2);
+      return posAtCoordsInline(view, line, block.from, x, y);
   }
   // Scan through the rectangles for the content of a tile, finding the
   // one closest to the given coordinates, prefering closeness in Y over
@@ -8930,7 +8936,8 @@
       if (event.defaultPrevented)
           return false;
       for (let node = event.target, tile; node != view.contentDOM; node = node.parentNode)
-          if (!node || node.nodeType == 11 || ((tile = Tile.get(node)) && tile.isWidget() && tile.widget.ignoreEvent(event)))
+          if (!node || node.nodeType == 11 ||
+              ((tile = Tile.get(node)) && tile.isWidget() && !tile.isHidden && tile.widget.ignoreEvent(event)))
               return false;
       return true;
   }
@@ -9049,41 +9056,12 @@
           return groupAt(view.state, pos, bias);
       }
       else { // Triple click
-          let visual = view.docView.lineAt(pos), line = view.state.doc.lineAt(visual ? visual.posAtEnd : pos);
+          let visual = view.docView.lineAt(pos, bias), line = view.state.doc.lineAt(visual ? visual.posAtEnd : pos);
           let from = visual ? visual.posAtStart : line.from, to = visual ? visual.posAtEnd : line.to;
           if (to < view.state.doc.length && to == line.to)
               to++;
           return EditorSelection.range(from, to);
       }
-  }
-  let inside = (x, y, rect) => y >= rect.top && y <= rect.bottom && x >= rect.left && x <= rect.right;
-  // Try to determine, for the given coordinates, associated with the
-  // given position, whether they are related to the element before or
-  // the element after the position.
-  function findPositionSide(view, pos, x, y) {
-      let line = view.docView.lineAt(pos);
-      if (!line)
-          return 1;
-      let off = pos - line.posAtStart;
-      // Line boundaries point into the line
-      if (off == 0)
-          return 1;
-      if (off == line.length)
-          return -1;
-      // Positions on top of an element point at that element
-      let before = line.coordsIn(off, -1);
-      if (before && inside(x, y, before))
-          return -1;
-      let after = line.coordsIn(off, 1);
-      if (after && inside(x, y, after))
-          return 1;
-      // This is probably a line wrap point. Pick before if the point is
-      // above its bottom.
-      return before && before.bottom >= y ? -1 : 1;
-  }
-  function queryPos(view, event) {
-      let pos = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
-      return { pos, bias: findPositionSide(view, pos, event.clientX, event.clientY) };
   }
   const BadMouseDetail = browser.ie && browser.ie_version <= 11;
   let lastMouseDown = null, lastMouseDownCount = 0, lastMouseDownTime = 0;
@@ -9097,7 +9075,7 @@
           Math.abs(last.clientY - event.clientY) < 2) ? (lastMouseDownCount + 1) % 3 : 1;
   }
   function basicMouseSelection(view, event) {
-      let start = queryPos(view, event), type = getClickType(event);
+      let start = view.posAndSideAtCoords({ x: event.clientX, y: event.clientY }, false), type = getClickType(event);
       let startSel = view.state.selection;
       return {
           update(update) {
@@ -9107,10 +9085,10 @@
               }
           },
           get(event, extend, multiple) {
-              let cur = queryPos(view, event), removed;
-              let range = rangeForClick(view, cur.pos, cur.bias, type);
+              let cur = view.posAndSideAtCoords({ x: event.clientX, y: event.clientY }, false), removed;
+              let range = rangeForClick(view, cur.pos, cur.assoc, type);
               if (start.pos != cur.pos && !extend) {
-                  let startRange = rangeForClick(view, start.pos, start.bias, type);
+                  let startRange = rangeForClick(view, start.pos, start.assoc, type);
                   let from = Math.min(startRange.from, range.from), to = Math.max(startRange.to, range.to);
                   range = from < range.from ? EditorSelection.range(from, to) : EditorSelection.range(to, from);
               }
