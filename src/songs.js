@@ -91,7 +91,7 @@ App.load_song = async (song_name) => {
   App.close_all_modals()
 
   try {
-    App.set_status(`Loading song...`)
+    App.loading()
     let content = await App.fetch_song_code(song_name)
     App.stop_status_watch()
     App.stop_color_cycle()
