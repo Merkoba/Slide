@@ -155,6 +155,10 @@ App.init_tempo_controls = () => {
       App.set_song_tempo(App.last_code)
     })
   }
+
+  App.remove_context(intended_button, () => {
+    App.set_intended_tempo()
+  })
 }
 
 App.set_tempo = () => {
@@ -216,4 +220,8 @@ App.set_song_tempo = (code) => {
   App.tempo = App.intended_cpm(code)
   App.set_tempo()
   App.refresh_tempo_ui()
+}
+
+App.set_intended_tempo = () => {
+  App.set_song_tempo(App.last_code)
 }

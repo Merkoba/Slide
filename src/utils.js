@@ -186,9 +186,8 @@ App.make_control_button = (el, action) => {
     action()
   })
 
-  DOM.ev(el, `contextmenu`, (event) => {
+  App.remove_context(el, () => {
     action()
-    event.preventDefault()
   })
 
   DOM.ev(el, `mousedown`, () => {
@@ -214,9 +213,7 @@ App.setup_slider = (el, on_auxclick, on_wheel) => {
     }
   })
 
-  DOM.ev(el, `contextmenu`, (event) => {
-    event.preventDefault()
-  })
+  App.remove_context(el)
 
   DOM.ev(el, `wheel`, (event) => {
     event.preventDefault()
@@ -234,4 +231,14 @@ App.setup_slider = (el, on_auxclick, on_wheel) => {
     slider.value = value
     on_wheel(value)
   }, {passive: false})
+}
+
+App.remove_context = (el, action) => {
+  DOM.ev(el, `contextmenu`, (event) => {
+    event.preventDefault()
+
+    if (action) {
+      action()
+    }
+  })
 }
