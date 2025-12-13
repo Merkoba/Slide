@@ -2,65 +2,7 @@ App.is_playing = false
 App.play_running = false
 
 App.setup_player = () => {
-  // Store the previous state outside the loop
-  let previous_locations = []
-  let was_paused = true
-
-  App.drawer = new Drawer((active_haps) => {
-    if (!App.is_playing || !App.mirror_enabled) {
-      if (!was_paused) {
-        previous_locations = []
-        App.clean_mirror()
-      }
-
-      was_paused = true
-      return
-    }
-
-    was_paused = false
-    let locations = []
-
-    for (let hap of active_haps) {
-      if (hap.context && hap.context.locations) {
-        locations.push(...hap.context.locations)
-      }
-      else if (hap.context && hap.context.location) {
-        locations.push(hap.context.location)
-      }
-    }
-
-    // Optimization: Compare current locations with previous ones
-    // We assume the objects are simple { start: x, end: y }
-    let has_changed = false
-
-    if (locations.length !== previous_locations.length) {
-      has_changed = true
-    }
-    else {
-      for (let i = 0; i < locations.length; i++) {
-        let curr = locations[i]
-        let prev = previous_locations[i]
-
-        // Check if start or end are different
-        if ((curr.start !== prev.start) || (curr.end !== prev.end)) {
-          has_changed = true
-          break
-        }
-      }
-    }
-
-    // Only touch the DOM/Editor if data actually changed
-    if (has_changed) {
-      if (App.editor) {
-        App.editor.dispatch({
-          effects: App.set_highlight.of(locations),
-        })
-      }
-
-      // Update our cache
-      previous_locations = locations
-    }
-  }, [0, 0])
+  App.setup_drawer()
 }
 
 App.reset_playing = () => {
@@ -133,6 +75,8 @@ App.stop_strudel = () => {
   App.stop_color_cycle()
   App.clear_draw_context()
   App.scheduler.stop()
+  App.stop_drawer()
+  App.clean_mirror()
   App.clean_canvas()
 }
 
@@ -277,11 +221,7 @@ App.run_eval = async (code) => {
 
   try {
     await App.evaluate(code)
-
-    if (!App.draw_started) {
-      App.drawer.start(App.scheduler)
-      App.draw_started = true
-    }
+    App.start_drawer()
   }
   catch (err) {
     return {ok: false, error: err}

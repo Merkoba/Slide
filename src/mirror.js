@@ -1,5 +1,35 @@
 App.mirror_enabled = true
 
+App.setup_drawer = () => {
+  let max_haps = 1000
+
+  App.drawer = new Drawer((active_haps) => {
+    if (active_haps.length > max_haps) {
+      return
+    }
+
+    let locations = []
+
+    for (let hap of active_haps) {
+      if (hap.context && hap.context.locations) {
+        locations.push(...hap.context.locations)
+      }
+      else if (hap.context && hap.context.location) {
+        locations.push(hap.context.location)
+      }
+    }
+
+    if (App.editor) {
+      App.editor.dispatch({
+        effects: App.set_highlight.of(locations),
+      })
+    }
+
+    // Update our cache
+    previous_locations = locations
+  }, [0, 0])
+}
+
 App.setup_strudel_mirror = () => {
   let {
     EditorView, Decoration, StateField, StateEffect,
@@ -39,4 +69,16 @@ App.clean_mirror = () => {
 App.toggle_mirror = () => {
   App.mirror_enabled = !App.mirror_enabled
   App.stor_save_mirror()
+}
+
+App.start_drawer = () => {
+  if (!App.draw_started) {
+    App.drawer.start(App.scheduler)
+    App.draw_started = true
+  }
+}
+
+App.stop_drawer = () => {
+  App.drawer.stop()
+  App.draw_started = false
 }
