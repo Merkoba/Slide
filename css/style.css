@@ -9,6 +9,7 @@
     --border-transition: border-color 100ms;
     --buttons-gap: 0.62rem;
     --green: #94dd94;
+    --panel-margin: 0.8rem;
 }
 
 body, html {
@@ -55,7 +56,7 @@ body, html {
     align-items: center;
     justify-content: flex-start;
     gap: 0.8rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: var(--panel-margin);
     width: 100%;
 }
 
@@ -355,7 +356,7 @@ button:hover {
 }
 
 #controls {
-    margin-top: 16px;
+    margin-top: var(--panel-margin);
     display: flex;
     gap: var(--buttons-gap);
     height: 2rem;
