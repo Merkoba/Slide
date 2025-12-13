@@ -124,7 +124,7 @@
             master_gain,
             lfo,
             lfo_gain,
-            analyser // Exposed here
+            analyser,
           },
           // New Helper: Get Current Volume (0.0 to 1.0)
           get_volume: () => {
