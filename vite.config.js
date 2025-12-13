@@ -75,8 +75,6 @@ module.exports = defineConfig(async () => {
       rollupOptions: {
         output: {
           inlineDynamicImports: true,
-          manualChunks: undefined,
-          entryFileNames: `strudel.bundle.js`,
         },
       },
       cssCodeSplit: false,

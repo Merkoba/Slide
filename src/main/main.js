@@ -1,3 +1,4 @@
+import "./process-env.js"
 import * as strudelMini from "@strudel.cycles/mini"
 import {initAudio, samples, registerSynthSounds} from "superdough"
 import {webaudioRepl} from "@strudel.cycles/webaudio"
