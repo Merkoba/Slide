@@ -7,16 +7,17 @@ App.setup_player = () => {
   let was_paused = true
 
   App.drawer = new Drawer((active_haps) => {
-    if (!App.is_playing) {
+    if (!App.is_playing || !App.mirror_enabled) {
+      if (!was_paused) {
+        previous_locations = []
+        App.clean_mirror()
+      }
+
       was_paused = true
       return
     }
 
-    if (was_paused) {
-      was_paused = false
-      previous_locations = []
-    }
-
+    was_paused = false
     let locations = []
 
     for (let hap of active_haps) {

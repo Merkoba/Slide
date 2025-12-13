@@ -7,6 +7,7 @@ App.scope_storage_key = `slide.scope`
 App.colors_storage_key = `slide.colors`
 App.code_storage_key = `slide.code`
 App.lines_storage_key = `slide.lines`
+App.mirror_storage_key = `slide.mirror`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
@@ -34,6 +35,7 @@ App.load_all_storage = () => {
   App.stor_load_colors()
   App.stor_load_code()
   App.stor_load_lines()
+  App.stor_load_mirror()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -100,6 +102,14 @@ App.stor_load_lines = () => {
   )
 }
 
+App.stor_load_mirror = () => {
+  App.load_storage(`mirror`,
+    (value) => {
+      App.mirror_enabled = App.boolstring(value)
+    },
+  )
+}
+
 App.stor_load_code = () => {
   App.load_storage(`code`,
     (value) => {
@@ -140,6 +150,10 @@ App.stor_save_colors = () => {
 
 App.stor_save_lines = () => {
   App.save_storage(`lines`, App.lines_enabled)
+}
+
+App.stor_save_mirror = () => {
+  App.save_storage(`mirror`, App.mirror_enabled)
 }
 
 App.stor_save_code = () => {

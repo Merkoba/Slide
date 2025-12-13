@@ -24,10 +24,16 @@ App.create_settings_modal = () => {
       App.toggle_lines()
     })
 
+  let mirror = App.register_setting(`Toggle Mirror`,
+    `Enable or disable the code execution reflection on the code`, () => {
+      App.toggle_mirror()
+    })
+
   body.appendChild(visual)
   body.appendChild(scope)
   body.appendChild(colors)
   body.appendChild(lines)
+  body.appendChild(mirror)
 }
 
 App.register_setting = (text, title, action) => {

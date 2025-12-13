@@ -1,3 +1,5 @@
+App.mirror_enabled = true
+
 App.setup_strudel_mirror = () => {
   let {
     EditorView, Decoration, StateField, StateEffect,
@@ -26,4 +28,15 @@ App.setup_strudel_mirror = () => {
     },
     provide: field => EditorView.decorations.from(field),
   })
+}
+
+App.clean_mirror = () => {
+  App.editor.dispatch({
+    effects: App.set_highlight.of([])
+  })
+}
+
+App.toggle_mirror = () => {
+  App.mirror_enabled = !App.mirror_enabled
+  App.stor_save_mirror()
 }
