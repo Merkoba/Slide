@@ -186,6 +186,11 @@ App.make_control_button = (el, action) => {
     action()
   })
 
+  DOM.ev(el, `contextmenu`, (event) => {
+    action()
+    event.preventDefault()
+  })
+
   DOM.ev(el, `mousedown`, () => {
     App.ctrl_btn_interval_delay = setTimeout(() => {
       App.ctrl_btn_interval = setInterval(() => {
@@ -207,6 +212,10 @@ App.setup_slider = (el, on_auxclick, on_wheel) => {
     if (event.button === 1) {
       on_auxclick(slider)
     }
+  })
+
+  DOM.ev(el, `contextmenu`, (event) => {
+    event.preventDefault()
   })
 
   DOM.ev(el, `wheel`, (event) => {
