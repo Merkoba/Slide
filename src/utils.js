@@ -177,3 +177,22 @@ App.uncompress_string = (hash) => {
     return ``
   }
 }
+
+App.make_control_button = (el, action) => {
+  DOM.ev(el, `click`, () => {
+    action()
+  })
+
+  DOM.ev(el, `mousedown`, () => {
+    App.ctrl_btn_interval_delay = setTimeout(() => {
+      App.ctrl_btn_interval = setInterval(() => {
+        action()
+      }, 100)
+    }, 250)
+  })
+
+  DOM.ev(el, `mouseup`, () => {
+    clearInterval(App.ctrl_btn_interval)
+    clearInterval(App.ctrl_btn_interval_delay)
+  })
+}

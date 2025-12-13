@@ -172,23 +172,13 @@ App.init_tempo_controls = () => {
     App.on_tempo_change(true, next_value)
   }
 
-  if (decrement_button) {
-    DOM.ev(decrement_button, `click`, () => {
-      step_tempo(-1)
-    })
-  }
+  App.make_control_button(decrement_button, () => {
+    step_tempo(-1)
+  })
 
-  if (increment_button) {
-    DOM.ev(increment_button, `click`, () => {
-      step_tempo(1)
-    })
-  }
-
-  if (intended_button) {
-    DOM.ev(intended_button, `click`, () => {
-      App.set_song_tempo(App.last_code)
-    })
-  }
+  App.make_control_button(increment_button, () => {
+    step_tempo(1)
+  })
 }
 
 App.set_tempo = () => {

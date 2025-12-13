@@ -77,6 +77,11 @@ App.update_volume = (percent) => {
   }
 
   next_value = Math.min(100, Math.max(0, next_value))
+
+  if (App.volume === next_value) {
+    return
+  }
+
   App.volume = next_value
   App.refresh_volume_ui()
   App.stor_save_volume()
@@ -104,17 +109,13 @@ App.init_volume_controls = () => {
     App.update_volume(App.volume + (direction * App.volume_step))
   }
 
-  if (decrement_button) {
-    DOM.ev(decrement_button, `click`, () => {
-      step_volume(-1)
-    })
-  }
+  App.make_control_button(decrement_button, () => {
+    step_volume(-1)
+  })
 
-  if (increment_button) {
-    DOM.ev(increment_button, `click`, () => {
-      step_volume(1)
-    })
-  }
+  App.make_control_button(increment_button, () => {
+    step_volume(1)
+  })
 
   DOM.ev(container, `auxclick`, (event) => {
     if (event.button === 1) {
