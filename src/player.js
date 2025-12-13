@@ -4,10 +4,17 @@ App.play_running = false
 App.setup_player = () => {
   // Store the previous state outside the loop
   let previous_locations = []
+  let was_paused = true
 
   App.drawer = new Drawer((active_haps) => {
     if (!App.is_playing) {
+      was_paused = true
       return
+    }
+
+    if (was_paused) {
+      was_paused = false
+      previous_locations = []
     }
 
     let locations = []
