@@ -602,56 +602,11 @@ App.next_visual = () => {
 }
 
 App.canvas_effect_1 = () => {
-  let raw_vol = App.get_raw_volume()
-
-  // SENSITIVITY: Crank this up.
-  // If your vol is ~0.02, we need ~1000 to get to 20% change.
-  let gain = 1000
-
-  // 0.026 * 1000 = 26
-  let boost = raw_vol * gain
-
-  // Cap it so your eyes don't bleed if a loud noise happens
-  // (Caps total brightness at 150%)
-  if (boost > 50) boost = 50
-
-  // 100 + 26 = 126% (This is clearly visible)
-  let brightness = 100 + boost
-
-  // 100 + 13 = 113%
-  let contrast = 100 + (boost * 0.5)
-
+  let brightness = 200
+  let contrast = 200
   let filter_str = `brightness(${brightness}%) contrast(${contrast}%)`
   let canvas = App.get_bg_canvas()
-
   canvas.style.filter = filter_str
-  App.start_canvas_effect_timeout()
-}
-
-App.canvas_effect_2 = () => {
-  let raw_vol = App.get_raw_volume()
-  let ctx = App.get_bg_context()
-  let canvas = App.get_bg_canvas()
-
-  ctx.save()
-
-  // move to center
-  ctx.translate(canvas.width / 2, canvas.height / 2)
-
-  // scale up on the beat (pulse effect)
-  let scale = 1 + (raw_vol * 0.2)
-  ctx.scale(scale, scale)
-
-  // rotate slightly on very loud sounds for "chaos"
-  if (raw_vol > 0.9) {
-    let shake = (Math.random() - 0.5) * 0.1
-    ctx.rotate(shake)
-  }
-
-  // move back
-  ctx.translate(-canvas.width / 2, -canvas.height / 2)
-
-  ctx.restore()
   App.start_canvas_effect_timeout()
 }
 

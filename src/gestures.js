@@ -6,6 +6,11 @@ App.scope_slide_delay = 800
 App.scope_gestures_enabled = false
 App.many_clicks_amount = 100
 
+App.gesture_actions = () => {
+  App.glow_input()
+  App.canvas_effect_1()
+}
+
 App.check_gestures = () => {
   // Slide
   if ((Date.now() - App.scope_mousedown_date) <= App.scope_slide_delay) {
@@ -19,8 +24,7 @@ App.check_gestures = () => {
     // Triangle
     if (App.triangle_gesture()) {
       App.gesture_function(2, () => {
-        App.glow_input()
-        App.canvas_effect_1()
+        App.gesture_actions()
       })
 
       return
@@ -28,8 +32,7 @@ App.check_gestures = () => {
     // Square
     else if (App.square_gesture()) {
       App.gesture_function(3, () => {
-        App.glow_input()
-        App.canvas_effect_1()
+        App.gesture_actions()
       })
 
       return
@@ -37,8 +40,7 @@ App.check_gestures = () => {
     // Circle
     else if (App.circle_gesture()) {
       App.gesture_function(4, () => {
-        App.glow_input()
-        App.canvas_effect_2()
+        App.gesture_actions()
       })
 
       return
@@ -46,7 +48,7 @@ App.check_gestures = () => {
     // Many stars
     else if (App.scope_clicks.length >= App.many_clicks_amount) {
       App.gesture_function(5, () => {
-        App.glow_input()
+        App.gesture_actions()
       })
 
       return
