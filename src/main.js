@@ -292,6 +292,10 @@ App.start_events = async () => {
     App.open_songs_modal()
   })
 
+  DOM.ev(`#controls`, `contextmenu`, (event) => {
+    event.preventDefault()
+  })
+
   let about_image = DOM.el(`#image`)
 
   if (about_image) {
