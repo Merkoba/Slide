@@ -149,6 +149,12 @@ App.init_tempo_controls = () => {
   App.make_control_button(increment_button, () => {
     step_tempo(1)
   })
+
+  if (intended_button) {
+    DOM.ev(intended_button, `click`, () => {
+      App.set_song_tempo(App.last_code)
+    })
+  }
 }
 
 App.set_tempo = () => {
