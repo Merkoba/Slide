@@ -24,9 +24,6 @@ App.setup_drawer = () => {
         effects: App.set_highlight.of(locations),
       })
     }
-
-    // Update our cache
-    previous_locations = locations
   }, [0, 0])
 }
 
