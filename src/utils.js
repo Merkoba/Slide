@@ -1,3 +1,6 @@
+App.control_button_throttle = 100
+App.control_button_delay = 250
+
 App.def_args = (def, args) => {
   for (let key in def) {
     if ((args[key] === undefined) && (def[key] !== undefined)) {
@@ -187,8 +190,8 @@ App.make_control_button = (el, action) => {
     App.ctrl_btn_interval_delay = setTimeout(() => {
       App.ctrl_btn_interval = setInterval(() => {
         action()
-      }, 100)
-    }, 250)
+      }, App.control_button_throttle)
+    }, App.control_button_delay)
   })
 
   DOM.ev(el, `mouseup`, () => {
