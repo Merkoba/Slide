@@ -81,22 +81,27 @@ body, html {
 }
 
 #top-controls {
-  margin-left: 1rem;
-  margin-bottom: -8px;
+  /* Layout behavior */
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: space-between; /* Added to ensure proper spacing */
-  padding: 0.5rem; /* Added padding for consistent spacing */
+  flex-flow: row wrap; /* Short for flex-direction: row + flex-wrap: wrap */
+  justify-content: flex-start; /* Aligns everything to the left */
+  align-items: center; /* Vertically centers the groups relative to each other */
+
+  /* Spacing */
+  gap: 2rem; /* Adds consistent breathing room between the Volume, Tempo, and Time groups */
+  padding: 0.5rem 1rem; /* Combined padding and margin logic */
+
+  /* Remove negative margins unless absolutely necessary for overlapping */
+  margin-bottom: 0;
 }
 
+/* Optional: Improve vertical alignment inside each control group */
 .control-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
-    font-size: var(--small_font);
-    user-select: none;
+  display: flex;
+  align-items: center; /* Changes from flex-start to center so text aligns with sliders */
+  gap: 0.8rem;
+  font-size: var(--small_font);
+  user-select: none;
 }
 
 #scope-container {
