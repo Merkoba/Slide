@@ -4,7 +4,6 @@ App.play_running = false
 App.setup_player = () => {
   App.setup_drawer()
   App.setup_time_controls()
-  App.setup_cycle()
 }
 
 App.reset_playing = () => {
@@ -305,77 +304,4 @@ App.setup_time_controls = () => {
 
   App.remove_context(rewind)
   App.remove_context(forward)
-}
-
-App.update_ui_loop = () => {
-  if (!App.scheduler) {
-    return requestAnimationFrame(App.update_ui_loop)
-  }
-
-  const loop_length = 4
-  let current_time = App.scheduler.now()
-  let cps = App.scheduler.cps || 1
-  let virtual_cycles = (current_time * cps) - App.seek_offset
-  let phrase_position = virtual_cycles % loop_length
-
-  if (phrase_position < 0) {
-    phrase_position += loop_length
-  }
-
-  let slider = DOM.el(`#cycle-slider`)
-
-  // CHECK: Only update if user is NOT dragging
-  if (slider && !App.is_dragging) {
-    slider.value = phrase_position / loop_length
-  }
-
-  requestAnimationFrame(App.update_ui_loop)
-}
-
-App.setup_cycle = () => {
-  const loop_length = 4
-  App.is_dragging = false // New flag to track interaction
-
-  App.on_slider_change = (target_percent) => {
-    if (!App.scheduler) {
-      return
-    }
-
-    let current_time = App.scheduler.now()
-    let cps = App.scheduler.cps || 1
-    let current_virtual_cycles = (current_time * cps) - App.seek_offset
-    let current_phrase_index = Math.floor(current_virtual_cycles / loop_length)
-    let target_cycle_within_phrase = target_percent * loop_length
-    let new_virtual_cycles = (current_phrase_index * loop_length) + target_cycle_within_phrase
-
-    App.seek_offset = (current_time * cps) - new_virtual_cycles
-    App.update_playback()
-  }
-
-  // 1. Handle Drag Start
-  DOM.ev(`#cycle-slider`, `mousedown`, () => {
-    App.is_dragging = true
-  })
-
-  // 1b. Handle Touch Start (for mobile)
-  DOM.ev(`#cycle-slider`, `touchstart`, () => {
-    App.is_dragging = true
-  })
-
-  // 2. Handle Drag End (Release)
-  DOM.ev(`#cycle-slider`, `mouseup`, () => {
-    App.is_dragging = false
-  })
-
-  // 2b. Handle Touch End
-  DOM.ev(`#cycle-slider`, `touchend`, () => {
-    App.is_dragging = false
-  })
-
-  // 3. Handle Value Change (The actual dragging logic)
-  DOM.ev(`#cycle-slider`, `input`, (e) => {
-    App.on_slider_change(parseFloat(e.target.value))
-  })
-
-  App.update_ui_loop()
 }

@@ -414,13 +414,34 @@ App.draw_scope_frame = () => {
   }
 
   // Overshoot the clear/fill area by 10px to catch edge artifacts
-  // caused by rounding errors in high-DPI scaling
   let pad = 10
   App.scope_canvas_ctx.clearRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
 
   App.scope_canvas_ctx.fillStyle = App.scope_background
   App.scope_canvas_ctx.fillRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
 
+  // Calculate phrase progress for the sweep
+  let loop_length = 4
+  let phrase_progress = 0
+
+  if (App.scheduler) {
+    let current_time = App.scheduler.now()
+    let cps = App.scheduler.cps || 1
+
+    // Safety check: ensure current_time is a number
+    if (Number.isFinite(current_time)) {
+      let virtual_cycles = (current_time * cps) - App.seek_offset
+      let phrase_position = virtual_cycles % loop_length
+
+      if (phrase_position < 0) {
+        phrase_position += loop_length
+      }
+
+      phrase_progress = phrase_position / loop_length
+    }
+  }
+
+  // --- Draw Waveform ---
   App.scope_canvas_ctx.strokeStyle = App.scope_color
   App.scope_canvas_ctx.lineWidth = 2
   App.scope_canvas_ctx.beginPath()
@@ -473,7 +494,32 @@ App.draw_scope_frame = () => {
 
   App.scope_canvas_ctx.stroke()
 
-  // Draw clicks as stars
+  // --- Draw Sweep (Conditional) ---
+  // Only draw if playing and calculation was valid
+  if (App.scheduler && App.is_playing) {
+    let sweep_x = phrase_progress * width
+
+    if (Number.isFinite(sweep_x)) {
+      let gradient = App.scope_canvas_ctx.createLinearGradient(sweep_x, 0, sweep_x, height)
+      // Max opacity lowered to 0.7 for subtlety
+      gradient.addColorStop(0, `rgba(255, 255, 255, 0)`)
+      gradient.addColorStop(0.2, `rgba(255, 255, 255, 0.3)`)
+      gradient.addColorStop(0.5, `rgba(255, 255, 255, 0.7)`)
+      gradient.addColorStop(0.8, `rgba(255, 255, 255, 0.3)`)
+      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
+
+      App.scope_canvas_ctx.lineWidth = 4
+      App.scope_canvas_ctx.strokeStyle = gradient
+      App.scope_canvas_ctx.beginPath()
+
+      App.scope_canvas_ctx.moveTo(sweep_x, 0)
+      App.scope_canvas_ctx.lineTo(sweep_x, height)
+
+      App.scope_canvas_ctx.stroke()
+    }
+  }
+
+  // --- Draw Clicks (Stars) ---
   let now = Date.now()
   App.scope_clicks = App.scope_clicks.filter(click => (now - click.timestamp) < App.scope_click_time)
 
@@ -487,7 +533,6 @@ App.draw_scope_frame = () => {
 
     App.scope_canvas_ctx.fillStyle = App[`scope_click_color_${App.scope_click_level}`]
 
-    // pass the angle as the last argument
     App.draw_star(
       App.scope_canvas_ctx,
       click.x,
