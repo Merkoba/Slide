@@ -214,8 +214,11 @@ App.strudel_init = async () => {
     await Promise.all([
       registerSynthSounds(),
       registerSoundfonts(),
-      samples(`github:tidalcycles/dirt-samples`),
       samples(`${ds}/tidal-drum-machines.json`),
+      samples(`${ds}/piano.json`),
+      samples(`${ds}/Dirt-Samples.json`),
+      samples(`${ds}/vcsl.json`),
+      samples(`${ds}/mridangam.json`),
     ])
 
     App.audio_started = true
