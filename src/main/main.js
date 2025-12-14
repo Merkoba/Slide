@@ -320,11 +320,6 @@ App.start_events = async () => {
   App.init_code_input_controls()
   App.start_keyboard()
   App.start_resize_observer()
-
-  DOM.ev(window, `resize`, () => {
-    App.handle_scope_resize()
-  })
-
   App.make_main_visible()
   App.set_beat_title_from_query()
   App.max_input()

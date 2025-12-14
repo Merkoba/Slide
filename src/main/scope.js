@@ -35,16 +35,11 @@ App.scope_mousedown_date = 0
 App.scope_beep_delay = 300
 App.scope_enable_date = 0
 App.scope_click_lock = 250
-App.scope_debouncer_delay = 50
 App.scope_click_level_time = 3 * 1000
 App.scope_clicks_min = 5
 App.scope_click_rotation_speed = 0.001
 
 App.setup_scope = () => {
-  App.scope_debouncer = App.create_debouncer(() => {
-    App.resize_scope_canvas()
-  }, App.scope_debouncer_delay)
-
   App.stor_load_scope()
   App.init_scope_checkbox()
   App.setup_scope_canvas()
@@ -56,6 +51,14 @@ App.setup_scope = () => {
   else {
     App.disable_scope_visualizer()
   }
+}
+
+App.get_scope_wrapper = () => {
+  if (!App.scope_wrapper_el) {
+    App.scope_wrapper_el = DOM.el(`#scope-wrapper`)
+  }
+
+  return App.scope_wrapper_el
 }
 
 App.get_scope_container = () => {
@@ -114,72 +117,7 @@ App.setup_scope_canvas = () => {
     App.scope_canvas_ctx = context
   }
 
-  App.resize_scope_canvas()
   return canvas
-}
-
-App.resize_scope_canvas = () => {
-  if (!App.scope_enabled) {
-    return
-  }
-
-  if (!App.scope_canvas_el || !App.scope_canvas_ctx) {
-    return
-  }
-
-  DOM.show(`#scope-container`, 2)
-  let ratio = 1
-
-  if (typeof window !== `undefined`) {
-    ratio = window.devicePixelRatio || 1
-  }
-
-  App.scope_pixel_ratio = ratio
-
-  let wrapper_el = App.get_input_wrapper()
-  let container_el = App.get_scope_container()
-
-  // Default fallback
-  let css_width = 320
-
-  if (wrapper_el && container_el) {
-    // Get the precise fractional width of the wrapper
-    let wrapper_rect = wrapper_el.getBoundingClientRect()
-    let total_width = wrapper_rect.width
-
-    // Calculate the precise border widths of the container
-    // This handles cases where zoom makes borders non-integer values
-    let container_style = window.getComputedStyle(container_el)
-    let border_left = parseFloat(container_style.borderLeftWidth) || 0
-    let border_right = parseFloat(container_style.borderRightWidth) || 0
-
-    // The canvas should be the total wrapper width minus the container borders
-    css_width = total_width - border_left - border_right
-  }
-  else {
-    css_width = App.scope_canvas_el.clientWidth || (App.scope_canvas_el.width / ratio)
-  }
-
-  let height = App.scope_canvas_el.clientHeight || (App.scope_canvas_el.height / ratio) || 80
-
-  // 1. Set the CSS style explicitly (controls visual layout size)
-  // We use the fractional css_width here to align perfectly with the wrapper
-  App.scope_canvas_el.style.width = `${css_width}px`
-  App.scope_canvas_el.style.height = `${height}px`
-
-  // 2. Set the internal buffer size (controls resolution/sharpness)
-  // We round this to the nearest integer for valid canvas attributes
-  let scaled_width = Math.round(css_width * ratio)
-  let scaled_height = Math.round(height * ratio)
-
-  if ((App.scope_canvas_el.width !== scaled_width) || (App.scope_canvas_el.height !== scaled_height)) {
-    App.scope_canvas_el.width = scaled_width
-    App.scope_canvas_el.height = scaled_height
-  }
-
-  App.scope_canvas_ctx.setTransform(1, 0, 0, 1, 0, 0)
-  App.scope_canvas_ctx.scale(ratio, ratio)
-  App.clear_scope_canvas()
 }
 
 App.clear_scope_canvas = () => {
@@ -558,17 +496,17 @@ App.start_scope_loop = () => {
 }
 
 App.set_scope_visibility = (visible) => {
-  let container = App.get_scope_container()
+  let wrapper = App.get_scope_wrapper()
 
-  if (!container) {
+  if (!wrapper) {
     return
   }
 
   if (visible) {
-    DOM.show(container)
+    DOM.show(wrapper)
   }
   else {
-    DOM.hide(container)
+    DOM.hide(wrapper)
   }
 }
 
@@ -648,7 +586,6 @@ App.toggle_scope = () => {
 App.enable_scope_visualizer = () => {
   App.scope_enabled = true
   App.set_scope_visibility(true)
-  App.handle_scope_resize()
   let canvas = App.setup_scope_canvas()
 
   if (canvas && !App.scope_animation_id) {
@@ -658,6 +595,7 @@ App.enable_scope_visualizer = () => {
   App.scope_enable_date = Date.now()
   App.start_scope_visualizer()
   App.init_scope_click_handler()
+  App.resize_scope()
   App.stor_save_scope()
 }
 
@@ -665,18 +603,6 @@ App.disable_scope_visualizer = () => {
   App.scope_enabled = false
   App.stop_scope_visualizer()
   App.stor_save_scope()
-}
-
-App.handle_scope_resize = () => {
-  if (!App.scope_canvas_el) {
-    return
-  }
-
-  App.scope_debouncer.call()
-
-  if (!App.scope_enabled) {
-    App.clear_scope_canvas()
-  }
 }
 
 App.init_scope_checkbox = () => {
@@ -732,4 +658,29 @@ App.clear_clicks = () => {
   setTimeout(() => {
     App.scope_clicks = []
   }, 100)
+}
+
+App.resize_scope = () => {
+  let input_wrapper = App.get_input_wrapper()
+  let scope_wrapper = App.get_scope_wrapper()
+
+  if (!input_wrapper || !scope_wrapper) {
+    return
+  }
+
+  // 1. Try to get the manual inline style first
+  let width = input_wrapper.style.width
+
+  // 2. If no inline style exists (initial CSS state), measure the actual rendered pixels
+  if (!width) {
+    let rect = input_wrapper.getBoundingClientRect()
+    width = `${rect.width}px`
+  }
+
+  scope_wrapper.style.width = width
+
+  // 3. Ensure the internal canvas resolution matches this new size
+  if (App.resize_scope_canvas) {
+    App.resize_scope_canvas()
+  }
 }

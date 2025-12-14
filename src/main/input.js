@@ -216,6 +216,7 @@ App.init_code_input_controls = () => {
       let is_resizing = false
 
       DOM.ev(resize_handle, `mousedown`, (event) => {
+        let scope_wrapper = App.get_scope_wrapper()
         event.preventDefault()
         is_resizing = true
         document.body.style.userSelect = `none`
@@ -248,6 +249,7 @@ App.init_code_input_controls = () => {
 
           wrapper.style.width = `${new_width}px`
           wrapper.style.height = `${new_height}px`
+          scope_wrapper.style.width = `${new_width}px`
         }
 
         let mouse_up = () => {
@@ -264,7 +266,6 @@ App.init_code_input_controls = () => {
 
           document.removeEventListener(`mousemove`, mouse_move)
           document.removeEventListener(`mouseup`, mouse_up)
-          App.scope_debouncer.call()
         }
 
         DOM.ev(document, `mousemove`, mouse_move)
@@ -398,7 +399,7 @@ App.max_input = (just_check = false) => {
   if (!just_check) {
     wrapper.style.height = `${diff}px`
     wrapper.style.width = `${max_width}%`
-    App.scope_debouncer.call()
+    App.resize_scope()
     App.check_max_button()
   }
 
