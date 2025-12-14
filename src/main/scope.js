@@ -334,154 +334,106 @@ App.draw_star = (ctx, x, y, radius, spikes, outer_radius, rotation_offset = 0) =
 }
 
 App.draw_scope_frame = () => {
-  if (!App.scope_enabled) {
+  if (!App.scope_enabled || !App.scope_canvas_ctx) {
     App.stop_scope_loop()
     return
   }
 
-  if (!App.scope_canvas_ctx) {
-    App.stop_scope_loop()
-    return
-  }
+  // Use the stored ratio to ensure 1:1 match with resize
+  let ratio = App.scope_pixel_ratio || 1
 
-  let {width, height} = App.get_scope_dimensions()
+  // Calculate LOGICAL (CSS) dimensions for drawing
+  let width = App.scope_canvas_el.width / ratio
+  let height = App.scope_canvas_el.height / ratio
 
   if (!width || !height) {
     App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
     return
   }
 
-  // Overshoot the clear/fill area by 10px to catch edge artifacts
+  let ctx = App.scope_canvas_ctx
+
+  // 1. Clear Background
+  // We add padding to clear any anti-aliased artifacts at the edges
   let pad = 10
-  App.scope_canvas_ctx.clearRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
+  ctx.clearRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
 
-  App.scope_canvas_ctx.fillStyle = App.scope_background
-  App.scope_canvas_ctx.fillRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
+  ctx.fillStyle = App.scope_background
+  ctx.fillRect(-pad, -pad, width + (pad * 2), height + (pad * 2))
 
-  // Calculate phrase progress for the sweep
-  let loop_length = 4
-  let phrase_progress = 0
-
-  if (App.scheduler) {
-    let current_time = App.scheduler.now()
-    let cps = App.scheduler.cps || 1
-
-    // Safety check: ensure current_time is a number
-    if (Number.isFinite(current_time)) {
-      let virtual_cycles = (current_time * cps) - App.seek_offset
-      let phrase_position = virtual_cycles % loop_length
-
-      if (phrase_position < 0) {
-        phrase_position += loop_length
-      }
-
-      phrase_progress = phrase_position / loop_length
-    }
-  }
-
-  // --- Draw Waveform ---
-  App.scope_canvas_ctx.strokeStyle = App.scope_color
-  App.scope_canvas_ctx.lineWidth = 2
-  App.scope_canvas_ctx.beginPath()
-
-  let analyser = App.scope_analyser
+  // 2. Draw Waveform
   let waveform = App.ensure_scope_waveform()
+  let analyser = App.scope_analyser
 
+  ctx.strokeStyle = App.scope_color
+  // FIX: Divide by ratio to keep line thickness consistent on all screens
+  ctx.lineWidth = 2 / ratio
+  ctx.beginPath()
+
+  // (Your existing waveform logic is fine here)
   if (App.is_playing && analyser && waveform) {
     analyser.getByteTimeDomainData(waveform)
     let slice_width = width / waveform.length
     let x = 0
-
-    for (let i = 0; i < waveform.length; i += 1) {
-      let value = waveform[i]
-      let normalized = (value / 128) - 1
-      let y = (height / 2) + (normalized * (height / 2))
-
-      if (i === 0) {
-        App.scope_canvas_ctx.moveTo(x, y)
-      }
-      else {
-        App.scope_canvas_ctx.lineTo(x, y)
-      }
-
+    for (let i = 0; i < waveform.length; i++) {
+      let v = waveform[i] / 128.0
+      let y = (v * height) / 2
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
       x += slice_width
     }
-  }
-  else {
+  } else {
+    // Idle Animation
     App.scope_sine_time += 0.012
-    let num_points = waveform ? waveform.length : 2048
+    let num_points = 2048
     let slice_width = width / num_points
     let x = 0
-
-    for (let i = 0; i < num_points; i += 1) {
-      let phase = (i / num_points) * (Math.PI * 2) * 6
-      let amplitude = 0.3
-      let normalized = Math.sin(phase + App.scope_sine_time) * amplitude
-      let y = (height / 2) + (normalized * (height / 2))
-
-      if (i === 0) {
-        App.scope_canvas_ctx.moveTo(x, y)
-      }
-      else {
-        App.scope_canvas_ctx.lineTo(x, y)
-      }
-
+    for (let i = 0; i < num_points; i++) {
+      let phase = (i / num_points) * Math.PI * 12
+      let y = (height / 2) + (Math.sin(phase + App.scope_sine_time) * (height * 0.15))
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y)
       x += slice_width
     }
   }
+  ctx.stroke()
 
-  App.scope_canvas_ctx.stroke()
-
-  // --- Draw Sweep (Conditional) ---
-  // Only draw if playing and calculation was valid
+  // 3. Draw Sweep (Progress Bar)
   if (App.scheduler && App.is_playing) {
-    let sweep_x = phrase_progress * width
+    // Calculate phrase progress... (reusing your logic)
+    let loop_len = 4
+    let now = App.scheduler.now()
+    let cps = App.scheduler.cps || 1
+    let cycles = (now * cps) - App.seek_offset
+    let progress = ((cycles % loop_len) + loop_len) % loop_len / loop_len
 
-    if (Number.isFinite(sweep_x)) {
-      let gradient = App.scope_canvas_ctx.createLinearGradient(sweep_x, 0, sweep_x, height)
-      // Max opacity lowered to 0.7 for subtlety
-      gradient.addColorStop(0, `rgba(255, 255, 255, 0)`)
-      gradient.addColorStop(0.2, `rgba(255, 255, 255, 0.3)`)
-      gradient.addColorStop(0.5, `rgba(255, 255, 255, 0.7)`)
-      gradient.addColorStop(0.8, `rgba(255, 255, 255, 0.3)`)
-      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
+    let sweep_x = progress * width
 
-      App.scope_canvas_ctx.lineWidth = 4
-      App.scope_canvas_ctx.strokeStyle = gradient
-      App.scope_canvas_ctx.beginPath()
+    let gradient = ctx.createLinearGradient(sweep_x, 0, sweep_x, height)
+    gradient.addColorStop(0, `rgba(255, 255, 255, 0)`)
+    gradient.addColorStop(0.5, `rgba(255, 255, 255, 0.5)`)
+    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
 
-      App.scope_canvas_ctx.moveTo(sweep_x, 0)
-      App.scope_canvas_ctx.lineTo(sweep_x, height)
-
-      App.scope_canvas_ctx.stroke()
-    }
+    ctx.strokeStyle = gradient
+    ctx.lineWidth = 4 / ratio // Fix thickness here too
+    ctx.beginPath()
+    ctx.moveTo(sweep_x, 0)
+    ctx.lineTo(sweep_x, height)
+    ctx.stroke()
   }
 
-  // --- Draw Clicks (Stars) ---
+  // 4. Draw Clicks (Stars)
+  // Since ctx is scaled, drawing at (click.x, click.y) works naturally
   let now = Date.now()
-  App.scope_clicks = App.scope_clicks.filter(click => (now - click.timestamp) < App.scope_click_time)
+  App.scope_clicks = App.scope_clicks.filter(c => (now - c.timestamp) < App.scope_click_time)
 
   for (let click of App.scope_clicks) {
     let age = now - click.timestamp
-    let angle = 0
+    let angle = (App.scope_click_level > 1) ? (age * App.scope_click_rotation_speed) : 0
 
-    if (App.scope_click_level > 1) {
-      angle = age * App.scope_click_rotation_speed
-    }
+    ctx.fillStyle = App[`scope_click_color_${App.scope_click_level}`]
 
-    App.scope_canvas_ctx.fillStyle = App[`scope_click_color_${App.scope_click_level}`]
-
-    App.draw_star(
-      App.scope_canvas_ctx,
-      click.x,
-      click.y,
-      3,
-      5,
-      App.scope_click_size,
-      angle,
-    )
-
-    App.scope_canvas_ctx.fill()
+    // Important: Ensure draw_star isn't scaling internally
+    App.draw_star(ctx, click.x, click.y, 3, 5, App.scope_click_size, angle)
+    ctx.fill()
   }
 
   App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
@@ -663,24 +615,36 @@ App.clear_clicks = () => {
 App.resize_scope = () => {
   let input_wrapper = App.get_input_wrapper()
   let scope_wrapper = App.get_scope_wrapper()
+  let canvas = App.scope_canvas_el
+  let ctx = App.scope_canvas_ctx
 
-  if (!input_wrapper || !scope_wrapper) {
-    return
-  }
+  if (!input_wrapper || !scope_wrapper || !canvas || !ctx) return
 
-  // 1. Try to get the manual inline style first
-  let width = input_wrapper.style.width
+  // 1. Set the Wrapper Width (Layout)
+  // This matches the external alignment with the editor
+  let rect = input_wrapper.getBoundingClientRect()
+  scope_wrapper.style.width = `${rect.width}px`
 
-  // 2. If no inline style exists (initial CSS state), measure the actual rendered pixels
-  if (!width) {
-    let rect = input_wrapper.getBoundingClientRect()
-    width = `${rect.width}px`
-  }
+  // 2. Measure the Canvas Element (Resolution)
+  // CRITICAL: We measure the canvas *after* the wrapper resize.
+  // This gives us the width minus the buttons.
+  let css_width = canvas.clientWidth
+  let css_height = canvas.clientHeight || 120
 
-  scope_wrapper.style.width = width
+  // 3. Configure Buffer Resolution
+  let ratio = window.devicePixelRatio || 1
+  App.scope_pixel_ratio = ratio
 
-  // 3. Ensure the internal canvas resolution matches this new size
-  if (App.resize_scope_canvas) {
-    App.resize_scope_canvas()
+  let scaled_width = Math.round(css_width * ratio)
+  let scaled_height = Math.round(css_height * ratio)
+
+  // 4. Update Buffer if changed
+  if (canvas.width !== scaled_width || canvas.height !== scaled_height) {
+    canvas.width = scaled_width
+    canvas.height = scaled_height
+
+    // 5. Reset Transform
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.scale(ratio, ratio)
   }
 }
