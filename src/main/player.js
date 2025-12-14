@@ -3,6 +3,7 @@ App.play_running = false
 
 App.setup_player = () => {
   App.setup_drawer()
+  App.setup_time_controls()
 }
 
 App.reset_playing = () => {
@@ -255,7 +256,7 @@ App.run_eval = async (code) => {
   return {ok: true}
 }
 
-App.rewind_player = (seconds = 1) => {
+App.rewind_player = (seconds = 2) => {
   // Get current tempo (default to 1 if unknown)
   // 'scheduler.cps' is usually available, or check your specific state
   let current_cps = App.scheduler.cps || 1
@@ -268,7 +269,7 @@ App.rewind_player = (seconds = 1) => {
   App.update_playback()
 }
 
-App.forward_player = (seconds = 1) => {
+App.forward_player = (seconds = 2) => {
   let current_cps = App.scheduler.cps || 1
   let cycles_to_shift = seconds * current_cps
 
@@ -282,4 +283,20 @@ App.update_playback = () => {
   if (App.pattern) {
     App.scheduler.setPattern(App.pattern.late(App.seek_offset))
   }
+}
+
+App.setup_time_controls = () => {
+  let rewind = DOM.el(`#time-rewind`)
+  let forward = DOM.el(`#time-forward`)
+
+  DOM.ev(rewind, `click`, () => {
+    App.rewind_player()
+  })
+
+  DOM.ev(forward, `click`, () => {
+    App.forward_player()
+  })
+
+  App.remove_context(rewind)
+  App.remove_context(forward)
 }
