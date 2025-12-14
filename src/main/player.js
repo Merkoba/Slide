@@ -240,7 +240,8 @@ App.run_eval = async (code) => {
   App.set_input(code)
 
   try {
-    await App.evaluate(code)
+    App.seek_offset = 0
+    App.pattern = await App.evaluate(code)
     App.start_drawer()
   }
   catch (err) {
@@ -252,4 +253,33 @@ App.run_eval = async (code) => {
   }
 
   return {ok: true}
+}
+
+App.rewind_player = (seconds = 1) => {
+  // Get current tempo (default to 1 if unknown)
+  // 'scheduler.cps' is usually available, or check your specific state
+  let current_cps = App.scheduler.cps || 1
+
+  // Convert real seconds to Strudel cycles
+  let cycles_to_shift = seconds * current_cps
+
+  // Add to offset (Delaying the stream = moving back in time)
+  App.seek_offset += cycles_to_shift
+  App.update_playback()
+}
+
+App.forward_player = (seconds = 1) => {
+  let current_cps = App.scheduler.cps || 1
+  let cycles_to_shift = seconds * current_cps
+
+  // Subtract from offset (Advancing the stream = skipping ahead)
+  App.seek_offset -= cycles_to_shift
+  App.update_playback()
+}
+
+App.update_playback = () => {
+  // Apply the total calculated offset
+  if (App.pattern) {
+    App.scheduler.setPattern(App.pattern.late(App.seek_offset))
+  }
 }
