@@ -42,7 +42,6 @@ App.setup_scope = () => {
   App.stor_load_scope()
   App.init_scope_checkbox()
   App.setup_scope_canvas()
-  App.start_scope_visualizer()
 
   if (App.scope_enabled) {
     App.enable_scope_visualizer()
