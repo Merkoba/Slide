@@ -606,7 +606,7 @@ App.ensure_scope = () => {
       strudelCore,
       strudelMini,
       strudelWebAudio,
-      strudelTonal
+      strudelTonal,
     ).catch((err) => {
       App.scope_promise = undefined
       console.error(`Strudel scope failed to load`, err)
