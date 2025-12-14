@@ -16,7 +16,7 @@ App.handle_eval_error = (err) => {
   App.set_status(App.last_eval_error)
 }
 
-const {evaluate, scheduler} = webaudioRepl({
+const {evaluate, scheduler, context} = webaudioRepl({
   transpiler,
   onEvalError: (err) => {
     App.handle_eval_error(err)
@@ -25,6 +25,7 @@ const {evaluate, scheduler} = webaudioRepl({
 
 App.evaluate = evaluate
 App.scheduler = scheduler
+App.context = context
 
 App.app_name = `Slide`
 App.current_song = ``

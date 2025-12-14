@@ -4,6 +4,7 @@ App.play_running = false
 App.setup_player = () => {
   App.setup_drawer()
   App.setup_time_controls()
+  App.setup_cycle()
 }
 
 App.reset_playing = () => {
@@ -299,4 +300,58 @@ App.setup_time_controls = () => {
 
   App.remove_context(rewind)
   App.remove_context(forward)
+}
+
+App.update_ui_loop = () => {
+  if (!App.scheduler) {
+    return requestAnimationFrame(App.update_ui_loop)
+  }
+
+  let current_time = App.scheduler.now()
+  let cps = App.scheduler.cps || 1
+  let virtual_cycles = (current_time * cps) - App.seek_offset
+  let phase = virtual_cycles % 1
+
+  if (phase < 0) {
+    phase += 1
+  }
+
+  let slider = DOM.el(`#cycle-slider`)
+
+  if (slider && document.activeElement !== slider) {
+    slider.value = phase
+  }
+
+  requestAnimationFrame(App.update_ui_loop)
+}
+
+App.setup_cycle = () => {
+  App.on_slider_change = (target_phase) => {
+    let current_time = App.audio_ctx.currentTime
+    let cps = App.scheduler.cps || 1
+
+    // 1. Calculate current Virtual Time to find which "Measure" we are in
+    let current_virtual = (current_time * cps) - App.seek_offset
+
+    // 2. Get the integer part (The measure number, e.g., 42)
+    let current_measure = Math.floor(current_virtual)
+
+    // 3. Construct the NEW Virtual Time
+    // Measure 42 + Slider 0.5 = 42.5
+    let new_virtual = current_measure + target_phase
+
+    // 4. Reverse calculate the Offset needed to achieve this time
+    // Offset = Real - Virtual
+    App.seek_offset = (current_time * cps) - new_virtual
+
+    // 5. Apply
+    App.update_playback()
+  }
+
+  // Bind the event
+  DOM.ev(`#cycle-slider`, `input`, (e) => {
+    App.on_slider_change(parseFloat(e.target.value))
+  })
+
+  App.update_ui_loop()
 }
