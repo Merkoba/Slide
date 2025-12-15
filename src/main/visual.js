@@ -133,48 +133,78 @@ App.apply_visual = (mode) => {
 }
 
 App.anim_bio_tunnel = (c, w, h, f) => {
-  // Clear with a slight fade for the trail effect
-  // (Your render loop handles the fade, but we can darken it slightly for depth here if needed)
-
   let cx = w / 2
   let cy = h / 2
-
-  // "t" is our time variable, scaled down
   let t = f * 0.02
 
-  // The "whitehotrobot" signature:
-  // multiple rings created by a loop, using sin/cos for organic warping.
-  for (let i = 0; i < 40; i++) {
-    // Determine the "depth" of the ring
-    // We cycle Z so rings come towards us and reset
-    let z = (i * 20 + f * 5) % 1000
+  // --- NEW SECTION: The Shattered Core ---
+  // This fills the black center with rotating triangular shards
+  // We draw 2 layers rotating in opposite directions
+  for (let layer = 0; layer < 2; layer++) {
+    let shards = 12
+    // Alternate rotation direction per layer
+    let direction = layer % 2 === 0 ? 1 : -1
 
-    // Perspective scale calculation
-    // As z gets smaller (closer), scale gets bigger
+    for (let s = 0; s < shards; s++) {
+      // Calculate angle for this shard
+      // Add time rotation to make it spin
+      let angle = (s / shards) * Math.PI * 2 + (t * direction)
+
+      // Radius varies to make it pulse
+      // Layer 0 is smaller (inner), Layer 1 is larger (outer)
+      let r_base = (layer + 1) * 40
+      let r = r_base + Math.sin(t * 5 + s) * 10
+
+      // Define triangle points relative to center
+      // Point 1: The tip extending outwards
+      let x1 = cx + Math.cos(angle) * r
+      let y1 = cy + Math.sin(angle) * r
+
+      // Point 2: A point slightly offset to create the triangle width
+      let x2 = cx + Math.cos(angle + 0.4) * (r * 0.5)
+      let y2 = cy + Math.sin(angle + 0.4) * (r * 0.5)
+
+      c.beginPath()
+      // All shards start from the absolute center to ensure no black hole remains
+      c.moveTo(cx, cy)
+      c.lineTo(x1, y1)
+      c.lineTo(x2, y2)
+      c.closePath()
+
+      // Color: Similar scheme but slightly brighter/different to stand out
+      let hue = (t * 80 + s * 20) % 360
+      c.strokeStyle = `hsla(${hue}, 70%, 60%, 0.6)`
+      c.stroke()
+
+      // Optional: low opacity fill to really cover the black background
+      c.fillStyle = `hsla(${hue}, 70%, 10%, 0.1)`
+      c.fill()
+    }
+  }
+
+  // --- EXISTING TUNNEL LOOP ---
+  for (let i = 0; i < 40; i++) {
+    let z = (i * 20 + f * 5) % 1000
     let scale = 1000 / (z + 10)
 
-    // Skip if too close (prevents screen nuke)
     if (scale > 20) {
       continue
     }
 
     c.beginPath()
-    c.lineWidth = 2 * scale
+    c.lineWidth = 2
 
-    // Color: Alien green/purple shift based on depth and time
     let hue = (t * 50 + z * 0.5) % 360
-    c.strokeStyle = `hsla(${hue}, 80%, 60%, ${z / 1000})` // fade out at back
+    c.strokeStyle = `hsla(${hue}, 80%, 60%, ${z / 1000})`
+    let segments = 64
 
-    // Draw a distorted polygon/circle
-    for (let j = 0; j <= 6; j++) {
-      let angle = (j / 6) * Math.PI * 2
+    for (let j = 0; j <= segments; j++) {
+      let angle = (j / segments) * Math.PI * 2
 
-      // The "Organic" distortion:
-      // We alter the radius based on time and angle to make it "breathe"
-      let distortion = Math.sin(t * 3 + angle * 4) * 50
+      // Keeping the subtle "20" distortion from the previous step
+      let distortion = Math.sin(t * 3 + angle * 4) * 20
       let r = (200 + distortion) * scale
 
-      // Rotate the whole tunnel over time
       let rot = t * 0.5
 
       let x = cx + Math.cos(angle + rot) * r
