@@ -6,8 +6,8 @@ import * as strudelCore from "@strudel/core"
 import * as strudelMini from "@strudel/mini"
 import * as strudelWebAudio from "@strudel/webaudio"
 import * as strudelTonal from "@strudel/tonal"
-import * as strudelDraw from '@strudel/draw';
-import * as strudelHydra from '@strudel/hydra';
+import * as strudelDraw from '@strudel/draw'
+import * as strudelHydra from '@strudel/hydra'
 import {transpiler} from "@strudel/transpiler"
 
 import {webaudioRepl} from "@strudel/webaudio"
