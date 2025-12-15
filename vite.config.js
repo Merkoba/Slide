@@ -31,11 +31,11 @@ export default defineConfig(() => {
 
         if (id === entry_file) {
           const lib_files = fg.sync(`./src/libs/*.js`)
-          // Exclude app.js to handle it manually if needed
-          const main_files = fg.sync([`./src/main/*.js`, `!./src/main/app.js`])
+          const main_files = fg.sync([`./src/main/*.js`])
 
           let lines = []
           lines.push(`import "./src/app.js"`)
+          lines.push(`import "./src/mixer.js"`)
           lib_files.forEach((file) => lines.push(`import "./${file}"`))
           main_files.forEach((file) => lines.push(`import "./${file}"`))
 

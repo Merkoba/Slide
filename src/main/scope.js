@@ -36,6 +36,7 @@ App.scope_click_rotation_speed = 0.001
 App.setup_scope = () => {
   App.stor_load_scope()
   App.setup_scope_canvas()
+  App.init_scope_click_handler()
   App.start_scope_loop()
 }
 
@@ -423,22 +424,19 @@ App.draw_scope_frame = () => {
     let progress = ((cycles % loop_len) + loop_len) % loop_len / loop_len
     let sweep_x = progress * width
 
-    if (isNaN(sweep_x)) {
-      next_frame()
-      return
+    if (!isNaN(sweep_x)) {
+      let gradient = ctx.createLinearGradient(sweep_x, 0, sweep_x, height)
+      gradient.addColorStop(0, `rgba(255, 255, 255, 0)`)
+      gradient.addColorStop(0.5, `rgba(255, 255, 255, 0.5)`)
+      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
+
+      ctx.strokeStyle = gradient
+      ctx.lineWidth = 4 / ratio // Fix thickness here too
+      ctx.beginPath()
+      ctx.moveTo(sweep_x, 0)
+      ctx.lineTo(sweep_x, height)
+      ctx.stroke()
     }
-
-    let gradient = ctx.createLinearGradient(sweep_x, 0, sweep_x, height)
-    gradient.addColorStop(0, `rgba(255, 255, 255, 0)`)
-    gradient.addColorStop(0.5, `rgba(255, 255, 255, 0.5)`)
-    gradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
-
-    ctx.strokeStyle = gradient
-    ctx.lineWidth = 4 / ratio // Fix thickness here too
-    ctx.beginPath()
-    ctx.moveTo(sweep_x, 0)
-    ctx.lineTo(sweep_x, height)
-    ctx.stroke()
   }
 
   // 4. Draw Clicks (Stars)
@@ -556,7 +554,6 @@ App.enable_scope_visualizer = () => {
   App.start_scope_loop()
   App.scope_enable_date = Date.now()
   App.start_scope_visualizer()
-  App.init_scope_click_handler()
   App.resize_scope()
   App.stor_save_scope()
 }
