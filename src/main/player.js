@@ -214,6 +214,7 @@ App.init_audio = async () => {
 
     App.audio_started = true
     App.apply_volume()
+    App.init_scope()
     console.info(`Audio Ready.`)
 
     if (App.code_to_play) {

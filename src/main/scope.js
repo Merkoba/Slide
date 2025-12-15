@@ -35,9 +35,11 @@ App.scope_click_rotation_speed = 0.001
 
 App.setup_scope = () => {
   App.stor_load_scope()
-  App.init_scope_checkbox()
   App.setup_scope_canvas()
+  App.start_scope_loop()
+}
 
+App.init_scope = () => {
   if (App.scope_enabled) {
     App.enable_scope_visualizer()
   }
@@ -332,6 +334,10 @@ App.draw_scope_frame = () => {
     return
   }
 
+  function next_frame() {
+    App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
+  }
+
   // Use the stored ratio to ensure 1:1 match with resize
   let ratio = App.scope_pixel_ratio || 1
 
@@ -340,7 +346,7 @@ App.draw_scope_frame = () => {
   let height = App.scope_canvas_el.height / ratio
 
   if (!width || !height) {
-    App.scope_animation_id = requestAnimationFrame(App.draw_scope_frame)
+    next_frame()
     return
   }
 
@@ -418,6 +424,7 @@ App.draw_scope_frame = () => {
     let sweep_x = progress * width
 
     if (isNaN(sweep_x)) {
+      next_frame()
       return
     }
 
@@ -483,12 +490,6 @@ App.stop_scope_visualizer = () => {
 }
 
 App.start_scope_visualizer = () => {
-  let canvas = App.setup_scope_canvas()
-
-  if (!canvas) {
-    return
-  }
-
   if (!App.scope_connected) {
     App.connect_scope_analyser()
   }
@@ -552,12 +553,7 @@ App.toggle_scope = () => {
 App.enable_scope_visualizer = () => {
   App.scope_enabled = true
   App.set_scope_visibility(true)
-  let canvas = App.setup_scope_canvas()
-
-  if (canvas && !App.scope_animation_id) {
-    App.start_scope_loop()
-  }
-
+  App.start_scope_loop()
   App.scope_enable_date = Date.now()
   App.start_scope_visualizer()
   App.init_scope_click_handler()
@@ -569,32 +565,6 @@ App.disable_scope_visualizer = () => {
   App.scope_enabled = false
   App.stop_scope_visualizer()
   App.stor_save_scope()
-}
-
-App.init_scope_checkbox = () => {
-  let checkbox = DOM.el(`#scope-checkbox`)
-
-  if (!checkbox) {
-    return
-  }
-
-  checkbox.checked = App.scope_enabled
-
-  if (App.scope_enabled) {
-    App.enable_scope_visualizer()
-  }
-  else {
-    App.set_scope_visibility(false)
-  }
-
-  DOM.ev(checkbox, `change`, (event) => {
-    if (event.target.checked) {
-      App.enable_scope_visualizer()
-    }
-    else {
-      App.disable_scope_visualizer()
-    }
-  })
 }
 
 App.get_scope_coords = (event) => {
