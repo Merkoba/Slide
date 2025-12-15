@@ -1,8 +1,3 @@
-import * as strudelCore from "@strudel/core"
-import * as strudelMini from "@strudel/mini"
-import * as strudelWebAudio from "@strudel/webaudio"
-import * as strudelTonal from "@strudel/tonal"
-
 App.scope_container_el = undefined
 App.scope_canvas_el = undefined
 App.scope_canvas_ctx = undefined
@@ -596,25 +591,6 @@ App.init_scope_checkbox = () => {
       App.disable_scope_visualizer()
     }
   })
-}
-
-App.ensure_scope = () => {
-  if (!App.scope_promise) {
-    // Access evalScope directly from the imported namespace object
-    // This injects the core functions (s, note, etc.) into the REPL
-    App.scope_promise = strudelCore.evalScope(
-      strudelCore,
-      strudelMini,
-      strudelWebAudio,
-      strudelTonal,
-    ).catch((err) => {
-      App.scope_promise = undefined
-      console.error(`Strudel scope failed to load`, err)
-      throw err
-    })
-  }
-
-  return App.scope_promise
 }
 
 App.get_scope_coords = (event) => {

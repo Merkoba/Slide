@@ -1,3 +1,8 @@
+import * as strudelCore from "@strudel/core"
+import * as strudelMini from "@strudel/mini"
+import * as strudelWebAudio from "@strudel/webaudio"
+import * as strudelTonal from "@strudel/tonal"
+
 App.is_playing = false
 App.play_running = false
 
@@ -87,7 +92,7 @@ App.strudel_update = async (code) => {
   }
 
   console.info(`Updating 💨`)
-  await App.ensure_scope()
+  await App.setup_eval()
   App.set_song_tempo(code)
   App.update_url()
   let full_result = await App.run_eval(code)
@@ -194,10 +199,6 @@ App.strudel_init = async () => {
   console.info(`Initializing Audio...`)
 
   try {
-    console.info(`Loading scope...`)
-    await App.ensure_scope()
-    console.info(`Scope loaded`)
-
     // This must be called in response to a user interaction
     console.info(`Initializing audio context...`)
     await initAudio()
@@ -306,4 +307,20 @@ App.setup_time_controls = () => {
 
   App.remove_context(rewind)
   App.remove_context(forward)
+}
+
+App.setup_eval = async () => {
+  // Access evalScope directly from the imported namespace object
+  // This injects the core functions (s, note, etc.) into the REPL
+  try{
+    await strudelCore.evalScope(
+      strudelCore,
+      strudelMini,
+      strudelWebAudio,
+      strudelTonal,
+    )
+  }
+  catch (err) {
+    console.error(`Strudel scope failed to load`, err)
+  }
 }
