@@ -1,3 +1,6 @@
+import {EditorView, Decoration} from "@codemirror/view"
+import {StateField, StateEffect} from "@codemirror/state"
+
 App.mirror_enabled = true
 
 App.setup_drawer = () => {
@@ -28,10 +31,6 @@ App.setup_drawer = () => {
 }
 
 App.setup_strudel_mirror = () => {
-  let {
-    EditorView, Decoration, StateField, StateEffect,
-  } = window.CM
-
   App.set_highlight = StateEffect.define()
 
   App.highlight_extension = StateField.define({

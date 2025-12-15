@@ -1,3 +1,5 @@
+import {autocompletion} from "@codemirror/autcomplete"
+
 App.start_keyboard = () => {
   DOM.ev(document, `keydown`, (e) => {
     if (e.key === `s`) {
@@ -123,8 +125,6 @@ App.custom_completion_source = (context) => {
 }
 
 App.setup_editor_autocomplete = () => {
-  let {autocompletion} = window.CM
-
   // Returns the extension to be added to your EditorState config
   return autocompletion({
     override: [App.custom_completion_source],

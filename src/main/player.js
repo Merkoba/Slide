@@ -240,6 +240,7 @@ App.run_eval = async (code) => {
   try {
     App.pattern = await App.evaluate(code)
 
+
     if (App.pattern) {
       let now = App.scheduler.now() // Current time in seconds
       let cps = App.scheduler.cps || 1

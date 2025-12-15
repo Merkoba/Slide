@@ -1,3 +1,14 @@
+import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, drawSelection, dropCursor, rectangularSelection, crosshairCursor } from "@codemirror/view"
+import { EditorState, Compartment, Prec } from "@codemirror/state"
+import { javascript } from "@codemirror/lang-javascript"
+import { nord } from "cm6-theme-nord"
+import { vscodeKeymap } from "@replit/codemirror-vscode-keymap"
+import { indentWithTab, history, defaultKeymap, historyKeymap, copyLineDown, copyLineUp } from "@codemirror/commands"
+import { foldGutter, indentOnInput, bracketMatching } from "@codemirror/language"
+import { closeBrackets } from "@codemirror/autocomplete"
+import { highlightSelectionMatches, searchKeymap, search, selectNextOccurrence } from "@codemirror/search"
+
+
 App.input_mirror_time = 3 * 1000
 App.input_grow_time = 3 * 1000
 App.lines_enabled = true
@@ -20,21 +31,11 @@ App.setup_input = () => {
 }
 
 App.create_editor = () => {
-  // specific imports needed to replace basicSetup
-  let {
-    EditorView, EditorState, Compartment,
-    lineNumbers, highlightActiveLineGutter, foldGutter, // Gutter components
-    history, drawSelection, dropCursor, // Core basics
-    indentOnInput, bracketMatching, closeBrackets, rectangularSelection, crosshairCursor, // UI basics
-    keymap, defaultKeymap, historyKeymap, indentWithTab, // Keymaps
-    highlightSelectionMatches, searchKeymap, search, selectNextOccurrence,
-    javascript, nord, vscodeKeymap, Prec, copyLineDown, copyLineUp,
-  } = window.CM
-
   App.lineNumbers = lineNumbers
   App.compartment = new Compartment()
   let container = DOM.el(`#code-input-wrapper`)
   let theme = EditorView.theme(App.editor_theme, {dark: true})
+
   App.setup_strudel_mirror()
 
   // Group all extensions that render in the gutter
