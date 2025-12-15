@@ -10,5 +10,6 @@ files=$(git ls-files -- "*.js")
 files=$(echo $files | tr " " "\n" | grep -vE '(^|/)strudel/' | grep -vE '(^|/)songs/' | grep -vE '(^|/)dist/' | grep -vE '(^|/)vite.config.js$' | grep -vE '(^|/)src/libs/*' | tr "\n" " ")
 
 if [ -n "$files" ]; then
-  pnpm run --silent lint $files
+  # Added '--' to ensure pnpm passes the file list to the lint script
+  pnpm run --silent lint -- $files
 fi
