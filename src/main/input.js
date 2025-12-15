@@ -258,6 +258,7 @@ App.init_code_input_controls = () => {
           wrapper.style.width = `${new_width}px`
           wrapper.style.height = `${new_height}px`
           scope_wrapper.style.width = `${new_width}px`
+          App.enable_max_button()
         }
 
         let mouse_up = () => {
@@ -272,6 +273,7 @@ App.init_code_input_controls = () => {
           resize_handle.style.pointerEvents = ``
           resize_handle.classList.remove(`active`)
           App.resize_scope()
+          App.check_max_button()
 
           document.removeEventListener(`mousemove`, mouse_move)
           document.removeEventListener(`mouseup`, mouse_up)
@@ -317,7 +319,17 @@ App.input_is_maxed = () => {
   let height_1 = parseInt(wrapper.style.height)
   let width_1 = parseInt(wrapper.style.width)
   let [height_2, width_2] = App.max_input(true)
-  return (height_1 === height_2) && (width_1 === width_2)
+  let buffer = 2
+
+  if (Math.abs(height_1 - height_2) >= buffer) {
+    return false
+  }
+
+  if (Math.abs(width_1 - width_2) >= buffer) {
+    return false
+  }
+
+  return true
 }
 
 App.add_text_to_input = (text) => {
