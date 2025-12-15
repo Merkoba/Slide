@@ -415,10 +415,10 @@ App.setup_eval = async () => {
       transpiler,
     )
 
-    console.log(`Setup Eval done.`);
+    console.log(`Setup Eval done.`)
   }
   catch (err) {
-    console.error(`Strudel scope failed to load`, err);
+    console.error(`Strudel scope failed to load`, err)
   }
 }
 
