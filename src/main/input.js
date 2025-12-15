@@ -45,9 +45,16 @@ App.create_editor = () => {
     foldGutter(),
   ]
 
+  let input_listener = EditorView.updateListener.of((v) => {
+    if (v.docChanged) {
+      App.on_input_change()
+    }
+  })
+
   let extensions = [
     nord,
     theme,
+    input_listener,
     App.compartment.of(gutter_extensions),
     EditorState.allowMultipleSelections.of(true),
 
@@ -494,4 +501,9 @@ App.max_input_if_larger = () => {
   if (height_1 > height_2) {
     App.max_input(false, `height`)
   }
+}
+
+App.on_input_change = () => {
+  App.stop_drawer()
+  App.clean_mirror()
 }
