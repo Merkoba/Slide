@@ -95,11 +95,13 @@ App.show_items_modal = async (id, args = {}) => {
         jdenticon.update(item_icon, name)
       }
 
+      name = App.underspace(name)
+
       if (args.capitalize) {
         name = App.capitalize(name)
       }
 
-      item_text.textContent = App.underspace(name)
+      item_text.textContent = name
       item_div.title = item.title
       DOM.ev(item_div, `click`, () => args.action(item))
 
