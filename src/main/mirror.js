@@ -1,4 +1,5 @@
-import {EditorView, Decoration} from "@codemirror/view"
+import {EditorView} from "codemirror"
+import {Decoration} from "@codemirror/view"
 import {StateField, StateEffect} from "@codemirror/state"
 
 App.mirror_enabled = true
