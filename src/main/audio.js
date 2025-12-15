@@ -55,10 +55,18 @@ App.get_audio_context = () => {
 }
 
 App.splash_reverb = (seconds) => {
+  if (!window.master_fx) {
+    return
+  }
+
   window.master_fx.splash_reverb(seconds)
 }
 
 App.set_panning = (value, delay = 0) => {
+  if (!window.master_fx) {
+    return
+  }
+
   window.master_fx.set_panning(value)
 
   if (delay > 0) {
@@ -86,24 +94,44 @@ App.get_panning = () => {
 }
 
 App.set_gain = (value) => {
+  if (!window.master_fx) {
+    return
+  }
+
   window.master_fx.set_volume(value)
 }
 
 App.get_gain = () => {
+  if (!window.master_fx) {
+    return
+  }
+
   return window.master_fx.get_volume()
 }
 
 App.set_eq = (low, mid, high) => {
+  if (!window.master_fx) {
+    return
+  }
+
   window.master_fx.set_eq_freqs(low, mid, high)
 }
 
 // Rate: Speed in Hz (e.g., 0.5 is once every 2 seconds)
 // Depth: How far to pan (0 to 1). 1 = Full Left/Right swing
 App.start_auto_pan = (rate = 2, depth = 0.8) => {
+  if (!window.master_fx) {
+    return
+  }
+
   window.master_fx.set_auto_pan(rate, depth)
 }
 
 App.stop_auto_pan = () => {
+  if (!window.master_fx) {
+    return
+  }
+
   // Smoothly fade out the LFO depth to 0
   window.master_fx.set_auto_pan(0, 0)
 }

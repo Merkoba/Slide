@@ -191,8 +191,6 @@ App.init_audio = async () => {
   console.info(`Initializing Audio...`)
 
   try {
-    // This must be called in response to a user interaction
-    console.info(`Initializing audio context...`)
     await App.setup_eval()
     await initAudio()
 
