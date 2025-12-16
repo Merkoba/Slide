@@ -61,13 +61,13 @@ App.custom_completion_source = (context) => {
   let content = exact_match[2] || ``
   let options_data = []
 
-  if (type == `note`) {
+  if (type === `note`) {
     options_data = App.strudel_notes
   }
-  else if (type == `bank`) {
+  else if (type === `bank`) {
     options_data = App.strudel_banks
   }
-  else if (type == `sound`) {
+  else if (type === `sound`) {
     options_data = App.strudel_sounds
   }
 
@@ -82,11 +82,11 @@ App.custom_completion_source = (context) => {
       return {
         label: opt,
         type: `text`,
-        boost: 99
+        boost: 99,
       }
     }),
     // Force re-check on every keystroke to handle characters like "/" or "-" correctly
-    validFor: () => false
+    validFor: () => false,
   }
 }
 

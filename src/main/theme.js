@@ -113,10 +113,10 @@ App.editor_theme = {
     color: `#2E3440`,
   },
   ".cm-tooltip.cm-tooltip-autocomplete ul li[aria-selected='true']": {
-    backgroundColor: "#6391c1ec",
-    color: "white",
+    backgroundColor: `#6391c1ec`,
+    color: `white`,
   },
   ".cm-tooltip.cm-tooltip-autocomplete ul li[aria-selected='true'] .cm-completionIcon": {
-    color: "white",
+    color: `white`,
   }
 }
