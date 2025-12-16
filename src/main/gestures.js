@@ -81,7 +81,7 @@ App.check_scope_slide = () => {
       App.next_visual()
     }
 
-    App.clear_clicks()
+    App.clear_scope_clicks()
     return true
   }
 

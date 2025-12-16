@@ -325,13 +325,17 @@ App.handle_scope_mouse_up = (event) => {
 App.increase_scope_click_level = (level) => {
   App.scope_click_level = level
   clearTimeout(App.scope_click_level_timeout)
+  clearTimeout(App.clear_scope_clicks_timeout)
   App.color_interface(level)
 
   App.scope_click_level_timeout = setTimeout(() => {
-    App.clear_clicks()
     App.scope_click_level = 1
     App.restore_interface_colors()
   }, App.scope_click_level_time)
+
+  App.clear_scope_clicks_timeout = setTimeout(() => {
+    App.clear_scope_clicks()
+  }, App.scope_click_level_time - 140)
 }
 
 App.draw_star = (ctx, x, y, radius, spikes, outer_radius, rotation_offset = 0) => {
@@ -607,7 +611,7 @@ App.get_scope_coords = (event) => {
   }
 }
 
-App.clear_clicks = () => {
+App.clear_scope_clicks = () => {
   setTimeout(() => {
     App.scope_clicks = []
   }, 100)
