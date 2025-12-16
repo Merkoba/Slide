@@ -152,8 +152,8 @@ App.ensure_scope_analyser = () => {
     let audio_ctx = App.get_audio_context()
 
     if (!audio_ctx) {
-        console.warn("No audio context found yet.")
-        return
+      console.warn("No audio context found yet.")
+      return
     }
 
     // Connect your analyzer to the existing graph
@@ -167,7 +167,7 @@ App.ensure_scope_analyser = () => {
     // you likely want to connect the master gain to this analyser,
     // rather than leaving it dangling.
     if (window.master_fx && window.master_fx.nodes.master_gain) {
-        window.master_fx.nodes.master_gain.connect(analyser)
+      window.master_fx.nodes.master_gain.connect(analyser)
     }
     else {
       // Fallback for raw context (though less likely to capture all sound)
