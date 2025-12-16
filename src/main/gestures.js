@@ -12,15 +12,15 @@ App.gesture_actions = () => {
 }
 
 App.check_gestures = () => {
-  // Slide
-  if ((Date.now() - App.scope_mousedown_date) <= App.scope_slide_delay) {
-    if (App.check_scope_slide()) {
-      App.scope_gestures_enabled = false
-      return
-    }
-  }
-
   if (App.scope_gestures_enabled) {
+    // Slide
+    if ((Date.now() - App.scope_mousedown_date) <= App.scope_slide_delay) {
+      if (App.check_scope_slide()) {
+        App.scope_gestures_enabled = false
+        return
+      }
+    }
+
     // Triangle
     if (App.triangle_gesture()) {
       App.gesture_function(2, () => {
