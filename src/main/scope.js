@@ -36,6 +36,14 @@ App.scope_click_rotation_speed = 0.001
 App.setup_scope = () => {
   App.stor_load_scope()
   App.setup_scope_canvas()
+
+  if (App.scope_enabled) {
+    App.set_scope_visibility(true)
+  }
+  else {
+    App.set_scope_visibility(false)
+  }
+
   App.init_scope_click_handler()
   App.start_scope_loop()
 }
