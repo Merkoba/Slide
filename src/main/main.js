@@ -396,6 +396,10 @@ App.start_resize_observer = () => {
   })
 
   observer.observe(App.get_main())
+
+  DOM.ev(window, `resize`, () => {
+    App.resize_scope()
+  })
 }
 
 App.setup_eval = async () => {
