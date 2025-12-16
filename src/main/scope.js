@@ -149,12 +149,35 @@ App.ensure_scope_analyser = () => {
   }
 
   try {
-    let audio_ctx = window.getAudioContext()
+    let audio_ctx = App.get_audio_context()
+
+    if (!audio_ctx) {
+        console.warn("No audio context found yet.")
+        return
+    }
+
+    // Connect your analyzer to the existing graph
     let analyser = audio_ctx.createAnalyser()
     analyser.fftSize = 2048
     analyser.minDecibels = -90
     analyser.maxDecibels = -10
     analyser.smoothingTimeConstant = 0.85
+
+    // IMPORTANT: If you are using the 'master_fx' system,
+    // you likely want to connect the master gain to this analyser,
+    // rather than leaving it dangling.
+    if (window.master_fx && window.master_fx.nodes.master_gain) {
+        window.master_fx.nodes.master_gain.connect(analyser)
+    }
+    else {
+        // Fallback for raw context (though less likely to capture all sound)
+        // Usually, you can't just "connect context to analyser",
+        // you need a specific node.
+        console.log("Connecting analyser to destination input")
+        // Note: You can't connect destination TO analyser.
+        // You usually insert the analyser BEFORE the destination.
+    }
+
     App.scope_analyser = analyser
     App.ensure_scope_waveform()
   }

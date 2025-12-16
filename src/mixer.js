@@ -21,10 +21,18 @@
 
   class InterceptedAudioContext extends OriginalAudioContext {
     constructor(...args) {
+      // 1. Singleton Check: If master_fx exists, return THAT context.
+      // This forces Strudel (and everything else) to use the same audio graph.
+      if (window.master_fx && window.master_fx.context) {
+        console.log(`Returning existing MAIN AudioContext (Singleton)`)
+        return window.master_fx.context
+      }
+
+      // 2. Otherwise, create the new context
       super(...args)
       let ctx = this
 
-      const is_main_context = !window.master_fx
+      let is_main_context = !window.master_fx
 
       if (is_main_context) {
         console.log(`Intercepted MAIN AudioContext (Seamless Reverb + LFO Mode + Metering)`)
