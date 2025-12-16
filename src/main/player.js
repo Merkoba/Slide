@@ -77,10 +77,10 @@ App.stop_strudel = () => {
 }
 
 App.strudel_update = async (code) => {
-  await App.init_audio()
+  await App.init_player()
 
   if (!App.audio_started) {
-    console.warn(`Audio not started yet. Call init_audio() first.`)
+    console.warn(`Audio not started yet. Call init_player() first.`)
     return
   }
 
@@ -182,7 +182,7 @@ App.restart_code_scroll = (to_top = true) => {
 
 // 1. Export a setup function to the global window object
 // This allows your HTML/Flask templates to call it easily.
-App.init_audio = async () => {
+App.init_player = async () => {
   if (App.audio_started) {
     console.info(`Audio already initialized`)
     return
@@ -199,6 +199,8 @@ App.init_audio = async () => {
 
     // Load samples and sounds in parallel
     let ds = `https://raw.githubusercontent.com/felixroos/dough-samples/main`
+    let ts = `https://raw.githubusercontent.com/todepond/samples/main`
+    let tc = `https://raw.githubusercontent.com/tidalcycles/uzu-drumkit/main`
 
     console.info(`Loading samples and soundfonts...`)
 
@@ -209,6 +211,8 @@ App.init_audio = async () => {
     await samples(`${ds}/Dirt-Samples.json`),
     await samples(`${ds}/vcsl.json`),
     await samples(`${ds}/mridangam.json`),
+    samples(`${tc}/strudel.json`),
+    aliasBank(`${ts}/tidal-drum-machines-alias.json`)
 
     App.audio_started = true
     App.apply_volume()
