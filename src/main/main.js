@@ -396,11 +396,6 @@ App.start_resize_observer = () => {
   })
 
   observer.observe(App.get_main())
-
-  DOM.ev(window, `resize`, () => {
-    App.max_debouncer.call()
-    App.resize_scope()
-  })
 }
 
 App.setup_eval = async () => {

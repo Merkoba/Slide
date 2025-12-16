@@ -46,43 +46,6 @@ App.get_bg_context = () => {
   return App.background_canvas.getContext(`2d`)
 }
 
-App.start_visual = () => {
-  App.visual = App.visual || `auto`
-  App.background_canvas = App.get_bg_canvas()
-  App.background_canvas_ctx = App.get_bg_context()
-
-  // Fix: register animations here or at bottom
-  App.visual_animations = [
-    App.anim_neon_waves,
-  ]
-
-  // Fix: Handle window resizing to keep canvas sharp
-  DOM.ev(window, `resize`, () => {
-    if (App.background_canvas) {
-      App.background_canvas.width = window.innerWidth
-      App.background_canvas.height = window.innerHeight
-    }
-  })
-
-  // Only add the listener if we haven't already (or remove the old one first)
-  if (!App.resize_listener) {
-    App.resize_listener = () => {
-      if (App.background_canvas) {
-        App.background_canvas.width = window.innerWidth
-        App.background_canvas.height = window.innerHeight
-      }
-    }
-
-    DOM.ev(window, `resize`, App.resize_listener)
-  }
-
-  // Trigger initial size
-  App.background_canvas.width = window.innerWidth
-  App.background_canvas.height = window.innerHeight
-
-  App.apply_visual(App.visual)
-}
-
 App.create_visual_modal = () => {
   let modal = App.create_list_modal(`visual`)
   let title = DOM.el(`.modal-title`, modal)
@@ -103,14 +66,41 @@ App.open_visual_modal = async () => {
   })
 }
 
+App.start_visual = () => {
+  App.visual = App.visual || `auto`
+  App.background_canvas = App.get_bg_canvas()
+  App.background_canvas_ctx = App.get_bg_context()
+
+  // Fix: Removed the anonymous resize listener that was here.
+  // We only use the named listener below to ensure we can track it.
+
+  if (!App.resize_listener) {
+    App.resize_listener = () => {
+      if (App.background_canvas) {
+        App.background_canvas.width = window.innerWidth
+        App.background_canvas.height = window.innerHeight
+      }
+    }
+
+    DOM.ev(window, `resize`, App.resize_listener)
+  }
+
+  // Trigger initial size
+  App.background_canvas.width = window.innerWidth
+  App.background_canvas.height = window.innerHeight
+
+  App.apply_visual(App.visual)
+}
+
 App.apply_visual = (mode) => {
-  // STOP the previous loop if it exists
   if (App.animation_id) {
     cancelAnimationFrame(App.animation_id)
     App.animation_id = null
   }
 
-  // Clear specific animation states so they re-init fresh
+  // Fix: Reset frame counter to prevent floating point jitter after long sessions
+  App.animation_frames = 0
+
   App.flow_particles = null
   App.bg_orbs = null
 
@@ -127,7 +117,6 @@ App.apply_visual = (mode) => {
   }
   else {
     App.background_canvas.classList.remove(`under`)
-    // Start the new loop
     App.render_animation()
   }
 }
@@ -137,78 +126,104 @@ App.anim_bio_tunnel = (c, w, h, f) => {
   let cy = h / 2
   let t = f * 0.02
 
-  // --- NEW SECTION: The Shattered Core ---
-  // This fills the black center with rotating triangular shards
-  // We draw 2 layers rotating in opposite directions
+  // 1. Initialization: Create geometry cache ONLY once
+  if (!App.tunnel_geo) {
+    let segments = 64
+    App.tunnel_geo = new Float32Array((segments + 1) * 2)
+
+    for (let j = 0; j <= segments; j++) {
+      let angle = (j / segments) * Math.PI * 2
+      App.tunnel_geo[j * 2] = Math.cos(angle)       // X
+      App.tunnel_geo[(j * 2) + 1] = Math.sin(angle) // Y
+    }
+  }
+
+  // --- THE SHATTERED CORE ---
   for (let layer = 0; layer < 2; layer++) {
     let shards = 12
-    // Alternate rotation direction per layer
-    let direction = layer % 2 === 0 ? 1 : -1
+    let direction = (layer % 2 === 0) ? 1 : -1
+
+    let r_base = (layer + 1) * 40
+    let hue_base = (t * 80)
+    let fill_style_prefix = `hsla(`
 
     for (let s = 0; s < shards; s++) {
-      // Calculate angle for this shard
-      // Add time rotation to make it spin
-      let angle = (s / shards) * Math.PI * 2 + (t * direction)
+      let angle = ((s / shards) * Math.PI * 2) + (t * direction)
+      let r = r_base + (Math.sin((t * 5) + s) * 10)
 
-      // Radius varies to make it pulse
-      // Layer 0 is smaller (inner), Layer 1 is larger (outer)
-      let r_base = (layer + 1) * 40
-      let r = r_base + Math.sin(t * 5 + s) * 10
+      // Inline rotation for the core (since shards are few)
+      let cos_a = Math.cos(angle)
+      let sin_a = Math.sin(angle)
+      let cos_a2 = Math.cos(angle + 0.4)
+      let sin_a2 = Math.sin(angle + 0.4)
 
-      // Define triangle points relative to center
-      // Point 1: The tip extending outwards
-      let x1 = cx + Math.cos(angle) * r
-      let y1 = cy + Math.sin(angle) * r
-
-      // Point 2: A point slightly offset to create the triangle width
-      let x2 = cx + Math.cos(angle + 0.4) * (r * 0.5)
-      let y2 = cy + Math.sin(angle + 0.4) * (r * 0.5)
+      let x1 = cx + (cos_a * r)
+      let y1 = cy + (sin_a * r)
+      let x2 = cx + (cos_a2 * (r * 0.5))
+      let y2 = cy + (sin_a2 * (r * 0.5))
 
       c.beginPath()
-      // All shards start from the absolute center to ensure no black hole remains
       c.moveTo(cx, cy)
       c.lineTo(x1, y1)
       c.lineTo(x2, y2)
       c.closePath()
 
-      // Color: Similar scheme but slightly brighter/different to stand out
-      let hue = (t * 80 + s * 20) % 360
-      c.strokeStyle = `hsla(${hue}, 70%, 60%, 0.6)`
+      let hue = (hue_base + (s * 20)) % 360
+      c.strokeStyle = `${fill_style_prefix}${hue}, 70%, 60%, 0.6)`
       c.stroke()
-
-      // Optional: low opacity fill to really cover the black background
-      c.fillStyle = `hsla(${hue}, 70%, 10%, 0.1)`
+      c.fillStyle = `${fill_style_prefix}${hue}, 70%, 10%, 0.1)`
       c.fill()
     }
   }
 
-  // --- EXISTING TUNNEL LOOP ---
+  // --- THE TUNNEL LOOP ---
+  let tunnel_len = App.tunnel_geo.length / 2 // 65 points
+  let rot = t * 0.5
+
+  // Pre-calculate rotation matrix for the frame
+  let cos_rot = Math.cos(rot)
+  let sin_rot = Math.sin(rot)
+
+  let hue_t = t * 50
+
+  // FIX: Restore exact frequency from original code (angle * 4)
+  // angle = j / 64 * 2PI.
+  // angle * 4 = j * (8PI / 64) = j * (PI / 8)
+  let wave_freq = Math.PI / 8
+  let distortion_phase = t * 3
+
   for (let i = 0; i < 40; i++) {
-    let z = (i * 20 + f * 5) % 1000
+    let z = ((i * 20) + (f * 5)) % 1000
     let scale = 1000 / (z + 10)
 
     if (scale > 20) {
       continue
     }
 
+    let r_base_frame = 200 * scale
+    let r_distortion_scale = 20 * scale
+
     c.beginPath()
     c.lineWidth = 2
 
-    let hue = (t * 50 + z * 0.5) % 360
+    let hue = (hue_t + (z * 0.5)) % 360
     c.strokeStyle = `hsla(${hue}, 80%, 60%, ${z / 1000})`
-    let segments = 64
 
-    for (let j = 0; j <= segments; j++) {
-      let angle = (j / segments) * Math.PI * 2
+    for (let j = 0; j < tunnel_len; j++) {
+      let base_x = App.tunnel_geo[j * 2]
+      let base_y = App.tunnel_geo[(j * 2) + 1]
 
-      // Keeping the subtle "20" distortion from the previous step
-      let distortion = Math.sin(t * 3 + angle * 4) * 20
-      let r = (200 + distortion) * scale
+      // FIX: Use the corrected wave_freq
+      let distortion = Math.sin(distortion_phase + (j * wave_freq)) * r_distortion_scale
+      let r = r_base_frame + distortion
 
-      let rot = t * 0.5
+      // Apply Rotation Matrix
+      // Standard 2D rotation: x' = x*cos - y*sin
+      let rot_x = (base_x * cos_rot) - (base_y * sin_rot)
+      let rot_y = (base_x * sin_rot) + (base_y * cos_rot)
 
-      let x = cx + Math.cos(angle + rot) * r
-      let y = cy + Math.sin(angle + rot) * r
+      let x = cx + (rot_x * r)
+      let y = cy + (rot_y * r)
 
       if (j === 0) {
         c.moveTo(x, y)
@@ -224,44 +239,31 @@ App.anim_bio_tunnel = (c, w, h, f) => {
 }
 
 App.anim_flux_surface = (c, w, h, f) => {
-  let line_gap = 30 // Increased gap (25 -> 30) to reduce draw calls
-  let step_x = 40 // Increased x step (20 -> 40), low freq waves look fine with less points
+  let line_gap = 30
+  let step_x = 40
   let time = f * 0.03
-  let time_doubled = time * 2 // Pre-calc constant
-  let max_amp = 65 // 50 (wave1) + 15 (wave2) for bounds checking
+  let time_doubled = time * 2
+  let max_amp = 65
 
   c.lineWidth = 2
 
-  // Optimization: Pre-calculate "Wave 1" (Swells) since it implies identical y-offset for every line
-  // This removes a heavy Math.sin() call from the inner loop
-  let wave_1_cache = []
+  for (let y = -max_amp; y < (h + max_amp); y += line_gap) {
+    let y_factor = y * 0.01
 
-  for (let x = 0; x <= w; x += step_x) {
-    wave_1_cache.push(Math.sin(x * 0.005 + time) * 50)
-  }
-
-  // Loop Y with padding based on max amplitude so lines don't pop in/out
-  for (let y = -max_amp; y < h + max_amp; y += line_gap) {
-    let y_factor = y * 0.01 // Pre-calc y-component of wave 2
-
-    // Color logic
-    let hue = (y * 0.2 + f * 0.5) % 360
+    // Optimization: Calculate hue once per line, not per point
+    let hue = ((y * 0.2) + (f * 0.5)) % 360
     c.strokeStyle = `hsla(${hue}, 60%, 60%, 0.8)`
 
     c.beginPath()
 
-    let x_index = 0
-
+    // Optimization: Don't use an array cache.
+    // Calculate wave_1 inline. Math.sin is fast enough.
+    // Allocating [wave_1_cache] 60 times a second causes GC stutter.
     for (let x = 0; x <= w; x += step_x) {
-      // Fetch pre-calculated large swell
-      let wave_1 = wave_1_cache[x_index]
-
-      // Calculate fast ripples (must be done here as it depends on y)
-      let wave_2 = Math.sin(x * 0.02 - time_doubled + y_factor) * 15
+      let wave_1 = Math.sin((x * 0.005) + time) * 50
+      let wave_2 = Math.sin((x * 0.02) - time_doubled + y_factor) * 15
 
       c.lineTo(x, y + wave_1 + wave_2)
-
-      x_index++
     }
 
     c.stroke()
@@ -565,20 +567,18 @@ App.anim_aurora_borealis = (c, w, h, f) => {
 }
 
 App.render_animation = () => {
-  // Safety check: if we switched to auto/none, stop recursing
   if ([`auto`, `none`].includes(App.visual)) {
     return
   }
 
   let width = window.innerWidth
   let height = window.innerHeight
-
-  // Note: Some animations rely on trail effects, so we use a transparent fade
   let bg_fade = `rgba(0, 0, 0, 0.12)`
 
   App.background_canvas_ctx.fillStyle = bg_fade
   App.background_canvas_ctx.fillRect(0, 0, width, height)
 
+  // Dispatcher
   if (App.visual === `bio tunnel`) {
     App.anim_bio_tunnel(App.background_canvas_ctx, width, height, App.animation_frames)
   }
@@ -597,11 +597,10 @@ App.render_animation = () => {
   else if (App.visual === `orb balloons`) {
     App.anim_orb_balloons(App.background_canvas_ctx, width, height, App.animation_frames)
   }
-  // Remove the 'else' block here that calls apply_visual('auto'), it creates recursion risks
 
   App.animation_frames++
 
-  // CAPTURE the ID here
+  // Standard pattern: capture the ID immediately
   App.animation_id = requestAnimationFrame(App.render_animation)
 }
 
