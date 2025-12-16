@@ -40,92 +40,57 @@ App.start_keyboard = () => {
   })
 }
 
-App.generic_hint = (cm, callback, items) => {
-  let cursor = cm.getCursor()
-  let token = cm.getTokenAt(cursor)
-
-  // Strip quotes to get the search term (e.g., "Ak" from "Akai")
-  let current_word = token.string.replace(/['"]/g, ``)
-
-  // Filter the list
-  let suggestions = items.filter(bank =>
-    bank.toLowerCase().startsWith(current_word.toLowerCase()),
-  )
-
-  // Debugging: Check if we actually found anything
-  if (suggestions.length === 0) {
-    console.log(`⚠️ No matches found for:`, current_word)
-  }
-  else {
-    console.log(`✅ Found ${suggestions.length} matches`)
-  }
-
-  // Pass the result to CodeMirror's callback
-  callback({
-    list: suggestions,
-    from: {line: cursor.line, ch: token.start + 1}, // +1 to skip open quote
-    to: {line: cursor.line, ch: token.end},
-  })
-}
-
-App.sounds_hint = (cm, callback) => {
-  App.generic_hint(cm, callback, App.strudel_sounds)
-}
-
-App.notes_hint = (cm, callback) => {
-  App.generic_hint(cm, callback, App.strudel_notes)
-}
-
-App.banks_hint = (cm, callback) => {
-  App.generic_hint(cm, callback, App.strudel_banks)
-}
-
-// ⚡ ESSENTIAL: Tell CodeMirror this function is async
-App.sounds_hint.async = true
-App.notes_hint.async = true
-App.banks_hint.async = true
-
-App.sound_hint_func = (cm) => {
-  let cursor = cm.getCursor()
-
-  return {
-    list: App.strudel_sounds,
-    from: cursor,
-    to: cursor,
-  }
-}
-
 App.custom_completion_source = (context) => {
-  // Check text before cursor matches function(" or function('
-  let match = context.matchBefore(/(note|bank|sound)\(["']/)
+  let regex = /(note|bank|sound)\s*\(\s*["']([^"']*)$/
+  // 1. Ask CodeMirror if the text before cursor matches our pattern
+  let match_object = context.matchBefore(regex)
 
-  if (!match) {
+  if (!match_object) {
     return null
   }
 
-  let options = []
+  // 2. ⚡ FIX: Manually execute regex on the text to guarantee we get capture groups
+  // (The match_object might be a plain object without array indices in your env)
+  let exact_match = match_object.text.match(regex)
 
-  if (match.text.startsWith(`note`)) {
-    options = App.notes_hint
+  if (!exact_match) {
+    return null
   }
-  else if (match.text.startsWith(`bank`)) {
-    options = App.banks_hint
+
+  let type = exact_match[1]
+  let content = exact_match[2] || ``
+  let options_data = []
+
+  if (type == `note`) {
+    options_data = App.strudel_notes
   }
-  else if (match.text.startsWith(`sound`)) {
-    options = App.sounds_hint
+  else if (type == `bank`) {
+    options_data = App.strudel_banks
+  }
+  else if (type == `sound`) {
+    options_data = App.strudel_sounds
+  }
+
+  // Safety check to ensure array exists and has items
+  if (!options_data || options_data.length === 0) {
+    return null
   }
 
   return {
-    from: context.pos,
-    options: options.map((opt) => {
-      // transform string array into CM6 option objects
-      return {label: opt, type: `text`}
+    from: context.pos - content.length,
+    options: options_data.map((opt) => {
+      return {
+        label: opt,
+        type: `text`,
+        boost: 99
+      }
     }),
+    // Force re-check on every keystroke to handle characters like "/" or "-" correctly
+    validFor: () => false
   }
 }
 
 App.setup_editor_autocomplete = () => {
-  // Returns the extension to be added to your EditorState config
   return autocompletion({
     override: [App.custom_completion_source],
     defaultKeymap: true,

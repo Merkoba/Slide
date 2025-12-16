@@ -15,7 +15,6 @@ App.lines_enabled = true
 
 App.setup_input = () => {
   App.create_editor()
-  App.setup_editor_autocomplete()
   App.max_button = App.get_max_button()
 
   if (App.lines_enabled) {
@@ -57,6 +56,7 @@ App.create_editor = () => {
     input_listener,
     App.compartment.of(gutter_extensions),
     EditorState.allowMultipleSelections.of(true),
+    App.setup_editor_autocomplete(),
 
     Prec.highest(
       keymap.of([
