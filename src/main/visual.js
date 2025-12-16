@@ -133,7 +133,7 @@ App.anim_bio_tunnel = (c, w, h, f) => {
 
     for (let j = 0; j <= segments; j++) {
       let angle = (j / segments) * Math.PI * 2
-      App.tunnel_geo[j * 2] = Math.cos(angle)       // X
+      App.tunnel_geo[j * 2] = Math.cos(angle) // X
       App.tunnel_geo[(j * 2) + 1] = Math.sin(angle) // Y
     }
   }
@@ -144,7 +144,7 @@ App.anim_bio_tunnel = (c, w, h, f) => {
     let direction = (layer % 2 === 0) ? 1 : -1
 
     let r_base = (layer + 1) * 40
-    let hue_base = (t * 80)
+    let hue_base = t * 80
     let fill_style_prefix = `hsla(`
 
     for (let s = 0; s < shards; s++) {
