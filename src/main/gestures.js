@@ -109,12 +109,6 @@ App.check_scope_panning = () => {
 
 App.circle_gesture = () => {
   let clicks = App.get_scope_clicks()
-
-  // Safety check
-  if (!clicks || !Array.isArray(clicks)) {
-    return false
-  }
-
   let len = clicks.length
 
   let min_x = Infinity
@@ -128,19 +122,19 @@ App.circle_gesture = () => {
     let p = clicks[i]
 
     if (p.x < min_x) {
-      { min_x = p.x }
+      {min_x = p.x}
     }
 
     if (p.x > max_x) {
-      { max_x = p.x }
+      {max_x = p.x}
     }
 
     if (p.y < min_y) {
-      { min_y = p.y }
+      {min_y = p.y}
     }
 
     if (p.y > max_y) {
-      { max_y = p.y }
+      {max_y = p.y}
     }
 
     sum_x += p.x
@@ -332,11 +326,6 @@ App.triangle_gesture = () => {
 
 App.square_gesture = () => {
   let clicks = App.get_scope_clicks()
-
-  if (!clicks || !Array.isArray(clicks)) {
-    return false
-  }
-
   let len = clicks.length
 
   let get_sq_dist = (p1, p2) => {
