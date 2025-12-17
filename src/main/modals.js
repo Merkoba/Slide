@@ -25,6 +25,7 @@ App.create_modals = () => {
   App.create_auto_modal()
   App.create_visual_modal()
   App.create_settings_modal()
+  App.create_prompt_modal()
 
   DOM.ev(`#main`, `click`, (event) => {
     let close_btn = event.target.closest(`.modal-close`)

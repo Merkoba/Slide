@@ -41,20 +41,18 @@ App.do_set_status = (status) => {
 }
 
 App.ask_for_title = () => {
-  let ms = App.get_matched_song()
+  App.show_prompt({
+    title: `Beat Title`,
+    placeholder: `Name of the beat`,
+    action: (title) => {
+      if (!title) {
+        title = ``
+      }
 
-  if (ms) {
-    return
-  }
-
-  let title = prompt(`Title of this beat`, App.beat_title || ``)
-
-  if (!title) {
-    title = ``
-  }
-
-  App.beat_title = title.trim()
-  App.update_url()
-  App.update_title()
-  App.playing()
+      App.beat_title = title.trim()
+      App.update_url()
+      App.update_title()
+      App.playing()
+    }
+  })
 }
