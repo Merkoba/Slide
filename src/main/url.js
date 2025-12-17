@@ -122,7 +122,7 @@ App.set_beat_title_from_query = () => {
 App.get_beat_url = () => {
   App.show_prompt({
     title: `Beat URL`,
-    placeholder: `javascript/text file`,
+    placeholder: `javascript / text file`,
     value: App.beat_url || ``,
     action: (url) => {
       if (!url) {
