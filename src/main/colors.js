@@ -116,7 +116,5 @@ App.restore_interface_colors = () => {
 }
 
 App.do_color_interface = (color) => {
-  App.set_input_border(color)
-  let scope = App.get_scope_wrapper()
-  scope.style.borderColor = color
+  App.set_css_var(`border-color`, color)
 }

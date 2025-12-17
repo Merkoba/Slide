@@ -242,3 +242,7 @@ App.remove_context = (el, action) => {
     }
   })
 }
+
+App.set_css_var = (name, value) => {
+  document.documentElement.style.setProperty(`--${name}`, value)
+}
