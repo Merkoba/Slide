@@ -389,7 +389,7 @@ App.new_beat = () => {
       App.set_input(``)
       App.stop_action()
       App.focus_input()
-    }
+    },
   })
 }
 

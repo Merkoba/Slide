@@ -53,6 +53,6 @@ App.ask_for_title = () => {
       App.update_url()
       App.update_title()
       App.playing()
-    }
+    },
   })
 }

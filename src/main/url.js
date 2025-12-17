@@ -131,7 +131,7 @@ App.get_beat_url = () => {
 
       App.beat_url = url.trim()
       App.load_beat_url()
-    }
+    },
   })
 }
 
