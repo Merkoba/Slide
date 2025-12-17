@@ -9,8 +9,14 @@ App.gesture_actions = () => {
   App.canvas_effect_1()
 }
 
+App.get_gesture_clicks = (group = false) => {
+  let clicks = App.get_scope_clicks(group)
+  App.gesture_scope_clicks = clicks
+  return clicks
+}
+
 App.check_gestures = () => {
-  let clicks = App.get_scope_clicks()
+  let clicks = App.get_gesture_clicks(true)
   let len = clicks.length
 
   // Slide
@@ -20,10 +26,10 @@ App.check_gestures = () => {
     }
   }
 
-  let min_clicks = len >= 10
+  let min_clicks = len >= 5
 
   // Triangle
-  if (min_clicks && App.triangle_gesture()) {
+  if (min_clicks && App.triangle_gesture(clicks.slice(0))) {
     App.gesture_function(2, () => {
       App.gesture_actions()
     })
@@ -31,7 +37,7 @@ App.check_gestures = () => {
     return
   }
   // Square
-  else if (min_clicks && App.square_gesture()) {
+  else if (min_clicks && App.square_gesture(clicks.slice(0))) {
     App.gesture_function(3, () => {
       App.gesture_actions()
     })
@@ -39,15 +45,19 @@ App.check_gestures = () => {
     return
   }
   // Circle
-  else if (min_clicks && App.circle_gesture()) {
+  else if (min_clicks && App.circle_gesture(clicks.slice(0))) {
     App.gesture_function(4, () => {
       App.gesture_actions()
     })
 
     return
   }
+
+  clicks = App.get_gesture_clicks()
+  len = clicks.length
+
   // Many stars
-  else if (len >= App.many_clicks_amount) {
+  if (len >= App.many_clicks_amount) {
     App.gesture_function(5, () => {
       App.gesture_actions()
     })
@@ -109,8 +119,7 @@ App.check_scope_panning = () => {
   return false
 }
 
-App.circle_gesture = () => {
-  let clicks = App.get_scope_clicks()
+App.circle_gesture = (clicks) => {
   let len = clicks.length
 
   let min_x = Infinity
@@ -193,7 +202,7 @@ App.circle_gesture = () => {
   return score < 0.35
 }
 
-App.triangle_gesture = () => {
+App.triangle_gesture = (clicks) => {
   let get_sq_dist = (p1, p2) => {
     let dx = p1.x - p2.x
     let dy = p1.y - p2.y
@@ -270,7 +279,6 @@ App.triangle_gesture = () => {
   }
 
   let detect_triangle = () => {
-    let clicks = App.get_scope_clicks()
     let len = clicks.length
 
     let min_x = Infinity
@@ -326,8 +334,7 @@ App.triangle_gesture = () => {
   return detect_triangle()
 }
 
-App.square_gesture = () => {
-  let clicks = App.get_scope_clicks()
+App.square_gesture = (clicks) => {
   let len = clicks.length
 
   let get_sq_dist = (p1, p2) => {

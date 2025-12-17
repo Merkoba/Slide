@@ -32,6 +32,7 @@ App.scope_clicks_min = 5
 App.scope_click_rotation_speed = 0.001
 App.scope_click_time = 3 * 1000
 App.scope_click_level_time = 3 * 1000
+App.gesture_scope_clicks = []
 
 App.setup_scope = () => {
   App.stor_load_scope()
@@ -650,15 +651,78 @@ App.get_scope_height = () => {
 }
 
 App.set_scope_clicks = (values) => {
-  for (let click of App.get_scope_clicks()) {
+  for (let click of App.gesture_scope_clicks) {
     for (let key in values) {
       click[key] = values[key]
     }
   }
 }
 
-App.get_scope_clicks = () => {
-  return App.scope_clicks.filter((x) => !x.locked)
+App.get_scope_clicks = (group = false) => {
+  let clicks = App.scope_clicks.filter((x) => !x.locked)
+
+  if (!group) {
+    return clicks
+  }
+
+  if (clicks.length < 2) {
+    return clicks
+  }
+
+  // start with the last click (the anchor)
+  let last_click = clicks[clicks.length - 1]
+  let queue = [last_click]
+
+  // using a set to keep track of what we've already lumped
+  let visited_ids = new Set()
+
+  // assuming points have unique timestamps or object references,
+  // we can use the object itself in a Set if references are stable,
+  // but let's use a temporary ID or index to be safe.
+  // actually, let's just use the 'clicks' index to track visited.
+  let visited_indices = new Set()
+  visited_indices.add(clicks.length - 1)
+
+  // sensitivity: how big can a gap be before we consider it a separate object?
+  // 50px is usually enough to handle fast mouse movement, but small enough
+  // to stop before hitting a separate star icon.
+  let reach = 50
+
+  let i = 0
+
+  while (i < queue.length) {
+    let p = queue[i]
+    i++
+
+    // check all other clicks to see if they are close to 'p'
+    for (let j = 0; j < clicks.length; j++) {
+      if (visited_indices.has(j)) {
+        continue
+      }
+
+      let candidate = clicks[j]
+      let dx = p.x - candidate.x
+      let dy = p.y - candidate.y
+
+      // cheap bounding box check first
+      if ((Math.abs(dx) > reach) || (Math.abs(dy) > reach)) {
+        continue
+      }
+
+      let dist = Math.sqrt((dx * dx) + (dy * dy))
+
+      if (dist <= reach) {
+        visited_indices.add(j)
+        queue.push(candidate)
+      }
+    }
+  }
+
+  // the queue now contains all points that were reachable/connected
+  // we must restore the timestamp order for the gesture detection to work
+  queue.sort((a, b) => a.timestamp - b.timestamp)
+
+  return queue
 }
 
 App.push_scope_click = (args) => {
