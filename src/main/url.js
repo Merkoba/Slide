@@ -130,12 +130,12 @@ App.get_beat_url = () => {
       }
 
       App.beat_url = url.trim()
-      App.load_beat_url()
+      App.load_beat_url(true)
     },
   })
 }
 
-App.load_beat_url = async () => {
+App.load_beat_url = async (play = false) => {
   App.update_url()
 
   if (!App.beat_url) {
@@ -173,6 +173,10 @@ App.load_beat_url = async () => {
     App.set_song_tempo(code)
     App.update_url()
     App.playing()
+
+    if (play) {
+      App.play_action(code, true)
+    }
   }
   catch (err) {
     console.error(err)
