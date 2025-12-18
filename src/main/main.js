@@ -275,11 +275,13 @@ App.start_events = async () => {
     App.new_beat()
   })
 
-  DOM.ev(`#btn-songs`, `click`, () => {
+  let songs = DOM.el(`#btn-songs`)
+
+  DOM.ev(songs, `click`, () => {
     App.open_songs_modal()
   })
 
-  DOM.ev(`#btn-songs`, `auxclick`, (event) => {
+  DOM.ev(songs, `auxclick`, (event) => {
     if (event.button === 1) {
       App.random_song()
     }
@@ -316,6 +318,7 @@ App.start_events = async () => {
   App.setup_input()
   App.setup_scope()
   App.setup_theme()
+  App.setup_eq()
   App.init_volume_controls()
   App.init_tempo_controls()
   App.init_code_input_controls()

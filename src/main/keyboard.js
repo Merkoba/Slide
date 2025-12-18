@@ -2,7 +2,7 @@ import {autocompletion} from "@codemirror/autocomplete"
 
 App.start_keyboard = () => {
   DOM.ev(document, `keydown`, (e) => {
-    let active = document.activeElement
+    let active = DOM.active()
 
     if (e.key === `s`) {
       if (e.ctrlKey) {

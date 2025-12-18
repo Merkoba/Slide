@@ -114,7 +114,7 @@ App.set_eq = (low, mid, high) => {
     return
   }
 
-  window.master_fx.set_eq_freqs(low, mid, high)
+  window.master_fx.set_eq(low, mid, high)
 }
 
 // Rate: Speed in Hz (e.g., 0.5 is once every 2 seconds)
