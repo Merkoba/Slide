@@ -20,6 +20,11 @@ App.register_setting = (text, title, action) => {
 App.open_settings_modal = () => {
   let items = [
     {
+      text: `Select Theme`,
+      action: () => {App.show_theme_modal()},
+      title: `Select theme color`,
+    },
+    {
       text: `Select Visual`,
       action: () => {App.open_visual_modal()},
       title: `Change the background animation`,
@@ -28,11 +33,6 @@ App.open_settings_modal = () => {
       text: `Toggle Scope`,
       action: () => {App.toggle_scope()},
       title: `Show or hide the scope visualizer`,
-    },
-    {
-      text: `Select Theme`,
-      action: () => {App.show_theme_modal()},
-      title: `Select theme color`,
     },
     {
       text: `Toggle Colors`,
