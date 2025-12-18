@@ -849,7 +849,7 @@ a.popup:hover {
 
 .eq-input {
     background-color: rgb(0, 0, 0, 0.5);
-    color: white;
+    color: #eee;
     font-size: 1rem;
     width: 2.9rem;
     border: none;

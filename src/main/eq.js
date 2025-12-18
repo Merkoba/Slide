@@ -45,6 +45,8 @@ App.setup_eq = () => {
       else if (event.deltaY > 0) {
         decrease(event.target)
       }
+
+      event.preventDefault()
     })
   }
 
