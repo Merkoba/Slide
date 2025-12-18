@@ -21,8 +21,8 @@ App.create_about_modal = () => {
     <div class="about-item">Clicking the scope produces a tone and a reverb affect.</div>
     <div class="about-item">Clicking the scope on the left produces left panning.</div>
     <div class="about-item">Clicking the scope on the right produces right panning.</div>
-    <div class="about-item">A straight line to the left on the scope sets the next visual.</div>
-    <div class="about-item">A straight line to the right on the scope opens a random song.</div>
+    <div class="about-item">A straight line to the left rewinds 5 seconds.</div>
+    <div class="about-item">A straight line to the right forwards 5 seconds.</div>
     <div class="about-item">Ctrl+s = Starts playback / Updates code.</div>
     <div class="about-item">Escape = Closes top modal or stops playback.</div>
     <div class="about-item">Ctrl+1 = Show the sound context.</div>
@@ -31,6 +31,8 @@ App.create_about_modal = () => {
     <div class="about-item">Try drawing a triangle on the scope.</div>
     <div class="about-item">Try drawing a rectangle on the scope.</div>
     <div class="about-item">Try drawing a circle on the scope.</div>
+    <div class="about-item">Try drawing a plus sign on the scope.</div>
+    <div class="about-item">Try drawing many stars on the scope.</div>
     <hr>
     <div class="about-item">Credit: Gemini</div>
     <div class="about-item">Credit: ChatGPT</div>
