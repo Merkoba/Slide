@@ -411,6 +411,7 @@ button {
     border-style: solid;
     background-color: var(--button-background);
     color: rgb(225, 225, 225);
+    border-width: 2px;
 }
 
 button:hover {
@@ -876,13 +877,6 @@ a.popup:hover {
     white-space: pre-wrap;
 }
 
-#eq-controls {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
-    height: 100%;
-}
-
 .custom-number {
     display: flex;
     flex-direction: row;
@@ -900,6 +894,8 @@ a.popup:hover {
     color: rgb(225, 225, 225);
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    user-select: none;
+    border-width: 2px;
 }
 
 .custom-number-button:hover {
@@ -918,12 +914,13 @@ a.popup:hover {
     border-style: solid;
     color: rgb(225, 225, 225);
     background-color: var(--button-background);
+    border-width: 2px;
 }
 
 .custom-number-decrease {
-    border-right: 1px solid var(--number-border-color);
+    border-right: 0px solid grey;
 }
 
 .custom-number-increase {
-    border-left: 1px solid var(--number-border-color);
+    border-left: 0px solid grey;
 }
