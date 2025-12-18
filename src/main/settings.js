@@ -22,32 +22,32 @@ App.open_settings_modal = () => {
     {
       text: `Select Visual`,
       action: () => {App.open_visual_modal()},
-      title: `Change the background animation`
+      title: `Change the background animation`,
     },
     {
       text: `Toggle Scope`,
       action: () => {App.toggle_scope()},
-      title: `Show or hide the scope visualizer`
+      title: `Show or hide the scope visualizer`,
     },
     {
       text: `Scope Color`,
       action: () => {App.show_scope_color_modal()},
-      title: `Select scope color`
+      title: `Select scope color`,
     },
     {
       text: `Toggle Colors`,
       action: () => {App.toggle_colors()},
-      title: `Enable or disable the color animation`
+      title: `Enable or disable the color animation`,
     },
     {
       text: `Toggle Lines`,
       action: () => {App.toggle_lines()},
-      title: `Enable or disable the line numbers`
+      title: `Enable or disable the line numbers`,
     },
     {
       text: `Toggle Mirror`,
       action: () => {App.toggle_mirror()},
-      title: `Enable or disable the code execution reflection on the code`
+      title: `Enable or disable the code execution reflection on the code`,
     },
   ]
 
