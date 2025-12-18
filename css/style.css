@@ -461,6 +461,10 @@ button:hover {
     overflow-y: hidden;
 }
 
+#status:hover {
+    text-shadow: 0 0 0.2rem currentcolor;;
+}
+
 #modal-overlay {
     position: fixed;
     z-index: 999;

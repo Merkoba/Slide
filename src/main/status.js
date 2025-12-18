@@ -48,7 +48,7 @@ App.do_set_status = (status) => {
 App.ask_for_title = () => {
   App.show_prompt({
     title: `Beat Title`,
-    placeholder: `Name of the beat`,
+    placeholder: `Title of the beat`,
     action: (title) => {
       if (!title) {
         title = ``
