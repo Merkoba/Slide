@@ -29,12 +29,13 @@ App.setup_eq = () => {
       apply_eq()
     })
 
-    DOM.ev(what, `auxclick`, (event) => {
+    DOM.ev(what, `mousedown`, (event) => {
       if (event.button === 1) {
         event.target.value = 0
         apply_eq()
       }
 
+      event.target.blur()
       event.preventDefault()
     })
 
