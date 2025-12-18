@@ -1,45 +1,7 @@
 App.create_settings_modal = () => {
-  let modal = App.create_modal(`settings`)
+  let modal = App.create_list_modal(`settings`)
   let title = DOM.el(`.modal-title`, modal)
   title.textContent = `Settings`
-  let body = DOM.el(`.modal-body`, modal)
-
-  let visual = App.register_setting(`Select Visual`,
-    `Change the background animation`, () => {
-      App.open_visual_modal()
-    })
-
-  let scope = App.register_setting(`Toggle Scope`,
-    `Show or hide the scope visualizer`, () => {
-      App.toggle_scope()
-    })
-
-  let scope_colors = App.register_setting(`Scope Color`,
-    `Select scope color`, () => {
-      App.show_scope_color_modal()
-    })
-
-  let colors = App.register_setting(`Toggle Colors`,
-    `Enable or disable the color animation`, () => {
-      App.toggle_colors()
-    })
-
-  let lines = App.register_setting(`Toggle Lines`,
-    `Enable or disable the line numbers`, () => {
-      App.toggle_lines()
-    })
-
-  let mirror = App.register_setting(`Toggle Mirror`,
-    `Enable or disable the code execution reflection on the code`, () => {
-      App.toggle_mirror()
-    })
-
-  body.appendChild(visual)
-  body.appendChild(scope)
-  body.appendChild(scope_colors)
-  body.appendChild(colors)
-  body.appendChild(lines)
-  body.appendChild(mirror)
 }
 
 App.register_setting = (text, title, action) => {
@@ -56,5 +18,44 @@ App.register_setting = (text, title, action) => {
 }
 
 App.open_settings_modal = () => {
-  App.open_modal(`settings`)
+  let items = [
+    {
+      text: `Select Visual`,
+      action: () => {App.open_visual_modal()},
+      title: `Change the background animation`
+    },
+    {
+      text: `Toggle Scope`,
+      action: () => {App.toggle_scope()},
+      title: `Show or hide the scope visualizer`
+    },
+    {
+      text: `Scope Color`,
+      action: () => {App.show_scope_color_modal()},
+      title: `Select scope color`
+    },
+    {
+      text: `Toggle Colors`,
+      action: () => {App.toggle_colors()},
+      title: `Enable or disable the color animation`
+    },
+    {
+      text: `Toggle Lines`,
+      action: () => {App.toggle_lines()},
+      title: `Enable or disable the line numbers`
+    },
+    {
+      text: `Toggle Mirror`,
+      action: () => {App.toggle_mirror()},
+      title: `Enable or disable the code execution reflection on the code`
+    },
+  ]
+
+  App.show_items_modal(`settings`, {
+    items,
+    action: (item) => {
+      item.action()
+      App.close_modal(`settings`)
+    },
+  })
 }
