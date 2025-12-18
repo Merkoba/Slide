@@ -871,4 +871,5 @@ a.popup:hover {
     font-family: sans-serif;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     max-width: 20rem;
+    white-space: pre-wrap;
 }
