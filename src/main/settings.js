@@ -47,7 +47,7 @@ App.open_settings_modal = () => {
     {
       text: `Toggle Mirror`,
       action: () => {App.toggle_mirror()},
-      title: `Enable or disable the code execution reflection on the code`,
+      title: `Enable or disable the playback reflection on the code`,
     },
   ]
 
