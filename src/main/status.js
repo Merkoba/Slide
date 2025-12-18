@@ -18,6 +18,8 @@ App.setup_status = () => {
     else if (event.deltaY > 0) {
       status.scrollLeft += 20
     }
+
+    event.preventDefault()
   })
 }
 

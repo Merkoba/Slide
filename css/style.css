@@ -452,7 +452,7 @@ button:hover {
     margin-left: 0.1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: safe center;
     height: 100%;
     font-size: 1.2rem;
     transition: color var(--color-transition) ease;
