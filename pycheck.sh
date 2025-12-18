@@ -2,7 +2,8 @@
 source venv/bin/activate &&
 cd meltdown
 clear &&
-ruff format && ruff check &&
-mypy --strict --strict --strict slide.py &&
-pyright &&
+ruff format slide.py &&
+ruff check slide.py &&
+mypy --strict slide.py &&
+pyright slide.py &&
 deactivate

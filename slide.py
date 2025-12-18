@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import os
+import sys
 import json
 import atexit
 import random
@@ -32,7 +33,7 @@ RHYTHMIC_STRATEGIES = [
     "Mutate the Euclidean rhythm: change the numbers inside the struct() string (e.g., <3, 5> to <4, 7>).",
     "Alter the flow: change the speed using slow() or fast() on a specific layer.",
     "sparsify the beat: add a mask() to randomly mute steps in the drum pattern.",
-    "Syncopation: shift the timing of the melody using late() or early()."
+    "Syncopation: shift the timing of the melody using late() or early().",
 ]
 
 # Directives focused on sound design and atmosphere
@@ -40,7 +41,7 @@ TIMBRAL_STRATEGIES = [
     "Darken the tone: apply a lpf() (low pass filter) with a variable cutoff.",
     "Change the texture: swap the sound source s() (e.g., from 'sawtooth' to 'square' or a different drum bank).",
     "Add space: introduce reverb using room() or specific delay() settings.",
-    "Grittiness: add distortion using distort() or bitcrush effects."
+    "Grittiness: add distortion using distort() or bitcrush effects.",
 ]
 
 # Directives focused on musical progression
@@ -48,7 +49,7 @@ STRUCTURAL_STRATEGIES = [
     "Harmonic shift: transpose the note() pattern or change the scale definition.",
     "Breakdown: remove the kick drum layer entirely for one cycle.",
     "Build tension: slowly increase the gain() while increasing the filter cutoff.",
-    "Call and response: duplicate a layer but offset it using off()."
+    "Call and response: duplicate a layer but offset it using off().",
 ]
 
 MINUTES = 5
@@ -91,20 +92,24 @@ WORKER_THREAD: threading.Thread | None = None
 STATUS_OBSERVER: Any = None
 HISTORY: list[str] = []
 
+
 def get_git_commit_hash() -> str:
     """Retrieves the current git commit hash."""
     try:
         # Get the short hash (first 7 characters)
-        commit_hash = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            stderr=subprocess.STDOUT
-        ).decode("utf-8").strip()
-
-        return commit_hash
+        return (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.STDOUT
+            )
+            .decode("utf-8")
+            .strip()
+        )
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
+
 COMMIT_HASH = get_git_commit_hash()
+
 
 def load_config() -> None:
     """Load application configuration from config.json."""
@@ -118,7 +123,7 @@ def load_config() -> None:
         app_config = json.loads(config_content)
         logging.info("Loaded config: %s", app_config)
     except:
-        logging.critical("Config Error: %s", e)
+        logging.critical("Config Error: %s")
         sys.exit(1)
 
 
@@ -525,7 +530,7 @@ def shutdown_worker() -> None:
         WORKER_THREAD.join(timeout=2)
 
 
-def get_director_instruction(intensity="medium"):
+def get_director_instruction(intensity: str = "medium") -> str:
     """
     Selects a strategy and appends an intensity modifier to guide the AI.
     """
@@ -542,12 +547,7 @@ def get_director_instruction(intensity="medium"):
     else:
         modifier = "Ensure the evolution feels organic and smooth."
 
-    prompt_addition = (
-        f"DIRECTOR'S INSTRUCTION: {selected_strategy} "
-        f"\nINTENSITY: {modifier} "
-    )
-
-    return prompt_addition
+    return f"DIRECTOR'S INSTRUCTION: {selected_strategy} \nINTENSITY: {modifier} "
 
 
 def main() -> None:
@@ -561,9 +561,6 @@ def main() -> None:
     else:
         logging.info("AI interval disabled; worker not started")
 
-    print(make_prompt())
-    print("--------------")
-    print(make_prompt())
     start_status_watcher()
     atexit.register(shutdown_worker)
     app.run(host="0.0.0.0", port=PORT, debug=False)
