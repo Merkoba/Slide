@@ -26,6 +26,8 @@ App.setup_eq = () => {
   }
 
   function register(what) {
+    let container = what.closest(`.custom-number`)
+
     DOM.ev(what, `change`, () => {
       let value = parseInt(what.value)
 
@@ -39,16 +41,16 @@ App.setup_eq = () => {
       apply_eq()
     })
 
-    DOM.ev(what, `mousedown`, (event) => {
+    DOM.ev(container, `mousedown`, (event) => {
       if (event.button === 1) {
-        event.target.value = 0
+        what.value = 0
         apply_eq()
-        event.target.blur()
+        what.blur()
         event.preventDefault()
       }
     })
 
-    DOM.ev(what, `wheel`, (event) => {
+    DOM.ev(container, `wheel`, (event) => {
       let amount = 1
 
       if (event.deltaY < 0) {
@@ -56,14 +58,14 @@ App.setup_eq = () => {
           amount = 2
         }
 
-        increase(event.target, amount)
+        increase(what, amount)
       }
       else if (event.deltaY > 0) {
         if (event.shiftKey) {
           amount = 2
         }
 
-        decrease(event.target, amount)
+        decrease(what, amount)
       }
 
       event.preventDefault()
