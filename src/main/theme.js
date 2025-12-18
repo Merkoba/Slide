@@ -1,3 +1,41 @@
+App.themes = {
+  white: `rgb(204, 198, 239)`,
+  blue: `rgb(127, 155, 210)`,
+  red: `rgb(222, 143, 143)`,
+  yellow: `rgb(197, 187, 106)`,
+  green: `rgb(148, 221, 148)`,
+}
+
+App.create_theme_modal = () => {
+  let modal = App.create_list_modal(`theme`)
+  let title = DOM.el(`.modal-title`, modal)
+  title.textContent = `Scope Color`
+}
+
+App.show_theme_modal = () => {
+  let items = []
+
+  for (let key in App.themes) {
+    items.push({
+      text: App.capitalize(key),
+      title: `Use this for the theme color`,
+      value: key,
+      icon_color: App.themes[key],
+    })
+  }
+
+  App.show_items_modal(`theme`, {
+    items,
+    icons: false,
+    color_icons: true,
+    action: (item) => {
+      App.apply_color(App.themes[item.value])
+      App.stor_save_theme()
+      App.close_modal(`theme`)
+    },
+  })
+}
+
 App.editor_theme = {
   "& .cm-activeLine": {
     backgroundColor: `transparent !important`,
@@ -120,4 +158,32 @@ App.editor_theme = {
   ".cm-tooltip.cm-tooltip-autocomplete ul li[aria-selected='true'] .cm-completionIcon": {
     color: `white`,
   },
+}
+
+App.prev_theme = () => {
+  let keys = Object.keys(App.themes)
+  let index = keys.indexOf(App.theme)
+
+  if (index === -1) {
+    App.theme = keys[0]
+    return
+  }
+
+  index = (index - 1 + keys.length) % keys.length
+  App.theme = keys[index]
+  App.stor_save_theme()
+}
+
+App.next_theme = () => {
+  let keys = Object.keys(App.themes)
+  let index = keys.indexOf(App.theme)
+
+  if (index === -1) {
+    App.theme = keys[0]
+    return
+  }
+
+  index = (index + 1) % keys.length
+  App.theme = keys[index]
+  App.stor_save_theme()
 }

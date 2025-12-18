@@ -22,8 +22,8 @@ App.create_about_modal = () => {
     <div class="about-item">Clicking the scope produces a tone and a reverb affect.</div>
     <div class="about-item">Clicking the scope on the left produces left panning.</div>
     <div class="about-item">Clicking the scope on the right produces right panning.</div>
-    <div class="about-item">A straight line to the left rewinds 5 seconds.</div>
-    <div class="about-item">A straight line to the right forwards 5 seconds.</div>
+    <div class="about-item">A straight line to the left to change the visual.</div>
+    <div class="about-item">A straight line to the right to change the theme.</div>
     <div class="about-item">Try drawing a triangle.</div>
     <div class="about-item">Try drawing a rectangle.</div>
     <div class="about-item">Try drawing a circle.</div>

@@ -4,11 +4,10 @@ App.auto_delay_storage_key = `slide.auto_delay`
 App.volume_storage_key = `slide.volume`
 App.visual_storage_key = `slide.visual`
 App.scope_storage_key = `slide.scope`
-App.colors_storage_key = `slide.colors`
 App.code_storage_key = `slide.code`
 App.lines_storage_key = `slide.lines`
 App.mirror_storage_key = `slide.mirror`
-App.scope_color_storage_key = `slide.scope_color`
+App.theme_storage_key = `slide.theme`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
@@ -33,11 +32,10 @@ App.load_all_storage = () => {
   App.stor_load_volume()
   App.stor_load_visual()
   App.stor_load_scope()
-  App.stor_load_colors()
   App.stor_load_code()
   App.stor_load_lines()
   App.stor_load_mirror()
-  App.stor_load_scope_color()
+  App.stor_load_theme()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -88,14 +86,6 @@ App.stor_load_scope = () => {
   )
 }
 
-App.stor_load_colors = () => {
-  App.load_storage(`colors`,
-    (value) => {
-      App.colors_enabled = App.boolstring(value)
-    },
-  )
-}
-
 App.stor_load_lines = () => {
   App.load_storage(`lines`,
     (value) => {
@@ -120,10 +110,10 @@ App.stor_load_code = () => {
   )
 }
 
-App.stor_load_scope_color = () => {
-  App.load_storage(`scope_color`,
+App.stor_load_theme = () => {
+  App.load_storage(`theme`,
     (value) => {
-      App.scope_color = value
+      App.theme = value
     },
   )
 }
@@ -154,10 +144,6 @@ App.stor_save_scope = () => {
   App.save_storage(`scope`, App.scope_enabled)
 }
 
-App.stor_save_colors = () => {
-  App.save_storage(`colors`, App.colors_enabled)
-}
-
 App.stor_save_lines = () => {
   App.save_storage(`lines`, App.lines_enabled)
 }
@@ -170,6 +156,6 @@ App.stor_save_code = () => {
   App.save_storage(`code`, App.last_code)
 }
 
-App.stor_save_scope_color = () => {
-  App.save_storage(`scope_color`, App.scope_color)
+App.stor_save_theme = () => {
+  App.save_storage(`theme`, App.theme)
 }

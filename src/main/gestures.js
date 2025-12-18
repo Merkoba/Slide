@@ -542,9 +542,9 @@ App.gesture_function = (level, action) => {
 }
 
 App.on_slide_right = () => {
-  App.forward_player(5)
+  App.net_visual()
 }
 
 App.on_slide_left = () => {
-  App.rewind_player(5)
+  App.next_theme()
 }

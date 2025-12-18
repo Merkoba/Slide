@@ -30,9 +30,9 @@ App.open_settings_modal = () => {
       title: `Show or hide the scope visualizer`,
     },
     {
-      text: `Scope Color`,
-      action: () => {App.show_scope_color_modal()},
-      title: `Select scope color`,
+      text: `Select Theme`,
+      action: () => {App.show_theme_modal()},
+      title: `Select theme color`,
     },
     {
       text: `Toggle Colors`,

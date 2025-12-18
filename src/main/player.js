@@ -42,7 +42,6 @@ App.play_action = async (code = ``, force = false) => {
   App.restart_code_scroll(false)
   App.stor_save_code()
   App.clear_draw_context()
-  App.start_color_cycle()
   App.clean_canvas()
   App.update_title()
 
@@ -68,7 +67,6 @@ App.stop_action = () => {
 }
 
 App.stop_strudel = () => {
-  App.stop_color_cycle()
   App.clear_draw_context()
   App.scheduler.stop()
   App.stop_drawer()

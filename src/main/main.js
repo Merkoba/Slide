@@ -43,18 +43,10 @@ App.default_cpm = 60
 App.tempo = App.default_cpm
 App.tempo_debounce_timer = undefined
 App.color_index = 0
-App.color_cycle_timer = undefined
 App.do_partial_updates = false
 App.fetch_delay_seconds = 5
 App.code_url_max = 1920
 App.default_cpm = 30
-
-App.cycle_colors = [
-  `#94dd94`,
-  `rgb(197, 187, 106)`,
-  `rgb(222, 143, 143)`,
-  `rgb(127, 155, 210)`,
-]
 
 App.on_load = () => {
   App.start_events()
