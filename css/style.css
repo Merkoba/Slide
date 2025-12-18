@@ -12,7 +12,7 @@
     --panel-margin: 0.8rem;
     --border-color: #444;
     --color-transition: 0.8s;
-    --slider-width: 8rem;
+    --slider-width: 5rem;
 }
 
 body, html {
@@ -851,7 +851,7 @@ a.popup:hover {
     background-color: rgb(0, 0, 0, 0.5);
     color: white;
     font-size: 1rem;
-    width: 2.5rem;
+    width: 2.9rem;
     border: none;
     outline: none;
 }
