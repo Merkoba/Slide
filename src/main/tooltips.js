@@ -58,7 +58,7 @@ App.show_tooltip = (e) => {
   App.tooltip_el.textContent = text
   App.tooltip_el.style.display = `block`
 
-  let { top, left } = App.get_tooltip_position(e.target)
+  let {top, left} = App.get_tooltip_position(e.target)
 
   App.tooltip_el.style.top = `${top}px`
   App.tooltip_el.style.left = `${left}px`
