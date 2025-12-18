@@ -1,4 +1,5 @@
-App.eq_range = 12
+App.eq_range_min = -12
+App.eq_range_max = 12
 
 App.setup_eq = () => {
   let low = DOM.el(`#eq-low`)
@@ -14,18 +15,27 @@ App.setup_eq = () => {
 
   function increase(el, amount) {
     let value = parseInt(el.value)
-    el.value = Math.min(App.eq_range, value + amount)
+    el.value = Math.min(App.eq_range_max, value + amount)
     apply_eq()
   }
 
   function decrease(el, amount) {
     let value = parseInt(el.value)
-    el.value = Math.max(-App.eq_range, value - amount)
+    el.value = Math.max(App.eq_range_min, value - amount)
     apply_eq()
   }
 
   function register(what) {
     DOM.ev(what, `change`, () => {
+      let value = parseInt(what.value)
+
+      if (value < App.eq_range_min) {
+        what.value = App.eq_range_min
+      }
+      else if (value > App.eq_range_max) {
+        what.value = App.eq_range_max
+      }
+
       apply_eq()
     })
 
