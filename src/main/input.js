@@ -419,19 +419,21 @@ App.max_input = (just_check = false, mode = `normal`) => {
   let style = getComputedStyle(document.documentElement)
   let max_width = parseInt(style.getPropertyValue(`--input-max-width`))
   let diff = App.get_input_diff()
+  let sw = `${max_width}%`
 
   if (!just_check) {
     if (mode === `normal`) {
       wrapper.style.height = `${diff}px`
-      wrapper.style.width = `${max_width}%`
+      wrapper.style.width = sw
     }
     else if (mode === `width`) {
-      wrapper.style.width = `${max_width}%`
+      wrapper.style.width = sw
     }
     else if (mode === `height`) {
       wrapper.style.height = `${diff}px`
     }
 
+    App.set_css_var(`input-width-update`, sw)
     App.resize_scope()
     App.check_max_button()
   }
