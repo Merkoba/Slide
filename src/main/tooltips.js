@@ -22,12 +22,12 @@ App.get_tooltip_position = (target_el) => {
   let tip_rect = App.tooltip_el.getBoundingClientRect()
 
   // Default: Center bottom
-  let top = (rect.bottom + App.tooltips_offset)
-  let left = (rect.left + (rect.width / 2) - (tip_rect.width / 2))
+  let top = rect.bottom + App.tooltips_offset
+  let left = rect.left + (rect.width / 2) - (tip_rect.width / 2)
 
   // 1. Vertical Check: If it goes off bottom, flip to top
   if ((top + tip_rect.height) > window.innerHeight) {
-    top = (rect.top - tip_rect.height - App.tooltips_offset)
+    top = rect.top - tip_rect.height - App.tooltips_offset
   }
 
   // 2. Horizontal Check: Left edge
@@ -37,10 +37,10 @@ App.get_tooltip_position = (target_el) => {
 
   // 3. Horizontal Check: Right edge
   if ((left + tip_rect.width) > (window.innerWidth - App.tooltips_offset)) {
-    left = (window.innerWidth - tip_rect.width - App.tooltips_offset)
+    left = window.innerWidth - tip_rect.width - App.tooltips_offset
   }
 
-  return { top, left }
+  return {top, left}
 }
 
 App.show_tooltip = (e) => {
