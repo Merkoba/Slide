@@ -4,6 +4,7 @@ import re
 import os
 import json
 import atexit
+import random
 import logging
 import threading
 import subprocess
@@ -28,11 +29,37 @@ The beats shouldn't be too rough, avoid overpowered screeching/highs.
 Response format: Just the raw syntax.
 """.strip()
 
+# Directives focused on the beat and timing
+RHYTHMIC_STRATEGIES = [
+    "Mutate the Euclidean rhythm: change the numbers inside the struct() string (e.g., <3, 5> to <4, 7>).",
+    "Alter the flow: change the speed using slow() or fast() on a specific layer.",
+    "sparsify the beat: add a mask() to randomly mute steps in the drum pattern.",
+    "Syncopation: shift the timing of the melody using late() or early()."
+]
+
+# Directives focused on sound design and atmosphere
+TIMBRAL_STRATEGIES = [
+    "Darken the tone: apply a lpf() (low pass filter) with a variable cutoff.",
+    "Change the texture: swap the sound source s() (e.g., from 'sawtooth' to 'square' or a different drum bank).",
+    "Add space: introduce reverb using room() or specific delay() settings.",
+    "Grittiness: add distortion using distort() or bitcrush effects."
+]
+
+# Directives focused on musical progression
+STRUCTURAL_STRATEGIES = [
+    "Harmonic shift: transpose the note() pattern or change the scale definition.",
+    "Breakdown: remove the kick drum layer entirely for one cycle.",
+    "Build tension: slowly increase the gain() while increasing the filter cutoff.",
+    "Call and response: duplicate a layer but offset it using off()."
+]
+
 MINUTES = 5
 PORT = 4242
 MAX_HISTORY = 3
 USE_INSTRUCTIONS = False
 ENABLE_AI_INTERVAL = False
+DIRECTOR_INTENSITY = "medium"
+USE_DIRECTOR = True
 
 GOOGLE_MODEL = "gemini/gemini-2.0-flash"
 CLAUDE_MODEL = "anthropic/claude-sonnet-4-20250514"
@@ -301,8 +328,6 @@ def get_beats() -> str:
 
 
 def make_prompt() -> str:
-    global PROMPT
-
     items = [PROMPT]
 
     if USE_INSTRUCTIONS:
@@ -321,8 +346,11 @@ def make_prompt() -> str:
 
         items.append(beats)
 
-    PROMPT = "\n\n".join(items).strip()
-    return PROMPT
+    if USE_DIRECTOR:
+        instruct = get_director_instruction(DIRECTOR_INTENSITY)
+        items.append(instruct)
+
+    return "\n\n".join(items).strip()
 
 
 def echo(s: str) -> None:
@@ -497,6 +525,32 @@ def shutdown_worker() -> None:
 
     if WORKER_THREAD:
         WORKER_THREAD.join(timeout=2)
+
+
+def get_director_instruction(intensity="medium"):
+    """
+    Selects a strategy and appends an intensity modifier to guide the AI.
+    """
+    # Combine all strategies or select based on a 'mode' if you add that later
+    all_strategies = RHYTHMIC_STRATEGIES + TIMBRAL_STRATEGIES + STRUCTURAL_STRATEGIES
+    selected_strategy = random.choice(all_strategies)
+
+    modifier = ""
+
+    if intensity == "high":
+        modifier = "Make the change drastic and immediately noticeable."
+    elif intensity == "low":
+        modifier = "Make the change very subtle, almost imperceptible."
+    else:
+        modifier = "Ensure the evolution feels organic and smooth."
+
+    prompt_addition = (
+        f"DIRECTOR'S INSTRUCTION: {selected_strategy} "
+        f"INTENSITY: {modifier} "
+        "Keep the rest of the code as close to the original as possible."
+    )
+
+    return prompt_addition
 
 
 def main() -> None:
