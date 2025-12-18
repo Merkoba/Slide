@@ -1,6 +1,6 @@
 App.max_scope_slide_y_dff = 50
 App.scope_panning_zone = 100
-App.scope_padding_amount = 0.9
+App.scope_panning_amount = 0.9
 App.scope_slide_distance = 180
 App.scope_slide_delay = 800
 App.many_clicks_amount = 100
@@ -112,7 +112,7 @@ App.check_scope_panning = () => {
   let b = App.mouse_up_coords
   let {width, height} = App.get_scope_dimensions()
   let zone = App.scope_panning_zone
-  let amount = App.scope_padding_amount
+  let amount = App.scope_panning_amount
 
   if ((a.x <= zone) || (b.x <= zone)) {
     App.set_panning(-amount, 3)
@@ -542,9 +542,9 @@ App.gesture_function = (level, action) => {
 }
 
 App.on_slide_right = () => {
-  App.prev_scope_color()
+  App.forward_player(5)
 }
 
 App.on_slide_left = () => {
-  App.next_scope_color()
+  App.rewind_player(5)
 }
