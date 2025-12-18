@@ -8,7 +8,7 @@
     --input-text-shadow: 0 0 0.2rem currentcolor;
     --border-transition: border-color 100ms;
     --buttons-gap: 0.62rem;
-    --green: #94dd94;
+    --theme-color: #94dd94;
     --panel-margin: 0.8rem;
     --border-color: #444;
     --color-transition: 0.8s;
@@ -67,6 +67,7 @@ body, html {
     width: 2.22rem;
     border-radius: 25%;
     user-select: none;
+    filter: drop-shadow(0 0 0.15rem var(--theme-color));
     transition: filter var(--color-transition) ease;
     cursor: pointer;
     margin-left: 0.12rem;
@@ -227,27 +228,27 @@ body, html {
 
 #volume-slider {
     width: var(--slider-width);
-    accent-color: var(--green);
+    accent-color: var(--theme-color);
     transition: accent-color var(--color-transition) ease;
 }
 
 #volume-value {
     min-width: 3rem;
     text-align: left;
-    color: var(--green);
+    color: var(--theme-color);
     transition: color var(--color-transition) ease;
 }
 
 #tempo-slider {
     width: var(--slider-width);
-    accent-color: var(--green);
+    accent-color: var(--theme-color);
     transition: accent-color var(--color-transition) ease;
 }
 
 #tempo-value {
     min-width: 5rem;
     text-align: left;
-    color: var(--green);
+    color: var(--theme-color);
     transition: color var(--color-transition) ease;
 }
 
@@ -269,7 +270,7 @@ body, html {
     width: 100%;
     height: 100%;
     background: var(--alpha_background);
-    color: var(--green);
+    color: var(--theme-color);
     border: 1px solid var(--border-color);
     font-size: 1.1rem;
     outline: none;
@@ -324,7 +325,7 @@ body, html {
 
 .code-input-control {
     background: rgba(20, 20, 20, 0.9) !important;
-    color: var(--green) !important;
+    color: var(--theme-color) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 0.3rem;
     font-size: 0.85rem;
@@ -343,13 +344,13 @@ body, html {
 
 .code-input-control:hover {
     background: rgba(20, 20, 20, 0.9) !important;
-    border-color: var(--green) !important;
+    border-color: var(--theme-color) !important;
     box-shadow: 0 0 0.2rem rgba(148, 221, 148, 0.5) !important;
 }
 
 .code-input-control.active {
     background: rgba(20, 20, 20, 0.9) !important;
-    border-color: var(--green) !important;
+    border-color: var(--theme-color) !important;
     box-shadow: 0 0 0.2rem rgba(148, 221, 148, 0.5) !important;
     outline: none !important;
 }
@@ -376,7 +377,7 @@ body, html {
     width: 0;
     height: 0;
     border-left: 18px solid transparent;
-    border-bottom: 18px solid var(--green);
+    border-bottom: 18px solid var(--theme-color);
 }
 
 .code-input-wrapper:hover #resize-handle {
@@ -390,11 +391,11 @@ body, html {
 }
 
 #resize-handle:hover::after {
-    border-bottom-color: var(--green);
+    border-bottom-color: var(--theme-color);
 }
 
 #resize-handle.active::after {
-    border-bottom-color: var(--green);
+    border-bottom-color: var(--theme-color);
 }
 
 button {
@@ -437,7 +438,7 @@ button:hover {
 }
 
 #status {
-    color: var(--green);
+    color: var(--theme-color);
     margin-left: 0.1rem;
     display: flex;
     align-items: center;
@@ -510,7 +511,7 @@ button:hover {
 .modal-header h2 {
     margin: 0;
     font-size: 1.5rem;
-    color: var(--green);
+    color: var(--theme-color);
 }
 
 .modal-filter-wrapper {
@@ -572,8 +573,8 @@ button:hover {
 
 .modal-item:hover {
     background-color: var(--border-color);
-    border-color: var(--green);
-    color: var(--green);
+    border-color: var(--theme-color);
+    color: var(--theme-color);
 }
 
 .loading {
@@ -584,13 +585,13 @@ button:hover {
 
 .modal-picker-title {
     font-size: 1.2rem;
-    color: var(--green);
+    color: var(--theme-color);
     user-select: none;
 }
 
 .modal-title {
     font-size: 1.2rem;
-    color: var(--green);
+    color: var(--theme-color);
     user-select: none;
     flex-grow: 1;
     flex-shrink: 1;
@@ -706,7 +707,7 @@ a.popup:hover {
 }
 
 .modal-content ::-webkit-scrollbar-thumb:hover {
-    background: var(--green);
+    background: var(--theme-color);
 }
 
 .hidden {
@@ -872,4 +873,81 @@ a.popup:hover {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     max-width: 20rem;
     white-space: pre-wrap;
+}
+
+.custom-number {
+  display: flex;
+  align-items: center;
+  border: 1px solid #393939; /* Match your theme */
+  border-radius: 4px;
+  background-color: #393939;
+  /* IMPORTANT: Remove 'overflow: hidden' if you want outlines to stick out,
+     OR keep it and use inset box-shadows. I removed it here. */
+}
+
+/* 1. The Down Arrow (Left) */
+.custom-number::before {
+  content: "▼";
+  /* Natural order is first, no need for 'order' property */
+}
+
+/* 2. The Input (Middle) */
+.custom-number input {
+  /* Natural order is second */
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: white; /* Assuming you want white text in the input */
+  margin: 0;
+  flex-grow: 1; /* Takes up remaining space between arrows */
+  height: 100%;
+  appearance: textfield; /* Standard fix for Firefox */
+}
+
+/* 3. The Up Arrow (Right) */
+.custom-number::after {
+  content: "▲";
+  /* Natural order is third */
+}
+
+/* Shared Button Styles */
+.custom-number::before,
+.custom-number::after {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px; /* Force height if flex stretch is acting up */
+  cursor: pointer;
+  user-select: none;
+  background-color: #393939;
+  color: #b0b0b0;
+  pointer-events: auto; /* Required for hover/click */
+  transition: all 0.1s ease;
+}
+
+/* Borders to separate buttons from input */
+.custom-number::before {
+  border-right: 1px solid #5c5c5c;
+}
+.custom-number::after {
+  border-left: 1px solid #5c5c5c;
+}
+
+/* Hover States */
+.custom-number::before:hover,
+.custom-number::after:hover {
+  background-color: #555;
+  color: white;
+  /* 'Outline' often gets clipped. Use box-shadow for a glowing border effect
+     that sits inside/outside without layout issues */
+  box-shadow: inset 0 0 0 1px rgb(213, 73, 73);
+}
+
+/* Active States */
+.custom-number::before:active,
+.custom-number::after:active {
+  background-color: #000;
+  color: white;
+  box-shadow: inset 0 0 0 2px rgb(230, 145, 145);
 }
