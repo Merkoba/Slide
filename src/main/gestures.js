@@ -541,10 +541,10 @@ App.gesture_function = (level, action) => {
   action()
 }
 
-App.on_slide_right = () => {
-  App.net_visual()
+App.on_slide_left = () => {
+  App.next_visual()
 }
 
-App.on_slide_left = () => {
+App.on_slide_right = () => {
   App.next_theme()
 }

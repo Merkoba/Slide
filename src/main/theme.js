@@ -6,6 +6,10 @@ App.themes = {
   green: `rgb(148, 221, 148)`,
 }
 
+App.setup_theme = () => {
+  App.apply_color(App.themes[App.theme])
+}
+
 App.create_theme_modal = () => {
   let modal = App.create_list_modal(`theme`)
   let title = DOM.el(`.modal-title`, modal)
@@ -29,8 +33,8 @@ App.show_theme_modal = () => {
     icons: false,
     color_icons: true,
     action: (item) => {
-      App.apply_color(App.themes[item.value])
-      App.stor_save_theme()
+      App.theme = item.value
+      App.on_theme_change()
       App.close_modal(`theme`)
     },
   })
@@ -171,7 +175,7 @@ App.prev_theme = () => {
 
   index = (index - 1 + keys.length) % keys.length
   App.theme = keys[index]
-  App.stor_save_theme()
+  App.on_theme_change()
 }
 
 App.next_theme = () => {
@@ -185,5 +189,10 @@ App.next_theme = () => {
 
   index = (index + 1) % keys.length
   App.theme = keys[index]
+  App.on_theme_change()
+}
+
+App.on_theme_change = () => {
+  App.apply_color(App.themes[App.theme])
   App.stor_save_theme()
 }

@@ -11,6 +11,7 @@
     --green: #94dd94;
     --panel-margin: 0.8rem;
     --border-color: #444;
+    --color-transition: 0.8s;
 }
 
 body, html {
@@ -65,7 +66,7 @@ body, html {
     width: 2.22rem;
     border-radius: 25%;
     user-select: none;
-    transition: filter 1s ease;
+    transition: filter var(--color-transition) ease;
     cursor: pointer;
     margin-left: 0.12rem;
 }
@@ -226,27 +227,27 @@ body, html {
 #volume-slider {
     width: 10rem;
     accent-color: var(--green);
-    transition: accent-color 1s ease;
+    transition: accent-color var(--color-transition) ease;
 }
 
 #volume-value {
     min-width: 3rem;
     text-align: left;
     color: var(--green);
-    transition: color 1s ease;
+    transition: color var(--color-transition) ease;
 }
 
 #tempo-slider {
     width: 10rem;
     accent-color: var(--green);
-    transition: accent-color 1s ease;
+    transition: accent-color var(--color-transition) ease;
 }
 
 #tempo-value {
     min-width: 4rem;
     text-align: left;
     color: var(--green);
-    transition: color 1s ease;
+    transition: color var(--color-transition) ease;
 }
 
 #code-input-wrapper {
@@ -271,7 +272,7 @@ body, html {
     border: 1px solid var(--border-color);
     font-size: 1.1rem;
     outline: none;
-    transition: color 1s ease, var(--border-transition);
+    transition: color var(--color-transition) ease, var(--border-transition);
     box-sizing: border-box;
     resize: none;
 }
@@ -443,7 +444,7 @@ button:hover {
     height: 100%;
     font-size: 1.2rem;
     margin-left: 0.5rem;
-    transition: color 1s ease;
+    transition: color var(--color-transition) ease;
     max-width: 42rem;
     cursor: pointer;
     white-space: nowrap;
