@@ -13,6 +13,7 @@
     --border-color: #444;
     --color-transition: 0.8s;
     --slider-width: 5rem;
+    --number-border-color: #171717;
 }
 
 body, html {
@@ -852,7 +853,7 @@ a.popup:hover {
     background-color: rgb(20, 20, 20);
     color: #eee;
     font-size: 1rem;
-    width: 2.9rem;
+    width: 2.5rem;
     border: none;
     outline: none;
 }
@@ -928,10 +929,11 @@ a.popup:hover {
 
 /* Borders to separate buttons from input */
 .custom-number::before {
-  border-right: 1px solid #5c5c5c;
+  border-right: 1px solid var(--number-border-color);
 }
+
 .custom-number::after {
-  border-left: 1px solid #5c5c5c;
+  border-left: 1px solid var(--number-border-color);
 }
 
 /* Hover States */
@@ -950,4 +952,17 @@ a.popup:hover {
   background-color: #000;
   color: white;
   box-shadow: inset 0 0 0 2px rgb(230, 145, 145);
+}
+
+/* Hide native arrows in Chrome, Safari, Edge, Opera */
+.custom-number input::-webkit-outer-spin-button,
+.custom-number input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none; /* explicitly remove them from the layout */
+}
+
+/* Hide native arrows in Firefox */
+.custom-number input[type=number] {
+  -moz-appearance: textfield;
 }

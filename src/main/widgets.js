@@ -16,11 +16,11 @@ App.setup_custom_numbers = () => {
       let width = rect.width
       let button_width = 30 // must match css width
 
-      // logic: the 'up' button is the last 30px on the right
-      let is_up_button = (x > (width - button_width))
+      // logic: the 'down' button is the first 30px on the left
+      let is_down_button = x < button_width
 
-      // logic: the 'down' button is the 30px before the 'up' button
-      let is_down_button = (x > (width - (button_width * 2))) && (x < (width - button_width))
+      // logic: the 'up' button is the last 30px on the right
+      let is_up_button = x > (width - button_width)
 
       if (is_up_button) {
         input.stepUp()
