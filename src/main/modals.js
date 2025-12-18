@@ -132,7 +132,7 @@ App.show_items_modal = async (id, args = {}) => {
     return
   }
 
-  let apply_filter = () => {
+  App.modal_apply_filter = () => {
     let query = filter_input.value.trim().toLowerCase()
 
     if (!query) {
@@ -150,7 +150,7 @@ App.show_items_modal = async (id, args = {}) => {
 
   filter_input.disabled = false
   filter_input.focus()
-  filter_input.oninput = apply_filter
+  filter_input.oninput = App.modal_apply_filter
 
   filter_input.onkeydown = (event) => {
     if (event.key !== `Enter`) {

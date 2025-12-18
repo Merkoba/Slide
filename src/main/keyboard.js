@@ -1,7 +1,10 @@
 import {autocompletion} from "@codemirror/autocomplete"
 
 App.start_keyboard = () => {
+
   DOM.ev(document, `keydown`, (e) => {
+    let active = document.activeElement
+
     if (e.key === `s`) {
       if (e.ctrlKey) {
         e.preventDefault()
@@ -16,6 +19,12 @@ App.start_keyboard = () => {
       }
 
       if (App.modal_open()) {
+        if (active.classList.contains(`modal-filter`) && active.value) {
+          active.value = ``
+          App.modal_apply_filter()
+          return
+        }
+
         App.close_current_modal()
       }
       else {
