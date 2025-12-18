@@ -606,18 +606,12 @@ App.clear_scope_clicks = () => {
 
 App.resize_scope = () => {
   let input_wrapper = App.get_input_wrapper()
-  let scope_wrapper = App.get_scope_wrapper()
   let canvas = App.scope_canvas_el
   let ctx = App.scope_canvas_ctx
 
-  if (!input_wrapper || !scope_wrapper || !canvas || !ctx) {
+  if (!input_wrapper || !canvas || !ctx) {
     return
   }
-
-  // 1. Set the Wrapper Width (Layout)
-  // This matches the external alignment with the editor
-  let rect = input_wrapper.getBoundingClientRect()
-  scope_wrapper.style.width = `${rect.width}px`
 
   // 2. Measure the Canvas Element (Resolution)
   // CRITICAL: We measure the canvas *after* the wrapper resize.

@@ -135,8 +135,8 @@ body, html {
 #scope-wrapper {
     display: flex;
     width: var(--input-width-update);
+    max-width: var(--input-width);
     flex-direction: row;
-    max-width: var(--input-width-update);
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
 }
@@ -458,6 +458,7 @@ button:hover {
     transition: color var(--color-transition) ease;
     max-width: var(--input-width-update);
     width: var(--input-width-update);
+    max-width: var(--input-width);
     cursor: pointer;
     white-space: nowrap;
     overflow-x: auto;
