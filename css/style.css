@@ -911,7 +911,7 @@ a.popup:hover {
     align-items: center;
     justify-content: center;
     height: 100%;
-    gap: 0.5rem;
+    gap: var(--buttons-gap);
 }
 
 #reverb.active {
