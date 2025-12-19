@@ -248,3 +248,7 @@ App.cond = (branches) => {
     }
   }
 }
+
+App.remove_multiple_spaces = (s) => {
+  return s.replace(/\s+/g, ` `).trim()
+}

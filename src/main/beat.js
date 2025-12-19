@@ -12,3 +12,21 @@ App.new_beat = () => {
     },
   })
 }
+
+App.ask_for_title = () => {
+  App.show_prompt({
+    title: `Beat Title`,
+    placeholder: `Title of the beat`,
+    action: (title) => {
+      if (!title) {
+        title = ``
+      }
+
+      title = App.remove_multiple_spaces(title).trim()
+      App.beat_title = title
+      App.update_url()
+      App.update_title()
+      App.playing()
+    },
+  })
+}

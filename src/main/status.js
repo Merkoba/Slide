@@ -45,23 +45,6 @@ App.do_set_status = (status) => {
   el.innerText = status
 }
 
-App.ask_for_title = () => {
-  App.show_prompt({
-    title: `Beat Title`,
-    placeholder: `Title of the beat`,
-    action: (title) => {
-      if (!title) {
-        title = ``
-      }
-
-      App.beat_title = title.trim()
-      App.update_url()
-      App.update_title()
-      App.playing()
-    },
-  })
-}
-
 App.get_status_height = () => {
   let el = DOM.el(`#status`)
   return App.get_el_height(el)
