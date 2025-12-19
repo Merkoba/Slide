@@ -202,12 +202,6 @@ App.init_player = async () => {
     App.apply_volume()
     App.init_scope()
     console.info(`Audio Ready.`)
-
-    if (App.code_to_play) {
-      App.play_action(App.code_to_play)
-      App.code_to_play = ``
-    }
-
     App.playing()
   }
   catch (err) {
