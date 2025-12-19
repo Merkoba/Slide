@@ -290,8 +290,8 @@ body, html {
     display: flex;
     position: absolute;
     right: 2rem;
-    width: 22rem;
-    height: 8rem;
+    width: 20rem;
+    height: 5rem;
     z-index: 999;
     transition: opacity 1s ease;
     opacity: 0;
@@ -339,13 +339,11 @@ body, html {
 }
 
 .code-input-control:hover {
-    background: rgba(20, 20, 20, 0.9) !important;
     border-color: var(--theme-color) !important;
     box-shadow: 0 0 0.2rem rgba(148, 221, 148, 0.5) !important;
 }
 
 .code-input-control.active {
-    background: rgba(20, 20, 20, 0.9) !important;
     border-color: var(--theme-color) !important;
     box-shadow: 0 0 0.2rem rgba(148, 221, 148, 0.5) !important;
     outline: none !important;
