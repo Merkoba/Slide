@@ -55,7 +55,6 @@ App.open_settings_modal = () => {
     items,
     action: (item) => {
       item.action()
-      App.close_modal(`settings`)
     },
   })
 }

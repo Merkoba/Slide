@@ -1,3 +1,7 @@
+App.modal_zindex = 1000
+App.active_modals = []
+App.all_modals = []
+
 App.modal_factory = (id, mode) => {
   let template = DOM.el(`#${mode}`)
   let container = DOM.create(`div`)
@@ -5,6 +9,7 @@ App.modal_factory = (id, mode) => {
   DOM.el(`#modals`).appendChild(container)
   let modal = DOM.el(`.modal`, container)
   modal.id = `${id}-modal`
+  App.all_modals.push(modal)
   return modal
 }
 
@@ -42,7 +47,7 @@ App.create_modals = () => {
   })
 
   DOM.ev(`#modal-overlay`, `click`, (event) => {
-    App.close_all_modals()
+    App.close_current_modal()
   })
 }
 
@@ -184,8 +189,16 @@ App.open_modal = (id) => {
 App.do_open_modal = (modal) => {
   let body = DOM.el(`.modal-body`, modal)
   App.show_overlay()
-  modal.classList.add(`active`)
   body.scrollTop = 0
+
+  if (!App.active_modals.includes(modal)) {
+    App.active_modals.push(modal)
+  }
+
+  let len = App.active_modals.length
+  let zindex = App.modal_zindex + len
+  modal.style.zIndex = zindex
+  App.refresh_modals()
 }
 
 App.close_modal = (id) => {
@@ -199,10 +212,13 @@ App.close_modal = (id) => {
 }
 
 App.do_close_modal = (modal) => {
-  modal.classList.remove(`active`)
-  let active_modals = DOM.els(`.modal.active`)
+  if (App.active_modals.includes(modal)) {
+    App.active_modals.splice(App.active_modals.indexOf(modal), 1)
+  }
 
-  if (active_modals.length === 0) {
+  App.refresh_modals()
+
+  if (App.active_modals.length === 0) {
     App.hide_overlay()
   }
 }
@@ -216,17 +232,14 @@ App.close_all_modals = () => {
 }
 
 App.close_current_modal = () => {
-  let active_modals = DOM.els(`.modal.active`)
-
-  if (active_modals.length > 0) {
-    let top_modal = active_modals[active_modals.length - 1]
-    App.do_close_modal(top_modal)
+  if (App.active_modals.length > 0) {
+    let current = App.get_current_modal()
+    App.do_close_modal(current)
   }
 }
 
 App.modal_open = () => {
-  let active_modals = DOM.els(`.modal.active`)
-  return active_modals.length > 0
+  return App.active_modals.length > 0
 }
 
 App.show_overlay = () => {
@@ -243,4 +256,21 @@ App.focus_modal_filter = (id) => {
   if (filter) {
     filter.focus()
   }
+}
+
+App.refresh_modals = () => {
+  let current = App.get_current_modal()
+
+  for (let active of App.all_modals) {
+    if (active === current) {
+      DOM.show(active, 2)
+    }
+    else {
+      DOM.hide(active, 2)
+    }
+  }
+}
+
+App.get_current_modal = () => {
+  return App.active_modals[App.active_modals.length - 1]
 }

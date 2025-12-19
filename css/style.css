@@ -465,7 +465,7 @@ button:hover {
 }
 
 .modal {
-    display: none;
+    display: flex;
     position: fixed;
     z-index: 1000;
     left: 50%;
@@ -476,10 +476,6 @@ button:hover {
     width: 90%;
     max-width: 500px;
     max-height: 80vh;
-}
-
-.modal.active {
-    display: flex;
 }
 
 .modal-content {
