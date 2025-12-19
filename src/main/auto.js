@@ -102,7 +102,7 @@ App.create_auto_modal = () => {
   body.appendChild(buttons)
 }
 
-App.open_auto_modal = () => {
+App.show_auto = () => {
   App.open_modal(`auto`)
   DOM.el(`#auto-delay`).value = App.auto_delay
   DOM.el(`#auto-input`).value = App.auto_endpoint

@@ -36,6 +36,7 @@ App.show_confirm = (args = {}) => {
   }
 
   App.def_args(def_args, args)
+  App.check_create_modal(`confirm`)
   let title = DOM.el(`#modal-title-confirm`)
   title.textContent = args.title
   App.confirm_ok_action = args.ok_action

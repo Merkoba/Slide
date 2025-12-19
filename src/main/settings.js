@@ -17,7 +17,7 @@ App.register_setting = (text, title, action) => {
   return el
 }
 
-App.open_settings_modal = () => {
+App.show_settings = () => {
   let select = `Select`
   let toggle = `Toggle`
   let show_or_hide = `Show or hide`

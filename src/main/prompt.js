@@ -42,6 +42,7 @@ App.show_prompt = (args = {}) => {
   }
 
   App.def_args(def_args, args)
+  App.check_create_modal(`prompt`)
   let title_el = DOM.el(`#modal-title-prompt`)
   title_el.textContent = args.title
   let input = DOM.el(`#modal-input-prompt`)

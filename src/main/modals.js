@@ -24,16 +24,7 @@ App.create_list_modal = (id) => {
   return modal
 }
 
-App.create_modals = () => {
-  App.create_about_modal()
-  App.create_songs_modal()
-  App.create_auto_modal()
-  App.create_visual_modal()
-  App.create_settings_modal()
-  App.create_prompt_modal()
-  App.create_confirm_modal()
-  App.create_theme_modal()
-
+App.setup_modals = () => {
   DOM.ev(`#main`, `click`, (event) => {
     let close_btn = event.target.closest(`.modal-close`)
 
@@ -60,6 +51,7 @@ App.show_items_modal = async (id, args = {}) => {
   }
 
   App.def_args(def_args, args)
+  App.check_create_modal(id)
   let loaded = args.loaded || false
   let modal = DOM.el(`#${id}-modal`)
   let modal_list = DOM.el(`.modal-body`, modal)
@@ -177,6 +169,7 @@ App.show_items_modal = async (id, args = {}) => {
 }
 
 App.open_modal = (id) => {
+  App.check_create_modal(id)
   let modal = DOM.el(`#${id}-modal`)
 
   if (!modal) {
@@ -273,4 +266,19 @@ App.refresh_modals = () => {
 
 App.get_current_modal = () => {
   return App.active_modals[App.active_modals.length - 1]
+}
+
+App.check_create_modal = (id) => {
+  let created = `${id}_modal_created`
+
+  if (App[created]) {
+    return
+  }
+
+  let create_function = App[`create_${id}_modal`]
+
+  if (create_function) {
+    create_function()
+    App[created] = true
+  }
 }

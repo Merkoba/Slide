@@ -68,7 +68,7 @@ App.create_songs_modal = () => {
   title.textContent = `Select Song`
 }
 
-App.open_songs_modal = async () => {
+App.show_songs = async () => {
   let songlist = await App.fetch_songs_list()
   let items = []
 

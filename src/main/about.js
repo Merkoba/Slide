@@ -38,6 +38,6 @@ App.create_about_modal = () => {
   `
 }
 
-App.open_about_modal = () => {
+App.show_about = () => {
   App.open_modal(`about`)
 }

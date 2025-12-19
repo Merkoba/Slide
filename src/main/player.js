@@ -3,6 +3,7 @@ import {aliasBank} from "@strudel/webaudio"
 
 App.play_state = `stopped`
 App.play_running = false
+App.last_playing = ``
 
 App.setup_player = () => {
   App.setup_drawer()
@@ -46,13 +47,14 @@ App.play_action = async (code = ``, force = false) => {
   try {
     await App.strudel_update(code)
     App.play_state = `playing`
+    App.update_effects()
+    App.update_url()
+    App.save_snapshot(code, App.last_playing)
   }
   catch (e) {
     App.set_status(`Error: ${e.message}`)
   }
 
-  App.update_effects()
-  App.update_url()
   App.reset_playing()
 }
 
@@ -141,6 +143,8 @@ App.set_play_status = (extra) => {
     [() => App.is_url_beat(), `URL 🌐`],
     [true, `Custom 🥁`],
   ])
+
+  App.last_playing = msg
 
   if (extra) {
     msg = `${msg} - ${extra}`.trim()

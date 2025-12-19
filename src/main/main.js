@@ -251,7 +251,7 @@ App.start_events = async () => {
   App.events_started = true
   await App.get_config()
   App.load_all_storage()
-  App.create_modals()
+  App.setup_modals()
   App.start_visual()
 
   DOM.ev(`#btn-play`, `click`, () => {
@@ -264,7 +264,7 @@ App.start_events = async () => {
   })
 
   DOM.ev(`#btn-auto`, `click`, () => {
-    App.open_auto_modal()
+    App.show_auto()
   })
 
   DOM.ev(`#btn-pause`, `click`, () => {
@@ -282,37 +282,39 @@ App.start_events = async () => {
   let songs = DOM.el(`#btn-songs`)
 
   DOM.ev(songs, `click`, () => {
-    App.open_songs_modal()
+    App.show_songs()
   })
 
   App.middle_click(songs, () => {
     App.random_song()
   })
 
+  let snapshots = DOM.el(`#btn-snapshots`)
+
+  DOM.ev(snapshots, `click`, () => {
+    App.show_snapshots()
+  })
+
   App.remove_context(`#controls`)
   let image = DOM.el(`#image`)
 
-  if (image) {
-    DOM.ev(image, `click`, () => {
-      App.open_settings_modal()
-    })
+  DOM.ev(image, `click`, () => {
+    App.show_settings()
+  })
 
-    App.middle_click(image, () => {
-      App.next_visual()
-    })
-  }
+  App.middle_click(image, () => {
+    App.next_visual()
+  })
 
   let title = DOM.el(`#title`)
 
-  if (title) {
-    DOM.ev(title, `click`, () => {
-      App.open_about_modal()
-    })
+  DOM.ev(title, `click`, () => {
+    App.show_about()
+  })
 
-    App.middle_click(title, () => {
-      App.mirror_title()
-    })
-  }
+  App.middle_click(title, () => {
+    App.mirror_title()
+  })
 
   App.setup_player()
   App.setup_status()
