@@ -55,7 +55,7 @@ App.setup_eq = () => {
     }
     else {
       el.classList.remove(`red`)
-      el.classList.remove(`greem`)
+      el.classList.remove(`green`)
     }
   }
 
@@ -79,6 +79,7 @@ App.setup_eq = () => {
     DOM.ev(container, `mousedown`, (event) => {
       if (event.button === 1) {
         el.value = 0
+        check_colors(el)
         apply_eq()
         el.blur()
         event.preventDefault()
