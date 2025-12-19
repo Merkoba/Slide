@@ -112,24 +112,13 @@ App.set_play_status = (extra) => {
   let msg = ``
   let song_name = App.get_song_name(true)
 
-  if (false) { // eslint-disable-line no-constant-condition
-    // Used to unlock else if re-ordering
-  }
-  else if (App.beat_title) {
-    msg = App.beat_title
-  }
-  else if (song_name) {
-    msg = song_name
-  }
-  else if (App.fetch_timer) {
-    msg = `Auto 🤖`
-  }
-  else if (App.is_url_beat()) {
-    msg = `URL 🌐`
-  }
-  else {
-    msg = `Custom 🥁`
-  }
+  msg = App.cond([
+    [() => App.beat_title, App.beat_title],
+    [() => song_name, song_name],
+    [() => App.fetch_timer, `Auto 🤖`],
+    [() => App.is_url_beat(), `URL 🌐`],
+    [true, `Custom 🥁`],
+  ])
 
   if (extra) {
     msg = `${msg} - ${extra}`.trim()

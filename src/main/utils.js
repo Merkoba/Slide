@@ -253,3 +253,17 @@ App.middle_click = (el, action) => {
     }
   })
 }
+
+App.cond = (branches) => {
+  for (let branch of branches) {
+    let [check, result] = branch
+
+    // Resolve the condition: if it's a function run it, otherwise use raw value
+    let is_hit = typeof check === 'function' ? check() : check
+
+    if (is_hit) {
+      // Resolve the result: if it's a function run it, otherwise return raw value
+      return typeof result === 'function' ? result() : result
+    }
+  }
+}
