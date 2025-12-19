@@ -19,7 +19,7 @@ App.setup_theme = () => {
 App.create_theme_modal = () => {
   let modal = App.create_list_modal(`theme`)
   let title = DOM.el(`.modal-title`, modal)
-  title.textContent = `Scope Color`
+  title.textContent = `Themes`
 }
 
 App.show_theme_modal = () => {

@@ -49,7 +49,7 @@ App.get_bg_context = () => {
 App.create_visual_modal = () => {
   let modal = App.create_list_modal(`visual`)
   let title = DOM.el(`.modal-title`, modal)
-  title.textContent = `Select Visual`
+  title.textContent = `Visuals`
 }
 
 App.open_visual_modal = async () => {

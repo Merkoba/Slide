@@ -4,6 +4,7 @@ App.db_store_name = `snapshots`
 App.max_snapshot_size = 20 * 10000
 App.max_snapshots = 1000
 App.max_snapshot_title = 500
+App.displayed_snapshots = 100
 
 App.init_db = () => {
   return new Promise((resolve, reject) => {
@@ -160,7 +161,7 @@ App.show_snapshots = async () => {
   }
 
   snapshots.reverse()
-  snapshots = snapshots.slice(0, 100)
+  snapshots = snapshots.slice(0, App.displayed_snapshots)
   let items = []
 
   for (let snapshot of snapshots) {
