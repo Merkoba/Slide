@@ -290,10 +290,6 @@ App.init_code_input_controls = () => {
         App.restore_input()
       })
     }
-
-    DOM.ev(wrapper, `mouseover`, () => {
-      App.check_max_button()
-    })
   }
 
   DOM.ev(input, `wheel`, (event) => {
