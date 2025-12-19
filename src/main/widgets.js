@@ -6,13 +6,15 @@ App.setup_custom_numbers = () => {
     let decrease = DOM.el(`.custom-number-decrease`, container)
     let increase = DOM.el(`.custom-number-increase`, container)
 
-    DOM.ev(decrease, `click`, () => {
-      input.value = parseInt(input.value) - 1
+    DOM.ev(decrease, `click`, (event) => {
+      let n = event.shiftKey ? 2 : 1
+      input.value = parseInt(input.value) - n
       input.dispatchEvent(new Event(`change`))
     })
 
-    DOM.ev(increase, `click`, () => {
-      input.value = parseInt(input.value) + 1
+    DOM.ev(increase, `click`, (event) => {
+let n = event.shiftKey ? 2 : 1
+      input.value = parseInt(input.value) + n
       input.dispatchEvent(new Event(`change`))
     })
   }
