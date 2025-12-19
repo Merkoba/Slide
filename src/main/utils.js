@@ -17,26 +17,6 @@ App.underspace = (s) => {
   return s.replace(/_+/g, ` `).trim()
 }
 
-App.clean_canvas = () => {
-  // Select all canvases in the entire document, not just direct children
-  let canvases = document.querySelectorAll(`canvas`)
-
-  for (let canvas of canvases) {
-    if ([`scope-canvas`, `background-canvas`].includes(canvas.id)) {
-      continue
-    }
-
-    let class_list = Array.from(canvas.classList)
-
-    if (class_list.some(cls => [`modal-icon`].includes(cls))) {
-      continue
-    }
-
-    // Safe removal regardless of parent
-    canvas.remove()
-  }
-}
-
 App.truncate_path = (path, max_length = 20) => {
   if (path.length <= max_length) {
     return path
@@ -267,20 +247,4 @@ App.cond = (branches) => {
       return typeof result === `function` ? result() : result
     }
   }
-}
-
-App.enable_canvas_guard = () => {
-  // Disconnect existing to avoid duplicates
-  if (App.canvas_guard) {
-    App.canvas_guard.disconnect()
-  }
-
-  App.canvas_guard = new MutationObserver((mutations) => {
-    App.clean_canvas()
-  })
-
-  App.canvas_guard.observe(document.body, {
-    childList: true,
-    subtree: true // Watch deep in case library wraps the canvas in a div
-  })
 }

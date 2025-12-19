@@ -38,14 +38,9 @@ App.play_action = async (code = ``, force = false) => {
     return
   }
 
-  if (App.canvas_guard) {
-    App.canvas_guard.disconnect()
-  }
-
   App.restart_code_scroll(false)
   App.stor_save_code()
   App.clear_draw_context()
-  App.clean_canvas()
   App.update_title()
 
   try {
@@ -74,7 +69,6 @@ App.stop_action = () => {
 App.stop_strudel = async () => {
   // 1. Activate the Zombie Canvas Guard
   // This watches for canvases created by late-resolving async library code
-  App.enable_canvas_guard()
   App.clear_draw_context()
   App.scheduler.stop()
   await App.scheduler.setPattern(null)
@@ -89,7 +83,6 @@ App.stop_strudel = async () => {
 
   App.stop_drawer()
   App.clean_mirror()
-  App.clean_canvas()
 }
 
 App.pause_action = () => {
