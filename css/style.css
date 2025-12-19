@@ -111,6 +111,7 @@ body, html {
 
     /* Remove negative margins unless absolutely necessary for overlapping */
     margin-bottom: -7px;
+    margin-left: -5px;
 }
 
 /* Optional: Improve vertical alignment inside each control group */

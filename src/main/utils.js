@@ -207,10 +207,8 @@ App.make_control_button = (el, action) => {
 App.setup_slider = (el, on_auxclick, on_wheel) => {
   let slider = DOM.el(`input`, el)
 
-  DOM.ev(el, `auxclick`, (event) => {
-    if (event.button === 1) {
-      on_auxclick(slider)
-    }
+  App.middle_click(el, () => {
+    on_auxclick(slider)
   })
 
   App.remove_context(el)
@@ -245,4 +243,13 @@ App.remove_context = (el, action) => {
 
 App.set_css_var = (name, value) => {
   document.documentElement.style.setProperty(`--${name}`, value)
+}
+
+App.middle_click = (el, action) => {
+  DOM.ev(el, `auxclick`, (event) => {
+    if (event.button === 1) {
+      action()
+      event.preventDefault()
+    }
+  })
 }

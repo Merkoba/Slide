@@ -281,10 +281,8 @@ App.start_events = async () => {
     App.open_songs_modal()
   })
 
-  DOM.ev(songs, `auxclick`, (event) => {
-    if (event.button === 1) {
-      App.random_song()
-    }
+  App.middle_click(songs, () => {
+    App.random_song()
   })
 
   App.remove_context(`#controls`)
@@ -295,11 +293,8 @@ App.start_events = async () => {
       App.open_settings_modal()
     })
 
-    DOM.ev(image, `auxclick`, (event) => {
-      if (event.button === 1) {
-        App.next_visual()
-        event.preventDefault()
-      }
+    App.middle_click(image, () => {
+      App.next_visual()
     })
   }
 
@@ -308,6 +303,10 @@ App.start_events = async () => {
   if (title) {
     DOM.ev(title, `click`, () => {
       App.open_about_modal()
+    })
+
+    App.middle_click(title, () => {
+      App.mirror_title()
     })
   }
 
@@ -435,6 +434,10 @@ App.setup_eval = async () => {
   catch (err) {
     console.error(`Strudel scope failed to load`, err)
   }
+}
+
+App.mirror_title = () => {
+  DOM.el(`#title`).classList.toggle(`mirror`)
 }
 
 window.H = H_hydra

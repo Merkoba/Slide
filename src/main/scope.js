@@ -738,18 +738,12 @@ App.setup_time_controls = () => {
     App.forward_player()
   })
 
-  DOM.ev(rewind, `auxclick`, (event) => {
-    if (event.button === 1) {
-      App.rewind_player(5)
-      event.preventDefault()
-    }
+  App.middle_click(rewind, () => {
+    App.rewind_player(5)
   })
 
-  DOM.ev(forward, `auxclick`, (event) => {
-    if (event.button === 1) {
-      App.forward_player(5)
-      event.preventDefault()
-    }
+  App.middle_click(forward, () => {
+    App.forward_player(5)
   })
 
   App.remove_context(rewind)
