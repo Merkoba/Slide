@@ -15,7 +15,7 @@
     --color-transition: 0.8s;
     --number-border-color: #171717;
     --custom-number-background: rgb(55, 55, 55);
-    --custom-number-background-hover: rgb(72, 72, 72);
+    --custom-number-background-hover: rgb(56, 56, 56);
     --button-background: #424242;
     --text-color: #eee;
 }
@@ -885,7 +885,7 @@ a.popup:hover {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
     user-select: none;
-    border-width: 2px;
+    border-width: 0;
 }
 
 .custom-number-button:hover {
@@ -902,14 +902,6 @@ a.popup:hover {
     text-align: center;
     border-color: #717070;
     border-style: solid;
-    background-color: var(--button-background);
-    border-width: 2px;
-}
-
-.custom-number-decrease {
-    border-right: 0px solid grey;
-}
-
-.custom-number-increase {
-    border-left: 0px solid grey;
+    background-color: #5e5e5e;
+    border-width: 0;
 }
