@@ -17,6 +17,7 @@ App.ask_for_title = () => {
   App.show_prompt({
     title: `Beat Title`,
     placeholder: `Title of the beat`,
+    value: App.beat_title,
     action: (title) => {
       if (!title) {
         title = ``

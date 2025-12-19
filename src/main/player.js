@@ -79,10 +79,6 @@ App.stop_strudel = async () => {
     await window.clearHydra()
   }
 
-  if (window.hush) {
-    await window.hush()
-  }
-
   App.stop_drawer()
   App.clean_mirror()
 }
