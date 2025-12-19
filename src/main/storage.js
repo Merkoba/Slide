@@ -9,6 +9,7 @@ App.lines_storage_key = `slide.lines`
 App.mirror_storage_key = `slide.mirror`
 App.theme_storage_key = `slide.theme`
 App.eq_storage_key = `slide.eq`
+App.eq_value_storage_key = `slide.eq_value`
 App.status_storage_key = `slide.status`
 
 App.load_storage = (what, on_value) => {
@@ -39,6 +40,7 @@ App.load_all_storage = () => {
   App.stor_load_mirror()
   App.stor_load_theme()
   App.stor_load_eq()
+  App.stor_load_eq_value()
   App.stor_load_status()
 }
 
@@ -133,7 +135,15 @@ App.stor_load_theme = () => {
 App.stor_load_eq = () => {
   App.load_storage(`eq`,
     (value) => {
-      App.eq = JSON.parse(value)
+      App.eq_enabled = JSON.parse(value)
+    },
+  )
+}
+
+App.stor_load_eq_value = () => {
+  App.load_storage(`eq_value`,
+    (value) => {
+      App.eq_value = JSON.parse(value)
     },
   )
 }
@@ -181,7 +191,11 @@ App.stor_save_theme = () => {
 }
 
 App.stor_save_eq = () => {
-  App.save_storage(`eq`, JSON.stringify(App.eq))
+  App.save_storage(`eq`, JSON.stringify(App.eq_enabled))
+}
+
+App.stor_save_eq_value = () => {
+  App.save_storage(`eq_value`, JSON.stringify(App.eq_value))
 }
 
 App.stor_save_status = () => {

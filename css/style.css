@@ -905,3 +905,12 @@ a.popup:hover {
     background-color: #5e5e5e;
     border-width: 0;
 }
+
+#eq-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 0.5rem;
+}

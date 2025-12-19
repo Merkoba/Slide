@@ -40,6 +40,11 @@ App.open_settings_modal = () => {
       title: `Show or hide the status bar`,
     },
     {
+      text: `Toggle EQ`,
+      action: () => {App.toggle_eq()},
+      title: `Show or hide the EQ controls`,
+    },
+    {
       text: `Toggle Lines`,
       action: () => {App.toggle_lines()},
       title: `Enable or disable the line numbers`,

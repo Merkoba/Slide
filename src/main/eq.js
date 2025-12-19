@@ -1,15 +1,17 @@
 App.eq_range_min = -12
 App.eq_range_max = 12
+App.eq_enabled = true
+App.eq_value = ``
 
 App.setup_eq = () => {
   let low = DOM.el(`#eq-low`)
   let mid = DOM.el(`#eq-mid`)
   let high = DOM.el(`#eq-high`)
 
-  if (App.eq) {
-    low.value = App.eq.low || 0
-    mid.value = App.eq.mid || 0
-    high.value = App.eq.high || 0
+  if (App.eq_value) {
+    low.value = App.eq_value.low || 0
+    mid.value = App.eq_value.mid || 0
+    high.value = App.eq_value.high || 0
   }
 
   function apply_eq() {
@@ -81,4 +83,32 @@ App.setup_eq = () => {
   register(low)
   register(mid)
   register(high)
+  App.check_eq()
+}
+
+App.enable_eq = () => {
+  DOM.show(App.get_eq())
+}
+
+App.disable_eq = () => {
+  DOM.hide(App.get_eq())
+}
+
+App.check_eq = () => {
+  if (App.eq_enabled) {
+    App.enable_eq()
+  }
+  else {
+    App.disable_eq()
+  }
+}
+
+App.toggle_eq = () => {
+  App.eq_enabled = !App.eq_enabled
+  App.check_eq()
+  App.stor_save_eq()
+}
+
+App.get_eq = () => {
+  return DOM.el(`#eq-controls`)
 }
