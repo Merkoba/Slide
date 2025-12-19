@@ -229,29 +229,15 @@ body, html {
     margin: 0 auto;
 }
 
-#volume-slider {
+.control-slider {
     width: var(--slider-width);
     accent-color: var(--theme-color);
     transition: accent-color var(--color-transition) ease;
 }
 
-#volume-value {
-    min-width: 3rem;
+.control-value {
+    min-width: 2.5rem;
     text-align: left;
-    color: var(--theme-color);
-    transition: color var(--color-transition) ease;
-}
-
-#tempo-slider {
-    width: var(--slider-width);
-    accent-color: var(--theme-color);
-    transition: accent-color var(--color-transition) ease;
-}
-
-#tempo-value {
-    min-width: 3rem;
-    text-align: left;
-    color: var(--theme-color);
     transition: color var(--color-transition) ease;
 }
 
