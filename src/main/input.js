@@ -313,8 +313,12 @@ App.restore_input = () => {
   let style = getComputedStyle(document.documentElement)
   let height = parseInt(style.getPropertyValue(`--input-height`))
   let max_width = parseInt(style.getPropertyValue(`--input-max-width`))
+  let sw = `${max_width}%`
+  wrapper.style.width = sw
   wrapper.style.height = `${height}px`
-  wrapper.style.width = `${max_width}%`
+  App.set_css_var(`input-width-update`, sw)
+  App.resize_scope()
+  App.check_max_button()
 }
 
 App.input_is_maxed = () => {
