@@ -965,7 +965,7 @@ a.popup:hover {
     text-align: center;
     border-color: #717070;
     border-style: solid;
-    background-color: #5e5e5e;
+    background-color: #292929;
     border-width: 0;
 }
 
@@ -980,4 +980,12 @@ a.popup:hover {
 
 .effect-btn.active {
     text-decoration: underline;
+}
+
+.green {
+    color: #a3e7a3 !important;
+}
+
+.red {
+    color: #f0b3b3 !important;
 }

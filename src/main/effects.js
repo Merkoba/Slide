@@ -33,36 +33,54 @@ App.setup_eq = () => {
   function increase(el, amount) {
     let value = parseInt(el.value)
     el.value = Math.min(App.eq_range_max, value + amount)
+    check_colors(el)
     apply_eq()
   }
 
   function decrease(el, amount) {
     let value = parseInt(el.value)
     el.value = Math.max(App.eq_range_min, value - amount)
+    check_colors(el)
     apply_eq()
   }
 
-  function register(what) {
-    let container = what.closest(`.custom-number`)
+  function check_colors(el) {
+    let num = parseInt(el.value)
 
-    DOM.ev(what, `change`, () => {
-      let value = parseInt(what.value)
+    if (num < 0) {
+      el.classList.add(`red`)
+    }
+    else if (num > 0) {
+      el.classList.add(`green`)
+    }
+    else {
+      el.classList.remove(`red`)
+      el.classList.remove(`greem`)
+    }
+  }
+
+  function register(el) {
+    let container = el.closest(`.custom-number`)
+
+    DOM.ev(el, `change`, () => {
+      let value = parseInt(el.value)
 
       if (value < App.eq_range_min) {
-        what.value = App.eq_range_min
+        el.value = App.eq_range_min
       }
       else if (value > App.eq_range_max) {
-        what.value = App.eq_range_max
+        el.value = App.eq_range_max
       }
 
+      check_colors(el)
       apply_eq()
     })
 
     DOM.ev(container, `mousedown`, (event) => {
       if (event.button === 1) {
-        what.value = 0
+        el.value = 0
         apply_eq()
-        what.blur()
+        el.blur()
         event.preventDefault()
       }
     })
@@ -75,18 +93,20 @@ App.setup_eq = () => {
           amount = 2
         }
 
-        increase(what, amount)
+        increase(el, amount)
       }
       else if (event.deltaY > 0) {
         if (event.shiftKey) {
           amount = 2
         }
 
-        decrease(what, amount)
+        decrease(el, amount)
       }
 
       event.preventDefault()
     })
+
+    check_colors(el)
   }
 
   register(low)
