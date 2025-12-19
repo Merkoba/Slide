@@ -13,7 +13,6 @@
     --panel-margin: 0.8rem;
     --border-color: #444;
     --color-transition: 0.8s;
-    --slider-width: 5rem;
     --number-border-color: #171717;
     --custom-number-background: rgb(55, 55, 55);
     --custom-number-background-hover: rgb(72, 72, 72);
@@ -231,7 +230,7 @@ body, html {
 }
 
 .control-slider {
-    width: var(--slider-width);
+    width: 6rem;
     accent-color: var(--theme-color);
     transition: accent-color var(--color-transition) ease;
 }

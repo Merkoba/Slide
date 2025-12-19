@@ -1,9 +1,9 @@
 App.tempo = App.default_cpm
 App.tempo_debounce_timer = undefined
 App.tempo_commit_delay_ms = 500
-App.min_tempo = 5
+App.min_tempo = 2
 App.max_tempo = 120
-App.tempo_step = 5
+App.tempo_step = 2
 App.tempo_wheel_commit_timer = undefined
 App.tempo_wheel_commit_delay_ms = 150
 
