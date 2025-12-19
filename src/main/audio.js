@@ -157,3 +157,9 @@ App.update_reverb = () => {
     window.master_fx.toggle_reverb(App.reverb_enabled)
   }
 }
+
+App.update_panning = () => {
+  if (window.master_fx) {
+    window.master_fx.toggle_panning(App.panning_enabled)
+  }
+}

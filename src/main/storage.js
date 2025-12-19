@@ -11,6 +11,7 @@ App.theme_storage_key = `slide.theme`
 App.effects_storage_key = `slide.effects`
 App.eq_storage_key = `slide.eq`
 App.reverb_storage_key = `slide.reverb`
+App.panning_storage_key = `slide.panning`
 App.status_storage_key = `slide.status`
 
 App.load_storage = (what, on_value) => {
@@ -44,6 +45,7 @@ App.load_all_storage = () => {
   App.stor_load_status()
   App.stor_load_effects()
   App.stor_load_reverb()
+  App.stor_load_panning()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -158,6 +160,14 @@ App.stor_load_reverb = () => {
   )
 }
 
+App.stor_load_panning = () => {
+  App.load_storage(`panning`,
+    (value) => {
+      App.panning_enabled = App.boolstring(value)
+    },
+  )
+}
+
 // Save
 
 App.stor_save_auto_delay = () => {
@@ -214,4 +224,8 @@ App.stor_save_status = () => {
 
 App.stor_save_reverb = () => {
   App.save_storage(`reverb`, JSON.stringify(App.reverb_enabled))
+}
+
+App.stor_save_panning = () => {
+  App.save_storage(`panning`, JSON.stringify(App.panning_enabled))
 }

@@ -915,6 +915,6 @@ a.popup:hover {
     gap: var(--buttons-gap);
 }
 
-#reverb.active {
+.effect_btn.active {
     text-decoration: underline;
 }

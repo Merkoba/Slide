@@ -2,11 +2,13 @@ App.eq_range_min = -12
 App.eq_range_max = 12
 App.effects_enabled = true
 App.reverb_enabled = false
+App.panning_enabled = false
 App.eq = ``
 
 App.setup_effects = () => {
   App.setup_eq()
   App.setup_reverb()
+  App.setup_panning()
   App.check_effects()
 }
 
@@ -102,6 +104,16 @@ App.setup_reverb = () => {
   App.check_reverb()
 }
 
+App.setup_panning = () => {
+  let el = DOM.el(`#panning`)
+
+  DOM.ev(el, `click`, () => {
+    App.toggle_panning()
+  })
+
+  App.check_panning()
+}
+
 App.enable_effects = () => {
   DOM.show(App.get_effects())
 }
@@ -146,4 +158,23 @@ App.check_reverb = () => {
   }
 
   App.update_reverb()
+}
+
+App.toggle_panning = () => {
+  App.panning_enabled = !App.panning_enabled
+  App.check_panning()
+  App.stor_save_panning()
+}
+
+App.check_panning = () => {
+  let el = DOM.el(`#panning`)
+
+  if (App.panning_enabled) {
+    el.classList.add(`active`)
+  }
+  else {
+    el.classList.remove(`active`)
+  }
+
+  App.update_panning()
 }
