@@ -94,7 +94,7 @@ App.load_song = async (song_name) => {
     App.loading()
     let content = await App.fetch_song_code(song_name)
     App.stop_status_watch()
-    App.clear_draw_context()
+    App.beat_title = ``
 
     if (App.code_scroll_active) {
       App.defer_code_scroll(App.code_scroll_song_pause_ms)

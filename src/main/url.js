@@ -33,7 +33,7 @@ App.update_url = (song_name = ``) => {
     next_url.searchParams.delete(App.code_query_key)
   }
 
-  if (!song_name && App.beat_title) {
+  if (App.beat_title) {
     next_url.searchParams.set(App.beat_query_key, App.beat_title)
   }
   else {
@@ -169,6 +169,7 @@ App.load_beat_url = async (play = false) => {
     App.last_code = code
     let filtered = App.filter_code(code)
     App.url_code = filtered
+    App.beat_title = ``
     App.set_input(code)
     App.set_song_tempo(code)
     App.update_url()

@@ -110,25 +110,25 @@ App.playing = (extra) => {
 
 App.set_play_status = (extra) => {
   let msg = ``
-  let name = App.get_song_name(true)
+  let song_name = App.get_song_name(true)
 
-  if (name) {
-    msg = name
+  if (false) {
+    // Used to unlock else if re-ordering
   }
-
-  if (!msg) {
-    if (App.fetch_timer) {
-      msg = `Auto 🤖`
-    }
-    else if (App.beat_title) {
-      msg = App.beat_title
-    }
-    else if (App.is_url_beat()) {
-      msg = `URL 🌐`
-    }
-    else {
-      msg = `Custom 🥁`
-    }
+  else if (App.beat_title) {
+    msg = App.beat_title
+  }
+  else if (song_name) {
+    msg = song_name
+  }
+  else if (App.fetch_timer) {
+    msg = `Auto 🤖`
+  }
+  else if (App.is_url_beat()) {
+    msg = `URL 🌐`
+  }
+  else {
+    msg = `Custom 🥁`
   }
 
   if (extra) {
