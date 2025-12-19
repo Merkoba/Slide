@@ -893,11 +893,11 @@ a.popup:hover {
     height: 100vmax;
 
     background: conic-gradient(from 0deg,
-            #76bfc6,
-            #b3baca,
+            #60719d,
+            #afa2d1,
             #a15f94,
             #8caef2,
-            #a3af83);
+            #6ba284);
 
     /* IMPORTANT: We use a specific animation that preserves
      the centering translate while rotating.
