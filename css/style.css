@@ -320,7 +320,7 @@ body, html {
 }
 
 .code-input-control {
-    background: rgba(20, 20, 20, 0.9) !important;
+    background: rgb(20, 20, 20) !important;
     color: var(--theme-color) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 0.3rem;
