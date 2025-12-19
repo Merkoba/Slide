@@ -19,6 +19,7 @@
     --button-background: #424242;
     --text-color: #eee;
     --button-border-width: 1px;
+    --modal-border-color: rgb(86, 86, 86);
 }
 
 body, html {
@@ -497,7 +498,7 @@ button:hover {
     justify-content: flex-start;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--modal-border-color);
     gap: 0.8rem;
 }
 
@@ -509,7 +510,7 @@ button:hover {
 
 .modal-filter-wrapper {
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--modal-border-color);
 }
 
 .modal-filter {
@@ -565,7 +566,7 @@ button:hover {
 }
 
 .modal-item:hover {
-    background-color: var(--border-color);
+    background-color: #424242;
     border-color: var(--theme-color);
     color: var(--theme-color);
 }
