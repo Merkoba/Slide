@@ -66,6 +66,6 @@ If `USE_INSTRUCTIONS` is true, the contents of `instructions.txt` is sent with t
 
 # Credits
 
-A big thank you to `Strudel` for creating the audio engine.
+A big thank you to `Strudel` and `Codemirror` for making the audio engine and text engines.
 
 And to the AIs that assisted me on writing some of the code, especially `Gemini`.
