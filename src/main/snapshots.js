@@ -16,7 +16,7 @@ App.init_db = () => {
         // We use an auto-incrementing key so every play is a new entry
         db.createObjectStore(App.db_store_name, {
           keyPath: `id`,
-          autoIncrement: true
+          autoIncrement: true,
         })
       }
     }
@@ -58,7 +58,7 @@ App.save_snapshot = async (code = ``, title = ``) => {
     let cursor = event.target.result
 
     // If the code is identical to the last save, abort the transaction
-    if (cursor && (cursor.value.code === code) && cursor.value.title === title) {
+    if (cursor && (cursor.value.code === code) && (cursor.value.title === title)) {
       return
     }
 
@@ -66,7 +66,7 @@ App.save_snapshot = async (code = ``, title = ``) => {
     let entry = {
       code,
       title,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
 
     store.add(entry)
@@ -78,7 +78,7 @@ App.save_snapshot = async (code = ``, title = ``) => {
       let current_count = count_request.result
 
       if (current_count > App.max_snapshots) {
-        let overflow = (current_count - App.max_snapshots)
+        let overflow = current_count - App.max_snapshots
         let delete_cursor = store.openCursor()
         let deleted_so_far = 0
 
