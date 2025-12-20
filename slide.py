@@ -89,12 +89,15 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
 STOP_EVENT = threading.Event()
 ANSWER_LOCK = threading.Lock()
 WORKER_THREAD: threading.Thread | None = None
 STATUS_OBSERVER: Any = None
 HISTORY: list[str] = []
+
+GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_API_URL = "https://api.github.com"
 
 
 def get_git_commit_hash() -> str:
@@ -141,6 +144,7 @@ def load_creds() -> None:
     try:
         creds_content = creds_path.read_text(encoding="utf-8")
         APP_CREDS = json.loads(creds_content)
+        app.secret_key = APP_CREDS["secret_key"]
         logging.info("Loaded creds")
     except:
         logging.critical("Creds Error: %s")
@@ -547,16 +551,13 @@ def song_shortcut(song_name: str) -> Response:
     return render_template("index.html", song_name=song_name, song_display=song_display)
 
 
-GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
-GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
-GITHUB_API_URL = "https://api.github.com"
-
 @app.route("/github_login")
 def github_login() -> Response:
     """Step 1: Redirect user to GitHub to approve permissions."""
-    # "gist" scope is required to write gists
     scope = "gist"
-    return redirect(f"{GITHUB_AUTH_URL}?client_id={APP_CREDS["github_client_id"]}&scope={scope}")
+
+    client_id = APP_CREDS["github_client_id"]
+    return redirect(f"{GITHUB_AUTH_URL}?client_id={client_id}&scope={scope}")
 
 @app.route("/github_callback")
 def github_callback() -> Response:
