@@ -162,6 +162,12 @@ App.update_reverb = () => {
   }
 }
 
+App.update_cutoff = () => {
+  if (window.master_fx) {
+    window.master_fx.toggle_cutoff(App.cutoff_enabled)
+  }
+}
+
 App.update_panning = () => {
   if (window.master_fx) {
     if (App.panning_enabled) {

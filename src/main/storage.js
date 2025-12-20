@@ -9,10 +9,11 @@ App.lines_storage_key = `slide.lines`
 App.mirror_storage_key = `slide.mirror`
 App.theme_storage_key = `slide.theme`
 App.effects_storage_key = `slide.effects`
+App.status_storage_key = `slide.status`
 App.eq_storage_key = `slide.eq`
 App.reverb_storage_key = `slide.reverb`
 App.panning_storage_key = `slide.panning`
-App.status_storage_key = `slide.status`
+App.cutoff_storage_key = `slide.cutoff`
 
 App.load_storage = (what, on_value) => {
   let value = localStorage.getItem(App[`${what}_storage_key`])
@@ -46,6 +47,7 @@ App.load_all_storage = () => {
   App.stor_load_effects()
   App.stor_load_reverb()
   App.stor_load_panning()
+  App.stor_load_cutoff()
 }
 
 App.stor_load_auto_endpoint = () => {
@@ -168,6 +170,14 @@ App.stor_load_panning = () => {
   )
 }
 
+App.stor_load_cutoff = () => {
+  App.load_storage(`cutoff`,
+    (value) => {
+      App.cutoff_enabled = App.boolstring(value)
+    },
+  )
+}
+
 // Save
 
 App.stor_save_auto_delay = () => {
@@ -228,4 +238,8 @@ App.stor_save_reverb = () => {
 
 App.stor_save_panning = () => {
   App.save_storage(`panning`, JSON.stringify(App.panning_enabled))
+}
+
+App.stor_save_cutoff = () => {
+  App.save_storage(`cutoff`, JSON.stringify(App.cutoff_enabled))
 }
