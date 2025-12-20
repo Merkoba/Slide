@@ -260,8 +260,7 @@
             }
             else {
               reverb_gain.gain.setTargetAtTime(0, now, ramp)
-
-              let disconnect_delay = Math.max(500, (ramp * 1000 * 5))
+              let disconnect_delay = Math.max(500, ramp * 1000 * 5)
 
               setTimeout(() => {
                 if (reverb_gain.gain.value < 0.01) {
