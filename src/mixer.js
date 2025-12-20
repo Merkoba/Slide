@@ -145,7 +145,7 @@
         }
 
         let delay_state = {
-          is_connected: false
+          is_connected: false,
         }
 
         window.master_fx = {
@@ -180,8 +180,8 @@
               filter_node.frequency.setTargetAtTime(22050, now, ramp_time)
               filter_node.Q.setTargetAtTime(0, now, ramp_time)
 
-              filter_node.frequency.setValueAtTime(22050, (now + (ramp_time * 5)))
-              filter_node.Q.setValueAtTime(0, (now + (ramp_time * 5)))
+              filter_node.frequency.setValueAtTime(22050, now + (ramp_time * 5))
+              filter_node.Q.setValueAtTime(0, now + (ramp_time * 5))
             }
           },
           get_volume: () => {
@@ -204,7 +204,7 @@
               eq_low.gain.setTargetAtTime(low_db, now, ramp)
 
               if (low_db === 0) {
-                eq_low.gain.setValueAtTime(0, (now + 0.5))
+                eq_low.gain.setValueAtTime(0, now + 0.5)
               }
             }
 
@@ -213,7 +213,7 @@
               eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
 
               if (mid_db === 0) {
-                eq_mid.gain.setValueAtTime(0, (now + 0.5))
+                eq_mid.gain.setValueAtTime(0, now + 0.5)
               }
             }
 
@@ -222,7 +222,7 @@
               eq_high.gain.setTargetAtTime(high_db, now, ramp)
 
               if (high_db === 0) {
-                eq_high.gain.setValueAtTime(0, (now + 0.5))
+                eq_high.gain.setValueAtTime(0, now + 0.5)
               }
             }
           },
@@ -232,7 +232,7 @@
           },
           set_panning: (val) => {
             panner_node.pan.cancelScheduledValues(ctx.currentTime)
-            panner_node.pan.setTargetAtTime(val, (ctx.currentTime + 0.02), 0.1)
+            panner_node.pan.setTargetAtTime(val, ctx.currentTime + 0.02, 0.1)
           },
           set_auto_pan: (rate_hz, depth) => {
             let now = ctx.currentTime
@@ -283,7 +283,7 @@
 
             reverb_state.timer = setTimeout(() => {
               window.master_fx.toggle_reverb(false, 0, 2.0)
-            }, (duration * 1000))
+            }, duration * 1000)
           },
           toggle_delay: (enable, volume = 0.5, time = 0.3, feedback = 0.4) => {
             let now = ctx.currentTime
@@ -311,13 +311,14 @@
                   try {
                     panner_node.disconnect(delay_node)
                     delay_state.is_connected = false
-                  } catch (e) {
+                  }
+                  catch (e) {
                     // Ignore already disconnected errors
                   }
                 }
               }, 2000)
             }
-          }
+          },
         }
       }
     }
