@@ -178,3 +178,23 @@ App.update_panning = () => {
     }
   }
 }
+
+App.suspend_audio = async () => {
+  let context = App.get_audio_context()
+
+  if (context) {
+    if (context.state === `running`) {
+      await context.suspend()
+    }
+  }
+}
+
+App.resume_audio = async () => {
+  let context = App.get_audio_context()
+
+  if (context) {
+    if (context.state !== `running`) {
+      await context.resume()
+    }
+  }
+}

@@ -46,6 +46,7 @@ App.play_action = async (code = ``, force = false) => {
 
   try {
     await App.strudel_update(code)
+    await App.resume_audio()
     App.play_state = `playing`
     App.edited = false
     App.play_buttons(false, true, false, `Update`)
@@ -68,6 +69,7 @@ App.stop_action = () => {
   App.stop_code_scroll()
   App.clear_draw_context()
   App.set_song_context(``)
+  App.suspend_audio()
   App.playing()
 }
 
