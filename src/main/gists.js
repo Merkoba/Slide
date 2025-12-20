@@ -1,12 +1,41 @@
-// Trigger this when the user clicks "Connect GitHub"
 App.initiate_github_login = () => {
-  // This hits the python route which redirects to GitHub
-  window.location.href = `/github_login`
+  // 1. Open the auth route in a small popup window
+  let width = 600
+  let height = 700
+  let left = (window.innerWidth - width) / 2
+  let top = (window.innerHeight - height) / 2
+
+  let popup = window.open(
+    `/github_login`,
+    `GitHub Auth`,
+    `width=${width},height=${height},top=${top},left=${left}`
+  )
+
+  // 2. Listen for a message from that popup
+  window.addEventListener("message", function on_message(event) {
+    // Security check: ensure the message comes from your own domain
+    if (event.origin !== window.location.origin) return
+
+    if (event.data === "github_authorized") {
+      console.log("GitHub Auth successful! Retrying save...")
+
+      // Cleanup: remove listener
+      window.removeEventListener("message", on_message)
+
+      // 3. Retry the save automatically
+      // You might need to pass the content/filename again or store them globally
+      // For now, let's assume you trigger the save logic again:
+      let content = App.get_current_code() // Assuming you have a helper for this
+      App.save_private_gist(App.gist_content, App.gist_filename)
+    }
+  })
 }
 
 // Trigger this to actually save the file
 App.save_private_gist = async (content, filename) => {
   let payload = {filename, content}
+  App.gist_content = content
+  App.gist_filename = filename
 
   let response = await fetch(`/create_gist`, {
     method: `POST`,
