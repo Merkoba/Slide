@@ -255,7 +255,7 @@ App.remove_multiple_spaces = (s) => {
 
 App.get_weekday = (timestamp) => {
   let date = new Date(timestamp)
-  let options = { weekday: `long` }
+  let options = {weekday: `long`}
   return date.toLocaleDateString(undefined, options)
 }
 
