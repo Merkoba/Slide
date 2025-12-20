@@ -184,7 +184,6 @@
               if (mid_db === 0) {
                 eq_mid.gain.setValueAtTime(0, now + 0.5)
               }
-
             }
 
             if (high_db !== undefined) {
