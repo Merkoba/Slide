@@ -1,4 +1,4 @@
-App.initiate_github_login = () => {
+App.github_login = (retry = false) => {
   // 1. Open the auth route in a small popup window
   let width = 600
   let height = 700
@@ -25,7 +25,9 @@ App.initiate_github_login = () => {
       // 3. Retry the save automatically
       // You might need to pass the content/filename again or store them globally
       // For now, let's assume you trigger the save logic again:
-      App.save_private_gist(App.gist_content, App.gist_filename)
+      if (retry) {
+        App.save_private_gist(App.gist_content, App.gist_filename)
+      }
     }
   })
 }
@@ -57,7 +59,7 @@ App.save_private_gist = async (content, filename) => {
     // If 401, it means the user session expired or doesn't exist
     if ((response.status == 401)) {
       console.log(`User needs to login first`)
-      App.initiate_github_login()
+      App.github_login(true)
     }
 
     return null

@@ -59,6 +59,11 @@ App.show_settings = () => {
       action: () => {App.toggle_mirror()},
       title: `${enable_or_disable} the playback reflection on the code`,
     },
+    {
+      text: `Connect GitHub`,
+      action: () => {App.github_login()},
+      title: `Connect your GitHub account to save snapshots as gists`,
+    },
   ]
 
   App.show_items_modal(`settings`, {
