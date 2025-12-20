@@ -172,19 +172,28 @@
               eq_low.gain.cancelScheduledValues(now)
               eq_low.gain.setTargetAtTime(low_db, now, ramp)
               // Optional: Snap to 0 if target is 0 to stop processing
-              if (low_db === 0) eq_low.gain.setValueAtTime(0, now + 0.5)
+              if (low_db === 0) {
+                eq_low.gain.setValueAtTime(0, now + 0.5)
+              }
             }
 
             if (mid_db !== undefined) {
               eq_mid.gain.cancelScheduledValues(now)
               eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
-              if (mid_db === 0) eq_mid.gain.setValueAtTime(0, now + 0.5)
+
+              if (mid_db === 0) {
+                eq_mid.gain.setValueAtTime(0, now + 0.5)
+              }
+
             }
 
             if (high_db !== undefined) {
               eq_high.gain.cancelScheduledValues(now)
               eq_high.gain.setTargetAtTime(high_db, now, ramp)
-              if (high_db === 0) eq_high.gain.setValueAtTime(0, now + 0.5)
+
+              if (high_db === 0) {
+                eq_high.gain.setValueAtTime(0, now + 0.5)
+              }
             }
           },
           set_volume: (val) => {
@@ -217,6 +226,7 @@
                 reverb_gain.gain.setValueAtTime(0, now)
                 reverb_state.is_connected = true
               }
+
               reverb_gain.gain.setTargetAtTime(volume, now, ramp)
             }
             else {
