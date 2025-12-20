@@ -243,7 +243,6 @@
               }, disconnect_delay)
             }
           },
-
           splash_reverb: (duration = 3) => {
             if (reverb_state.timer) {
               clearTimeout(reverb_state.timer)
