@@ -75,11 +75,11 @@ App.check_gestures = () => {
 
   // Click
   if ((Date.now() - App.scope_mousedown_date) <= App.scope_beep_delay) {
-    App.splash_reverb(2)
-
-    if (!App.check_scope_panning()) {
-      App.beep_sound()
+    if (App.check_scope_panning()) {
+      return
     }
+
+    App.splash_reverb(2)
   }
 }
 

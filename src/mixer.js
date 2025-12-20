@@ -210,9 +210,8 @@
             lfo.frequency.setTargetAtTime(rate_hz, now, 0.1)
             lfo_gain.gain.setTargetAtTime(depth, now, 0.1)
           },
-          toggle_reverb: (enable, volume = 0.5) => {
+          toggle_reverb: (enable, volume = 0.5, ramp = 0.1) => {
             let now = ctx.currentTime
-            let ramp = 0.1
 
             reverb_gain.gain.cancelScheduledValues(now)
 
@@ -230,33 +229,34 @@
             else {
               reverb_gain.gain.setTargetAtTime(0, now, ramp)
 
-              // 4. FIX: Use a threshold check, not strict equality
-              // Exponential decay never hits exactly 0
+              // Calculate safe disconnect time based on the ramp
+              // (5x the time constant ensures it is mathematically near silence)
+              let disconnect_delay = Math.max(500, ramp * 1000 * 5)
+
               setTimeout(() => {
                 if (reverb_gain.gain.value < 0.01) {
                   reverb_gain.disconnect()
                   convolver.disconnect()
                   reverb_state.is_connected = false
-                  // Force it to true 0 just in case
                   reverb_gain.gain.setValueAtTime(0, ctx.currentTime)
                 }
-              }, 500)
+              }, disconnect_delay)
             }
           },
+
           splash_reverb: (duration = 3) => {
-            // Clear any pending "turn off" timer from a previous splash
-            // This prevents the reverb from cutting out if you trigger it quickly
             if (reverb_state.timer) {
               clearTimeout(reverb_state.timer)
               reverb_state.timer = null
             }
 
-            // Use toggle_reverb to handle the connection and fade-in
-            window.master_fx.toggle_reverb(true, 0.5)
+            // Turn on with a standard quick fade (0.1s)
+            window.master_fx.toggle_reverb(true, 0.5, 0.1)
 
-            // Schedule the fade-out
             reverb_state.timer = setTimeout(() => {
-              window.master_fx.toggle_reverb(false)
+              // Turn off with a very slow, subtle fade (2.5s)
+              // This prevents the "pronounced" cut-off
+              window.master_fx.toggle_reverb(false, 0, 2.5)
             }, duration * 1000)
           },
         }
