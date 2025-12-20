@@ -989,3 +989,11 @@ a.popup:hover {
 .eq_negative {
     color: rgb(100, 255, 218) !important;
 }
+
+#eq-low-container {
+    padding-left: 0.5rem;
+}
+
+#eq-high-container {
+    padding-right: 0.5rem;
+}
