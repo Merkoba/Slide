@@ -567,7 +567,7 @@ def github_callback() -> Response:
     # Exchange code for access token
     payload = {
         "client_id": APP_CREDS["github_client_id"],
-        "client_secret": APP_CREDS["github_private_key"],
+        "client_secret": APP_CREDS["github_client_secret"],
         "code": code
     }
 

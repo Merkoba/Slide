@@ -7,3 +7,4 @@ pnpm-lock.yaml
 .eslintcache
 .directory
 config/creds.json
+creds.json
