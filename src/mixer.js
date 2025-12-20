@@ -152,14 +152,24 @@
               let x = (data_array[i] - 128) / 128
               sum += x * x
             }
+
             return Math.sqrt(sum / buffer_length)
           },
           set_eq: (low_db, mid_db, high_db) => {
             let now = ctx.currentTime
             let ramp = 0.1
-            if (low_db !== undefined) eq_low.gain.setTargetAtTime(low_db, now, ramp)
-            if (mid_db !== undefined) eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
-            if (high_db !== undefined) eq_high.gain.setTargetAtTime(high_db, now, ramp)
+
+            if (low_db !== undefined) {
+              eq_low.gain.setTargetAtTime(low_db, now, ramp)
+            }
+
+            if (mid_db !== undefined) {
+              eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
+            }
+
+            if (high_db !== undefined) {
+              eq_high.gain.setTargetAtTime(high_db, now, ramp)
+            }
           },
           set_volume: (val) => {
             master_gain.gain.setTargetAtTime(val, ctx.currentTime, 0.1)
@@ -184,6 +194,7 @@
                 reverb_gain.gain.setValueAtTime(0, now)
                 reverb_state.is_connected = true
               }
+
               reverb_gain.gain.setTargetAtTime(volume, now, ramp)
             }
             else {
