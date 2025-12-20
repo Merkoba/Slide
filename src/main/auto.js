@@ -19,7 +19,7 @@ App.setup_auto = () => {
 
   if (auto_stop) {
     DOM.ev(auto_stop, `click`, () => {
-      App.stop_status_fetch()
+      App.stop_auto()
     })
   }
 
@@ -187,7 +187,7 @@ App.fetch_status = () => {
     }
   }
 
-  App.stop_status_fetch(false) // Don't set cancelled flag for restart
+  App.stop_auto(false) // Don't set cancelled flag for restart
   fetch_status()
 
   App.fetch_timer = setInterval(() => {
@@ -197,7 +197,7 @@ App.fetch_status = () => {
   console.info(`Interval started.`)
 }
 
-App.stop_status_fetch = (set_cancelled = true) => {
+App.stop_auto = (set_cancelled = true) => {
   App.close_modal(`auto`)
 
   if (!App.fetch_timer) {

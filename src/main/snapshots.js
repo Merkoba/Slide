@@ -189,6 +189,7 @@ App.show_snapshots = async () => {
 }
 
 App.load_snapshot = (item) => {
+  App.stop_auto()
   App.beat_title = item.beat_title
   App.play_action(item.code, true)
 }

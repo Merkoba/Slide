@@ -93,7 +93,7 @@ App.load_song = async (song_name) => {
   try {
     App.loading()
     let content = await App.fetch_song_code(song_name)
-    App.stop_status_fetch()
+    App.stop_auto()
     App.beat_title = ``
 
     if (App.code_scroll_active) {
