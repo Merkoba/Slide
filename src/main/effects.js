@@ -9,6 +9,7 @@ App.setup_effects = () => {
   App.setup_eq()
   App.setup_reverb()
   App.setup_cutoff()
+  App.setup_delay()
   App.setup_panning()
   App.check_effects()
 }
@@ -136,6 +137,16 @@ App.setup_cutoff = () => {
   App.check_cutoff()
 }
 
+App.setup_delay = () => {
+  let el = DOM.el(`#delay`)
+
+  DOM.ev(el, `click`, () => {
+    App.toggle_delay()
+  })
+
+  App.check_delay()
+}
+
 App.setup_panning = () => {
   let el = DOM.el(`#panning`)
 
@@ -216,6 +227,7 @@ App.update_effects = () => {
   App.update_reverb()
   App.update_panning()
   App.update_cutoff()
+  App.update_delay()
 }
 
 App.toggle_cutoff = () => {
@@ -235,4 +247,23 @@ App.check_cutoff = () => {
   }
 
   App.update_cutoff()
+}
+
+App.toggle_delay = () => {
+  App.delay_enabled = !App.delay_enabled
+  App.check_delay()
+  App.stor_save_delay()
+}
+
+App.check_delay = () => {
+  let el = DOM.el(`#delay`)
+
+  if (App.delay_enabled) {
+    el.classList.add(`active`)
+  }
+  else {
+    el.classList.remove(`active`)
+  }
+
+  App.update_delay()
 }

@@ -168,6 +168,12 @@ App.update_cutoff = () => {
   }
 }
 
+App.update_delay = () => {
+  if (window.master_fx) {
+    window.master_fx.toggle_delay(App.delay_enabled)
+  }
+}
+
 App.update_panning = () => {
   if (window.master_fx) {
     if (App.panning_enabled) {
