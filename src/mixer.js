@@ -30,7 +30,6 @@
 
       // --- 1. Create Nodes ---
 
-      // The "Underwater" Filter
       let filter_node = ctx.createBiquadFilter()
       filter_node.type = `lowpass`
       filter_node.frequency.value = 22050 // Start fully open (transparent)
@@ -243,6 +242,22 @@
                 }
               }, 500)
             }
+          },
+          splash_reverb: (duration = 3) => {
+            // Clear any pending "turn off" timer from a previous splash
+            // This prevents the reverb from cutting out if you trigger it quickly
+            if (reverb_state.timer) {
+              clearTimeout(reverb_state.timer)
+              reverb_state.timer = null
+            }
+
+            // Use toggle_reverb to handle the connection and fade-in
+            window.master_fx.toggle_reverb(true, 0.5)
+
+            // Schedule the fade-out
+            reverb_state.timer = setTimeout(() => {
+              window.master_fx.toggle_reverb(false)
+            }, duration * 1000)
           },
         }
       }
