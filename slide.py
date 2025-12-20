@@ -9,10 +9,10 @@ import random
 import logging
 import threading
 import subprocess
-import requests
+import requests  # type: ignore
 from pathlib import Path
 from typing import Any
-from flask import Flask, redirect, request, session, jsonify, url_for  # type: ignore
+from flask import Flask, redirect, session, jsonify  # type: ignore
 from flask import Response, send_from_directory, render_template, request
 from litellm import completion  # type: ignore
 from watchdog.observers import Observer  # type: ignore
@@ -544,36 +544,39 @@ def songs_assets(filename) -> Response:
 
 
 @app.route("/song/<path:song_name>", methods=["GET"])  # type: ignore
-def song_shortcut(song_name: str) -> Response:
+def song_shortcut(song_name: str) -> Any:
     """Render HTML page with song name in title and meta tags."""
 
     song_display = re.sub(r"_+", " ", song_name)
     return render_template("index.html", song_name=song_name, song_display=song_display)
 
 
-@app.route("/github_login")
-def github_login() -> Response:
+@app.route("/github_login")  # type: ignore
+def github_login() -> Any:
     """Step 1: Redirect user to GitHub to approve permissions."""
     scope = "gist"
 
     client_id = APP_CREDS["github_client_id"]
     return redirect(f"{GITHUB_AUTH_URL}?client_id={client_id}&scope={scope}")
 
-@app.route("/github_callback")
-def github_callback() -> Response | str:
+
+@app.route("/github_callback")  # type: ignore
+def github_callback() -> Any:
     """Step 2: Handle the code returned by GitHub."""
     code = request.args.get("code")
 
     payload = {
         "client_id": APP_CREDS["github_client_id"],
         "client_secret": APP_CREDS["github_client_secret"],
-        "code": code
+        "code": code,
     }
 
     headers = {"Accept": "application/json"}
-    response = requests.post(GITHUB_TOKEN_URL, json=payload, headers=headers)
+    response = requests.post(
+        GITHUB_TOKEN_URL, json=payload, headers=headers, timeout=20
+    )
 
-    if (response.status_code == 200):
+    if response.status_code == 200:
         token_data = response.json()
 
         if "access_token" in token_data:
@@ -598,8 +601,9 @@ def github_callback() -> Response | str:
 
     return "Login failed", 400
 
+
 @app.route("/create_gist", methods=["POST"])  # type: ignore
-def create_gist() -> Response:
+def create_gist() -> Any:
     """Step 3: Proxy the request to GitHub using the stored token."""
     if "github_token" not in session:
         return jsonify({"error": "User not logged in"}), 401
@@ -608,33 +612,34 @@ def create_gist() -> Response:
     content = data.get("content", "No code yet")
     filename = data.get("filename", "slide.txt")
 
-    if ((not filename) or (not content)):
+    if (not filename) or (not content):
         return jsonify({"error": "Filename and content are required"}), 400
 
     # Construct Gist payload
     gist_payload = {
         "description": "Created via My App",
         "public": False,  # Private gist
-        "files": {
-            filename: {
-                "content": content
-            }
-        }
+        "files": {filename: {"content": content}},
     }
 
     # Fix: Use single quotes inside the double-quoted f-string
     headers = {
         "Authorization": f"token {session['github_token']}",
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/vnd.github.v3+json",
     }
 
-    response = requests.post(f"{GITHUB_API_URL}/gists", json=gist_payload, headers=headers)
+    response = requests.post(
+        f"{GITHUB_API_URL}/gists",
+        json=gist_payload,
+        headers=headers,
+        timeout=20,
+    )
 
-    if (response.status_code == 201):
+    if response.status_code == 201:
         return jsonify(response.json())
 
     # Debugging: Print why GitHub failed
-    print(f"GitHub API Error: {response.status_code}", response.text)
+    echo(f"GitHub API Error: {response.status_code}")
 
     return jsonify({"error": "GitHub API failed", "details": response.json()}), 400
 
