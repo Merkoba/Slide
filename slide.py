@@ -9,9 +9,10 @@ import random
 import logging
 import threading
 import subprocess
+import requests
 from pathlib import Path
 from typing import Any
-from flask import Flask  # type: ignore
+from flask import Flask, redirect, request, session, jsonify, url_for  # type: ignore
 from flask import Response, send_from_directory, render_template, request
 from litellm import completion  # type: ignore
 from watchdog.observers import Observer  # type: ignore
@@ -79,7 +80,9 @@ REQUEST_INTERVAL_MINUTES = max(
 DEFAULT_ANSWER = ""
 SONG_LIST_LIMIT = 100
 CONFIG_FILE = "config/config.json"
-app_config = {}
+CREDS_FILE = "config/creds.json"
+APP_CONFIG = {}
+APP_CREDS = {}
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -112,18 +115,34 @@ COMMIT_HASH = get_git_commit_hash()
 
 
 def load_config() -> None:
-    """Load application configuration from config.json."""
+    """Load application configuration from config.json"""
 
-    global app_config
+    global APP_CONFIG
 
     config_path = Path(CONFIG_FILE)
 
     try:
         config_content = config_path.read_text(encoding="utf-8")
-        app_config = json.loads(config_content)
-        logging.info("Loaded config: %s", app_config)
+        APP_CONFIG = json.loads(config_content)
+        logging.info("Loaded config")
     except:
         logging.critical("Config Error: %s")
+        sys.exit(1)
+
+
+def load_creds() -> None:
+    """Load credentials from creds.json"""
+
+    global APP_CREDS
+
+    creds_path = Path(CREDS_FILE)
+
+    try:
+        creds_content = creds_path.read_text(encoding="utf-8")
+        APP_CREDS = json.loads(creds_content)
+        logging.info("Loaded creds")
+    except:
+        logging.critical("Creds Error: %s")
         sys.exit(1)
 
 
@@ -450,7 +469,7 @@ def index() -> Any:
         "index.jinja",
         song_name=song_name,
         song_display=song_display,
-        config=app_config,
+        config=APP_CONFIG,
         commit_hash=COMMIT_HASH,
     )
 
@@ -515,16 +534,88 @@ def list_songs() -> Response:
 
 
 @app.route("/songs/<path:filename>", methods=["GET"])  # type: ignore
-def songs_assets(filename):
+def songs_assets(filename) -> Response:
     return send_from_directory("songs", filename)
 
 
 @app.route("/song/<path:song_name>", methods=["GET"])  # type: ignore
-def song_shortcut(song_name: str):
+def song_shortcut(song_name: str) -> Response:
     """Render HTML page with song name in title and meta tags."""
 
     song_display = re.sub(r"_+", " ", song_name)
     return render_template("index.html", song_name=song_name, song_display=song_display)
+
+
+GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
+GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token"
+GITHUB_API_URL = "https://api.github.com"
+
+@app.route("/github_login")
+def github_login() -> Response:
+    """Step 1: Redirect user to GitHub to approve permissions."""
+    # "gist" scope is required to write gists
+    scope = "gist"
+    return redirect(f"{GITHUB_AUTH_URL}?client_id={APP_CREDS["github_client_id"]}&scope={scope}")
+
+@app.route("/github_callback")
+def github_callback() -> Response:
+    """Step 2: Handle the code returned by GitHub."""
+    code = request.args.get("code")
+
+    # Exchange code for access token
+    payload = {
+        "client_id": APP_CREDS["github_client_id"],
+        "client_secret": APP_CREDS["github_private_key"],
+        "code": code
+    }
+
+    headers = {"Accept": "application/json"}
+    response = requests.post(GITHUB_TOKEN_URL, json=payload, headers=headers)
+
+    if response.status_code == 200:
+        token_data = response.json()
+        # Save token in the server-side session
+        session["github_token"] = token_data.get("access_token")
+        # Redirect back to your main frontend app
+        return redirect("/")
+
+    return "Login failed", 400
+
+@app.route("/create_gist", methods=["POST"])  # type: ignore
+def create_gist() -> Response:
+    """Step 3: Proxy the request to GitHub using the stored token."""
+    if "github_token" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    data = request.json
+    content = data.get("content", "No code yet")
+    filename = data.get("filename", "slide.txt")
+
+    if (not filename) or (not content):
+        return
+
+    # Construct Gist payload
+    gist_payload = {
+        "description": "Created via My App",
+        "public": False,  # Private gist
+        "files": {
+            filename: {
+                "content": content
+            }
+        }
+    }
+
+    headers = {
+        "Authorization": f"token {session["github_token"]}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    response = requests.post(f"{GITHUB_API_URL}/gists", json=gist_payload, headers=headers)
+
+    if response.status_code == 201:
+        return jsonify(response.json())
+
+    return jsonify({"error": "GitHub API failed", "details": response.json()}), 400
 
 
 def shutdown_worker() -> None:
@@ -558,6 +649,7 @@ def get_director_instruction(intensity: str = "medium") -> str:
 def main() -> None:
     load_config()
     load_status()
+    load_creds()
 
     if ENABLE_AI_INTERVAL:
         load_api_key()
