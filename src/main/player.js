@@ -47,6 +47,7 @@ App.play_action = async (code = ``, force = false) => {
   try {
     await App.strudel_update(code)
     App.play_state = `playing`
+    App.edited = false
     App.play_buttons(false, true, false, `Update`)
     App.update_effects()
     App.update_url()
@@ -88,7 +89,8 @@ App.stop_strudel = async () => {
 App.pause_action = () => {
   console.info(`🔮 Pause Action`)
   App.play_state = `paused`
-  App.play_buttons(true, false, true, `Resume`)
+  let play_text = App.edited ? `Update` : `Resume`
+  App.play_buttons(true, false, true, play_text)
   App.pause_strudel()
   App.stop_code_scroll()
 }
