@@ -133,15 +133,23 @@
             let now = ctx.currentTime
             let ramp_time = 0.4
 
+            // 1. Cancel any previous overlapping movements
+            filter_node.frequency.cancelScheduledValues(now)
+            filter_node.Q.cancelScheduledValues(now)
+
             if (enable) {
-              // Muffle sound: Drop freq to 600Hz, Boost Resonance (Q) to 10
               filter_node.frequency.setTargetAtTime(600, now, ramp_time)
               filter_node.Q.setTargetAtTime(10, now, ramp_time)
             }
             else {
-              // Open sound: Raise freq to 22kHz, Drop Resonance to 0
+              // 2. Target the 'open' state
               filter_node.frequency.setTargetAtTime(22050, now, ramp_time)
               filter_node.Q.setTargetAtTime(0, now, ramp_time)
+
+              // 3. CLEANUP: Snap to exact values slightly after the ramp
+              // (ramp_time * 5 is roughly 99.3% settled)
+              filter_node.frequency.setValueAtTime(22050, now + (ramp_time * 5))
+              filter_node.Q.setValueAtTime(0, now + (ramp_time * 5))
             }
           },
           get_volume: () => {
@@ -159,32 +167,47 @@
             let now = ctx.currentTime
             let ramp = 0.1
 
+            // 1. Always cancel previous events to prevent "stacking" glitches
             if (low_db !== undefined) {
+              eq_low.gain.cancelScheduledValues(now)
               eq_low.gain.setTargetAtTime(low_db, now, ramp)
+              // Optional: Snap to 0 if target is 0 to stop processing
+              if (low_db === 0) eq_low.gain.setValueAtTime(0, now + 0.5)
             }
 
             if (mid_db !== undefined) {
+              eq_mid.gain.cancelScheduledValues(now)
               eq_mid.gain.setTargetAtTime(mid_db, now, ramp)
+              if (mid_db === 0) eq_mid.gain.setValueAtTime(0, now + 0.5)
             }
 
             if (high_db !== undefined) {
+              eq_high.gain.cancelScheduledValues(now)
               eq_high.gain.setTargetAtTime(high_db, now, ramp)
+              if (high_db === 0) eq_high.gain.setValueAtTime(0, now + 0.5)
             }
           },
           set_volume: (val) => {
+            master_gain.gain.cancelScheduledValues(ctx.currentTime)
             master_gain.gain.setTargetAtTime(val, ctx.currentTime, 0.1)
           },
           set_panning: (val) => {
+            panner_node.pan.cancelScheduledValues(ctx.currentTime)
             panner_node.pan.setTargetAtTime(val, ctx.currentTime + 0.02, 0.1)
           },
           set_auto_pan: (rate_hz, depth) => {
             let now = ctx.currentTime
+            lfo.frequency.cancelScheduledValues(now)
+            lfo_gain.gain.cancelScheduledValues(now)
+
             lfo.frequency.setTargetAtTime(rate_hz, now, 0.1)
             lfo_gain.gain.setTargetAtTime(depth, now, 0.1)
           },
           toggle_reverb: (enable, volume = 0.5) => {
             let now = ctx.currentTime
             let ramp = 0.1
+
+            reverb_gain.gain.cancelScheduledValues(now)
 
             if (enable) {
               if (!reverb_state.is_connected) {
@@ -194,16 +217,20 @@
                 reverb_gain.gain.setValueAtTime(0, now)
                 reverb_state.is_connected = true
               }
-
               reverb_gain.gain.setTargetAtTime(volume, now, ramp)
             }
             else {
               reverb_gain.gain.setTargetAtTime(0, now, ramp)
+
+              // 4. FIX: Use a threshold check, not strict equality
+              // Exponential decay never hits exactly 0
               setTimeout(() => {
-                if (reverb_gain.gain.value === 0) {
+                if (reverb_gain.gain.value < 0.01) {
                   reverb_gain.disconnect()
                   convolver.disconnect()
                   reverb_state.is_connected = false
+                  // Force it to true 0 just in case
+                  reverb_gain.gain.setValueAtTime(0, ctx.currentTime)
                 }
               }, 500)
             }
