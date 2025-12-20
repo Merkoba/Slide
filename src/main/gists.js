@@ -8,19 +8,21 @@ App.github_login = () => {
   let popup = window.open(
     `/github_login`,
     `GitHub Auth`,
-    `width=${width},height=${height},top=${top},left=${left}`
+    `width=${width},height=${height},top=${top},left=${left}`,
   )
 
   // 2. Listen for a message from that popup
-  window.addEventListener("message", function on_message(event) {
+  window.addEventListener(`message`, function on_message(event) {
     // Security check: ensure the message comes from your own domain
-    if (event.origin !== window.location.origin) return
+    if (event.origin !== window.location.origin) {
+      return
+    }
 
-    if (event.data === "github_authorized") {
-      console.log("GitHub Auth successful! Retrying save...")
+    if (event.data === `github_authorized`) {
+      console.log(`GitHub Auth successful! Retrying save...`)
 
       // Cleanup: remove listener
-      window.removeEventListener("message", on_message)
+      window.removeEventListener(`message`, on_message)
     }
   })
 }
@@ -32,9 +34,9 @@ App.save_gist = async (content, filename) => {
   let response = await fetch(`/create_gist`, {
     method: `POST`,
     headers: {
-      "Content-Type": `application/json`
+      "Content-Type": `application/json`,
     },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
   })
 
   if (response.ok) {
@@ -43,15 +45,13 @@ App.save_gist = async (content, filename) => {
     return result.html_url
   }
 
-  else {
-    let error_data = await response.json()
-    console.error(`Error saving gist:`, error_data)
+  let error_data = await response.json()
+  console.error(`Error saving gist:`, error_data)
 
-    // If 401, it means the user session expired or doesn't exist
-    if ((response.status == 401)) {
-      console.log(`User needs to login first`)
-    }
-
-    return null
+  // If 401, it means the user session expired or doesn't exist
+  if (response.status === 401) {
+    console.log(`User needs to login first`)
   }
+
+  return null
 }
