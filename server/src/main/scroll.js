@@ -149,8 +149,10 @@ App.stop_code_scroll = () => {
   App.set_code_scroll_button_active(false)
 }
 
-App.restart_code_scroll = () => {
-  App.scroll_input_to_top()
+App.restart_code_scroll = (to_top = true) => {
+  if (to_top) {
+    App.scroll_input_to_top()
+  }
 
   if (App.code_scroll_active) {
     App.defer_code_scroll(App.code_scroll_song_pause_ms)
