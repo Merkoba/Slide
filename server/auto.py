@@ -5,11 +5,13 @@ import threading
 import logging
 import random
 from pathlib import Path
-from flask import Blueprint, Response
+from flask import Blueprint, Response  # type: ignore
 from watchdog.events import FileSystemEventHandler  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from litellm import completion  # type: ignore
 from typing import Any
+
+import utils
 
 MINUTES = 5
 MAX_HISTORY = 3

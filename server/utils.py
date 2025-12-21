@@ -4,7 +4,6 @@ import subprocess
 import logging
 import sys
 import json
-from typing import Any
 from pathlib import Path
 
 CONFIG = {}

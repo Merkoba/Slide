@@ -6,7 +6,7 @@ import atexit
 import logging
 from pathlib import Path
 from typing import Any
-from flask import Response, send_from_directory, render_template, request
+from flask import Response, send_from_directory, render_template, request  # type: ignore
 
 import auto
 import utils

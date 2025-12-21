@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from flask import Blueprint, request
+import requests  # type: ignore
+from flask import Blueprint, request, redirect, jsonify, session  # type: ignore
 from typing import Any
+
 import utils
 
 GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"
@@ -16,7 +18,7 @@ def github_login() -> Any:
     """Step 1: Redirect user to GitHub to approve permissions."""
     scope = "gist"
 
-    client_id = CREDS["github_client_id"]
+    client_id = utils.CREDS["github_client_id"]
     return redirect(f"{GITHUB_AUTH_URL}?client_id={client_id}&scope={scope}")
 
 
@@ -26,8 +28,8 @@ def github_callback() -> Any:
     code = request.args.get("code")
 
     payload = {
-        "client_id": CREDS["github_client_id"],
-        "client_secret": CREDS["github_client_secret"],
+        "client_id": utils.CREDS["github_client_id"],
+        "client_secret": utils.CREDS["github_client_secret"],
         "code": code,
     }
 
@@ -104,6 +106,6 @@ def create_gist() -> Any:
         return jsonify({"raw_url": raw_url})
 
     # Debugging: Print why GitHub failed
-    echo(f"GitHub API Error: {response.status_code}")
+    utils.echo(f"GitHub API Error: {response.status_code}")
 
     return jsonify({"error": "GitHub API failed", "details": response.json()}), 400
