@@ -3,10 +3,13 @@ from __future__ import annotations
 import os
 import threading
 import logging
+import random
 from pathlib import Path
-from flask import Blueprint
+from flask import Blueprint, Response
 from watchdog.events import FileSystemEventHandler  # type: ignore
 from watchdog.observers import Observer  # type: ignore
+from litellm import completion  # type: ignore
+from typing import Any
 
 MINUTES = 5
 MAX_HISTORY = 3
@@ -112,7 +115,7 @@ def get_director_instruction(intensity: str = "medium") -> str:
 def run_ai_prompt() -> str:
     """Send the hardcoded prompt through LiteLLM and capture the text body."""
 
-    echo("Getting answer")
+    utils.echo("Getting answer")
     model = resolve_model_name(MODEL)
 
     messages = [
@@ -136,7 +139,7 @@ def run_ai_prompt() -> str:
     )
 
     if content:
-        return strip_markdown_code_fences(content)
+        return utils.strip_markdown_code_fences(content)
 
     return "Received empty response from model."
 

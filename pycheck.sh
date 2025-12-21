@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
-source venv/bin/activate &&
-cd meltdown
-clear &&
-ruff format slide.py &&
-ruff check slide.py &&
-mypy --strict slide.py &&
-pyright slide.py &&
+cd server
+
+# Activate the virtual environment
+source venv/bin/activate
+
+clear
+
+# Run tools on the entire directory
+ruff format .
+ruff check .
+mypy --strict .
+# pyright .
+
 deactivate
