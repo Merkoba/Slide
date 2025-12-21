@@ -116,7 +116,7 @@ App.get_input_value = () => {
   return App.editor.state.doc.toString()
 }
 
-App.set_input = (code) => {
+App.set_input = (code, to_top = true) => {
   if (App.get_input_value() === code) {
     return
   }
@@ -129,7 +129,10 @@ App.set_input = (code) => {
     },
   })
 
-  App.scroll_input_to_top()
+  if (to_top) {
+    App.scroll_input_to_top()
+  }
+
   App.reset_code_scroll_for_content()
 }
 

@@ -221,7 +221,7 @@ App.run_eval = async (code) => {
   App.reset_eval_state()
   code = App.filter_code(code)
   App.last_code = code
-  App.set_input(code)
+  App.set_input(code, false)
 
   try {
     App.pattern = await App.evaluate(code)
