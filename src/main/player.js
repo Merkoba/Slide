@@ -54,7 +54,6 @@ App.play_action = async (code = ``, force = false, args = {}) => {
     await App.strudel_update(code)
     await App.resume_audio()
     App.play_state = `playing`
-    App.edited = false
     App.update_effects()
     App.update_url()
   }

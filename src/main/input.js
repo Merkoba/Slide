@@ -12,7 +12,6 @@ import {highlightSelectionMatches, searchKeymap, search, selectNextOccurrence} f
 App.input_mirror_time = 3 * 1000
 App.input_grow_time = 3 * 1000
 App.lines_enabled = true
-App.edited = true
 
 App.setup_input = () => {
   App.create_editor()
@@ -484,10 +483,4 @@ App.max_input_if_larger = () => {
 App.on_input_change = () => {
   App.stop_drawer()
   App.clean_mirror()
-
-  if (!App.edited) {
-    let play_btn = DOM.el(`#btn-play`)
-    DOM.show(play_btn)
-    App.edited = true
-  }
 }
