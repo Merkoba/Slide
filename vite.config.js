@@ -40,6 +40,7 @@ export default defineConfig(() => {
       ordered_imports_plugin()
     ],
     build: {
+      outDir: `server/dist`,
       lib: {
         entry: path.resolve(project_root, `entry.js`),
         name: `SlideBundle`,

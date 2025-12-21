@@ -49,7 +49,7 @@ def index() -> Any:
         song_name=song_name,
         song_display=song_display,
         config=utils.CONFIG,
-        commit_hash=COMMIT_HASH,
+        commit_hash=utils.COMMIT_HASH,
     )
 
 
