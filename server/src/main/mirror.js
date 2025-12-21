@@ -90,8 +90,7 @@ App.setup_strudel_mirror = () => {
 
       return decorations
     },
-
-    provide: field => EditorView.decorations.from(field)
+    provide: field => EditorView.decorations.from(field),
   })
 }
 
