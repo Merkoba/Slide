@@ -41,9 +41,12 @@ App.save_gist = async (content, filename) => {
 
   if (response.ok) {
     let result = await response.json()
-    console.log(`Gist created:`, result.html_url)
-    App.show_gist_url(result.html_url)
-    return result.html_url
+    let raw_url = result.raw_url
+
+    console.log(`Gist created:`, raw_url)
+    App.show_gist_url(raw_url)
+
+    return raw_url
   }
 
   let error_data = await response.json()
