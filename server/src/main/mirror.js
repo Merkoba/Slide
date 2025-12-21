@@ -9,7 +9,6 @@ App.setup_drawer = () => {
   let pending_locations = null
   let render_frame = null
 
-  // Define the render logic separately
   let flush_highlights = () => {
     render_frame = null
 
@@ -17,10 +16,19 @@ App.setup_drawer = () => {
       return
     }
 
-    // Dispatch the latest state
     App.editor.dispatch({
       effects: App.set_highlight.of(pending_locations),
     })
+
+    pending_locations = null
+  }
+
+  // New helper: kills any queued update so it doesn't overwrite a clean
+  App.cancel_mirror_render = () => {
+    if (render_frame) {
+      window.cancelAnimationFrame(render_frame)
+      render_frame = null
+    }
 
     pending_locations = null
   }
@@ -30,7 +38,6 @@ App.setup_drawer = () => {
       return
     }
 
-    // 1. Just calculate data, don't touch the DOM/Editor yet
     let locations = []
 
     for (let hap of active_haps) {
@@ -42,10 +49,8 @@ App.setup_drawer = () => {
       }
     }
 
-    // 2. Store the latest data
     pending_locations = locations
 
-    // 3. Schedule the update if one isn't already running
     if (!render_frame) {
       render_frame = window.requestAnimationFrame(flush_highlights)
     }
@@ -64,9 +69,20 @@ App.setup_strudel_mirror = () => {
 
       for (let effect of transaction.effects) {
         if (effect.is(App.set_highlight)) {
-          let new_marks = effect.value.map(loc =>
-            Decoration.mark({class: `sh-executing`}).range(loc.start, loc.end),
-          )
+          let doc_length = transaction.newDoc.length
+
+          if (doc_length === 0) {
+            return Decoration.none
+          }
+
+          let new_marks = effect.value
+            .filter(loc => {
+              // Ensure the highlight range fits within the current document
+              return loc.end <= doc_length
+            })
+            .map(loc => {
+              return Decoration.mark({class: `sh-executing`}).range(loc.start, loc.end)
+            })
 
           return Decoration.set(new_marks, true)
         }
@@ -74,14 +90,23 @@ App.setup_strudel_mirror = () => {
 
       return decorations
     },
-    provide: field => EditorView.decorations.from(field),
+
+    provide: field => EditorView.decorations.from(field)
   })
 }
 
 App.clean_mirror = () => {
-  App.editor.dispatch({
-    effects: App.set_highlight.of([]),
-  })
+  // 1. Cancel the pending frame before cleaning!
+  if (App.cancel_mirror_render) {
+    App.cancel_mirror_render()
+  }
+
+  // 2. Now it is safe to clear
+  if (App.editor) {
+    App.editor.dispatch({
+      effects: App.set_highlight.of([]),
+    })
+  }
 }
 
 App.toggle_mirror = () => {
