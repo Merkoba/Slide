@@ -1,4 +1,12 @@
+from __future__ import annotations
+
+import os
+import threading
+import logging
+from pathlib import Path
 from flask import Blueprint
+from watchdog.events import FileSystemEventHandler  # type: ignore
+from watchdog.observers import Observer  # type: ignore
 
 MINUTES = 5
 MAX_HISTORY = 3
@@ -30,7 +38,7 @@ WORKER_THREAD: threading.Thread | None = None
 STATUS_OBSERVER: Any = None
 HISTORY: list[str] = []
 
-bp = Blueprint("github", __name__)
+bp = Blueprint("auto", __name__)
 
 
 PROMPT = """

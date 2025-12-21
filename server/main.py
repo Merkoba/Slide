@@ -18,10 +18,9 @@ from litellm import completion  # type: ignore
 from watchdog.observers import Observer  # type: ignore
 from watchdog.events import FileSystemEventHandler  # type: ignore
 
-from github import bp as github_bp
-from auto import bp as auto_bp
-import config
 import auto
+import utils
+from app import app
 
 PORT = 4242
 SONG_LIST_LIMIT = 100
@@ -30,10 +29,6 @@ ENABLE_AI_INTERVAL = False
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
-
-app = Flask(__name__)
-app.register_blueprint(github_bp, url_prefix="/github")
-app.register_blueprint(auto_bp, url_prefix="/")
 
 
 @app.route("/", methods=["GET"])  # type: ignore
@@ -114,7 +109,7 @@ def song_shortcut(song_name: str) -> Any:
 def main() -> None:
     utils.load_config()
     auto.load_status()
-    utls.load_creds()
+    utils.load_creds()
 
     if ENABLE_AI_INTERVAL:
         auto.load_api_key()
@@ -124,7 +119,7 @@ def main() -> None:
         logging.info("AI interval disabled; worker not started")
 
     auto.start_auto()
-    atexit.register(shutdown_worker)
+    atexit.register(auto.shutdown_worker)
     app.run(host="0.0.0.0", port=PORT, debug=False)
 
 

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from flask import Blueprint, request
+from typing import Any
 import utils
 
 GITHUB_AUTH_URL = "https://github.com/login/oauth/authorize"

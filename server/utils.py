@@ -1,7 +1,18 @@
+from __future__ import annotations
+
+import subprocess
+import logging
+import sys
+import json
+from typing import Any
+from pathlib import Path
+
 CONFIG = {}
 CREDS = {}
 CONFIG_FILE = "config/config.json"
 CREDS_FILE = "config/creds.json"
+
+from app import app
 
 
 def strip_markdown_code_fences(text: str) -> str:
@@ -50,8 +61,8 @@ def load_config() -> None:
         config_content = config_path.read_text(encoding="utf-8")
         CONFIG = json.loads(config_content)
         logging.info("Loaded config")
-    except:
-        logging.critical("Config Error: %s")
+    except Exception as e:
+        logging.critical("Config Error: %s", e, exc_info=True)
         sys.exit(1)
 
 
@@ -67,6 +78,6 @@ def load_creds() -> None:
         CREDS = json.loads(creds_content)
         app.secret_key = CREDS["secret_key"]
         logging.info("Loaded creds")
-    except:
-        logging.critical("Creds Error: %s")
+    except Exception as e:
+        logging.critical("Creds Error: %s", e, exc_info=True)
         sys.exit(1)

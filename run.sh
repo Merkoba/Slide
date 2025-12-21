@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-venv/bin/python slide.py
+cd server
+venv/bin/python main.py
