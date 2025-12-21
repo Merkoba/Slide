@@ -39,7 +39,18 @@ REQUEST_INTERVAL_MINUTES = max(
     1, int(os.getenv("REQUEST_INTERVAL_MINUTES", f"{MINUTES}"))
 )
 
-DEFAULT_ANSWER = ""
+DEFAULT_ANSWER = """// This is supposed to run an AI service to update the code periodically
+// But right now this is not runnning to avoid expenses
+// The idea is that the AI is told to change the code a bit every x minutes
+// It is given recent code history and told to evolve it in a way that makes sense
+// This is done in the server making every user use the same code
+// It's possible to change the URL endpoint to another server
+
+$: sound("bd bd bd bd").bank("LinnDrum")
+$: sound("[hh hh]*2 [hh hh]").bank("RolandTR707").gain(0.2)
+$: sound("~ sd ~ sd").bank("OberheimDMX")
+$: note("[a g g f#] ~")
+"""
 
 STOP_EVENT = threading.Event()
 ANSWER_LOCK = threading.Lock()
