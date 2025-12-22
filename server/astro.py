@@ -3,6 +3,7 @@ import threading
 import math
 import json
 import numpy as np  # type: ignore
+from pathlib import Path
 from typing import Any
 
 # Only needed if you run this inside flask to prevent double-execution
@@ -147,7 +148,7 @@ class SkyScanner:
         self.read_file()
 
     def read_file(self) -> None:
-        with open(STARS_PATH, "r") as file:
+        with Path(STARS_PATH).open("r", encoding="utf-8") as file:
             self.stars = json.load(file)
 
     def get_ra_average(self, ra_values: list[Any]) -> float:
@@ -216,12 +217,14 @@ class SkyScanner:
             separation = math.sqrt((adjusted_ra_diff**2) + (dec_diff**2))
 
             if separation <= SEARCH_RADIUS_DEG:
-                found_stars.append({
-                    "name": star["name"],
-                    "ra": star_ra,
-                    "dec": star_dec,
-                    "mag": star["mag"],
-                })
+                found_stars.append(
+                    {
+                        "name": star["name"],
+                        "ra": star_ra,
+                        "dec": star_dec,
+                        "mag": star["mag"],
+                    }
+                )
 
         return found_stars
 
