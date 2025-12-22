@@ -132,6 +132,7 @@ class SkyScanner:
                 if code:
                     with Path(OUTPUT_FILE).open("w", encoding="UTF-8") as f:
                         f.write(code)
+                        utils.echo("Wrote to status file.")
 
             except Exception as e:
                 utils.echo(f"Critical Loop Error: {e}")
@@ -176,7 +177,7 @@ class SkyScanner:
         rng_2 = random.Random(f"{ra_avg}_dec_avg_2")
         rng_3 = random.Random(f"{ra_avg}_dec_avg_3")
 
-        cpm = [23, 24, 25, 26, 27]
+        cpm = [18, 20, 22, 25, 27]
         points = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
         def n():
@@ -200,29 +201,29 @@ setcpm({rng_1.choice(cpm)})
 let s1 = stack(
     note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
     note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("{o()}").gain(0.4).pan(1),
+    sound("brown").gain(0.4).pan(1),
     note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
 )
 
 let s2 = stack(
     note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
     note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("{o()}").gain(0.4),
+    sound("brown").gain(0.4),
     note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
     note("f4 ~").sound("{s()}").pan(0),
 )
 
 let s3 = stack(
     note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
-    note("[{n()} {n()} {n()}]").sound("white").pan(sine.range(0, 1).slow(4)).gain(0.2),
-    sound("{o()}").gain(0.4).pan(1),
+    note("[{n()} {n()} {n()}]").sound("{o()}").pan(sine.range(0, 1).slow(4)).gain(0.2),
+    sound("brown").gain(0.4).pan(1),
     note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
 )
 
 let s4 = stack(
     note("eb3 ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
     note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("{o()}").gain(0.4),
+    sound("brown").gain(0.4),
     note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
     note("{n()} ~").sound("{s()}").pan(1),
 )
