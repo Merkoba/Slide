@@ -111,7 +111,6 @@ NOTES = [
 ]
 
 NOISE = [
-    "white",
     "pink",
     "brown",
 ]
@@ -296,6 +295,9 @@ class SkyScanner:
             n3 = rng_3.choice(points)
             return f"<{n1} {n2} {n3}>"
 
+        def b() -> str:
+            return rng_2.choice(BANKS)
+
         def e() -> str:
             # 30% chance for no effect
             if rng_3.random() < 0.3:
@@ -310,23 +312,18 @@ class SkyScanner:
                 if type_idx == 0:
                     val = rng_1.randint(200, 3000)
                     chain.append(f".lpf({val})")
-
                 elif type_idx == 1:
                     val = rng_1.randint(100, 1000)
                     chain.append(f".hpf({val})")
-
                 elif type_idx == 2:
                     val = round(rng_2.uniform(0.1, 0.7), 2)
                     chain.append(f".delay({val})")
-
                 elif type_idx == 3:
                     val = rng_2.randint(3, 16)
                     chain.append(f".crush({val})")
-
                 elif type_idx == 4:
                     val = round(rng_1.uniform(0.1, 0.9), 1)
                     chain.append(f".shape({val})")
-
                 elif type_idx == 5:
                     char = rng_3.choice(['a', 'e', 'i', 'o', 'u'])
                     chain.append(f".vowel('{char}')")
@@ -366,7 +363,8 @@ let s4 = stack(
   note("{n()} ~").sound("{s()}").pan(1){e()}
 )
 
-cat(s1, s2, s3, s4)
+$: cat(s1, s2, s3, s4)
+$: sound("bd hh hh hh").bank("{b}")
 """
 
 
