@@ -22,7 +22,6 @@ DRIFT_AMOUNT = 2.0
 
 SOUNDS = [
     "sine",
-    "triangle",
     "piano",
 ]
 
@@ -274,9 +273,13 @@ class SkyScanner:
         cpm = list(range(min_cpm, max_cpm + 1))
 
         min_p, max_p, step = 0, 1, 0.1
+
         points = [
             round(min_p + x * step, 1) for x in range(int((max_p - min_p) / step) + 1)
         ]
+
+        g1 = 0.6
+        g2 = 0.5
 
         def n() -> str:
             return rng_2.choice(NOTES)
@@ -293,38 +296,74 @@ class SkyScanner:
             n3 = rng_3.choice(points)
             return f"<{n1} {n2} {n3}>"
 
-        # (Your sound generation string matches original...)
+        def e() -> str:
+            # 30% chance for no effect
+            if rng_3.random() < 0.3:
+                return ""
+
+            chain_len = rng_3.randint(1, 2)
+            chain = []
+
+            for _ in range(chain_len):
+                type_idx = rng_3.randint(0, 5)
+
+                if type_idx == 0:
+                    val = rng_1.randint(200, 3000)
+                    chain.append(f".lpf({val})")
+
+                elif type_idx == 1:
+                    val = rng_1.randint(100, 1000)
+                    chain.append(f".hpf({val})")
+
+                elif type_idx == 2:
+                    val = round(rng_2.uniform(0.1, 0.7), 2)
+                    chain.append(f".delay({val})")
+
+                elif type_idx == 3:
+                    val = rng_2.randint(3, 16)
+                    chain.append(f".crush({val})")
+
+                elif type_idx == 4:
+                    val = round(rng_1.uniform(0.1, 0.9), 1)
+                    chain.append(f".shape({val})")
+
+                elif type_idx == 5:
+                    char = rng_3.choice(['a', 'e', 'i', 'o', 'u'])
+                    chain.append(f".vowel('{char}')")
+
+            return "".join(chain)
+
         return f"""
 setcpm({rng_1.choice(cpm)})
 
 let s1 = stack(
-    note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
-    note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("brown").gain(0.4).pan(1),
-    note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
+  note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"){e()}.gain({g1}),
+  note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.15).attack(0.05).release(0.1){e()},
+  sound("brown").gain(0.1).attack(0.5).release(1).pan(1){e()},
+  note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"){e()}.gain({g2})
 )
 
 let s2 = stack(
-    note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
-    note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("brown").gain(0.4),
-    note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
-    note("f4 ~").sound("{s()}").pan(0),
+  note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"){e()}.gain({g1}),
+  note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.15).attack(0.05).release(0.1){e()},
+  sound("brown").gain(0.1).attack(0.5).release(1){e()},
+  note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"){e()},
+  note("f4 ~").sound("{s()}").pan(0){e()}.gain({g2})
 )
 
 let s3 = stack(
-    note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
-    note("[{n()} {n()} {n()}]").sound("{o()}").pan(sine.range(0, 1).slow(4)).gain(0.2),
-    sound("brown").gain(0.4).pan(1),
-    note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
+  note("{n()} ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"){e()}.gain({g1}),
+  note("[{n()} {n()} {n()}]").sound("{o()}").pan(sine.range(0, 1).slow(4)).gain(0.15).attack(0.05).release(0.1){e()},
+  sound("brown").gain(0.1).attack(0.5).release(1).pan(1){e()},
+  note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"){e()}.gain({g2})
 )
 
 let s4 = stack(
-    note("eb3 ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"),
-    note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.4),
-    sound("brown").gain(0.4),
-    note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"),
-    note("{n()} ~").sound("{s()}").pan(1),
+  note("eb3 ~ {n()} [{n()} {n()}]").sound("{s()}").pan(0).room("{v()}"){e()}.gain({g1}),
+  note("[{n()} {n()} {n()}]").sound("{o()}").pan(0).gain(0.15).attack(0.05).release(0.1){e()},
+  sound("brown").gain(0.1).attack(0.5).release(1){e()},
+  note("~ {n()} {n()} {n()} {n()} {n()}").sound("{s()}"){e()}.gain({g2}),
+  note("{n()} ~").sound("{s()}").pan(1){e()}
 )
 
 cat(s1, s2, s3, s4)
