@@ -496,13 +496,13 @@ class Astro:
             return
 
         ra_values = [s["ra"] for s in stars]
-        ra_avg = int(self.get_ra_average(ra_values))
+        ra_avg = round(self.get_ra_average(ra_values))
 
         dec_values = [s["dec"] for s in stars]
-        dec_avg = int(self.get_dec_average(dec_values))
+        dec_avg = round(self.get_dec_average(dec_values))
 
         mag_values = [s["mag"] for s in stars]
-        mag_avg = int(self.get_mag_average(mag_values))
+        mag_avg = round(self.get_mag_average(mag_values))
 
         awards = self.calculate_star_awards(stars, ra_avg, dec_avg, mag_values)
         tag = f"{ra_avg}_{dec_avg}_${mag_avg}"
@@ -590,14 +590,11 @@ class Astro:
         name = self.namer.generate_name(ra_avg, dec_avg, mag_avg)
         data.beat_title = name
         data.beat_code = f"""/* Astro 🌌 Star Data
-
 RA: {ra_avg} | DEC: {dec_avg} | MAG: {mag_avg}
-
 North Star: {self.name(awards["north_star"])}
 Loner Star: {self.name(awards["loner_star"])}
 Center Star: {self.name(awards["center_star"])}
-Brightest Star: {self.name(awards["brightest_star"])}
-*/
+Brightest Star: {self.name(awards["brightest_star"])} */
 
 setcpm({rng_1.choice(cpm)})
 
