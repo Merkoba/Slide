@@ -126,29 +126,89 @@ NOTES = [
     "g0",
 ]
 
+
 class StarNamer:
-    def __init__(self):
+    def __init__(self) -> None:
         # 1. "Alien" Syllables for sci-fi feel
         self.syllables_start = [
-            "Grib", "Plok", "Zox", "Vyr", "Kla", "Thrum", "Xyl", "Quor",
-            "Bli", "Drah", "Flux", "Jinx", "Mox", "Nix", "Pry", "Sphynx"
+            "Grib",
+            "Plok",
+            "Zox",
+            "Vyr",
+            "Kla",
+            "Thrum",
+            "Xyl",
+            "Quor",
+            "Bli",
+            "Drah",
+            "Flux",
+            "Jinx",
+            "Mox",
+            "Nix",
+            "Pry",
+            "Sphynx",
         ]
         self.syllables_end = [
-            "tor", "nar", "xis", "wen", "zar", "kith", "lun", "rax",
-            "morn", "vex", "cryn", "zod", "hark", "vull", "qish"
+            "tor",
+            "nar",
+            "xis",
+            "wen",
+            "zar",
+            "kith",
+            "lun",
+            "rax",
+            "morn",
+            "vex",
+            "cryn",
+            "zod",
+            "hark",
+            "vull",
+            "qish",
         ]
 
         # 2. English words (Adjectives & Nouns)
         # You can expand these or load from /usr/share/dict/words if you want
         self.adjectives = [
-            "Silent", "Drifting", "Iron", "Neon", "Frozen", "Burning",
-            "Hidden", "Lost", "Azure", "Crimson", "Jagged", "Smooth",
-            "Echoing", "Hollow", "Solar", "Lunar", "Stellar", "Void"
+            "Silent",
+            "Drifting",
+            "Iron",
+            "Neon",
+            "Frozen",
+            "Burning",
+            "Hidden",
+            "Lost",
+            "Azure",
+            "Crimson",
+            "Jagged",
+            "Smooth",
+            "Echoing",
+            "Hollow",
+            "Solar",
+            "Lunar",
+            "Stellar",
+            "Void",
         ]
         self.nouns = [
-            "Dream", "Signal", "Dust", "Shard", "Wave", "Pulse", "Sector",
-            "Region", "Cluster", "Zone", "Drift", "Gate", "Veil", "Core",
-            "Peak", "Abyss", "Halo", "Tide", "Storm", "Silence"
+            "Dream",
+            "Signal",
+            "Dust",
+            "Shard",
+            "Wave",
+            "Pulse",
+            "Sector",
+            "Region",
+            "Cluster",
+            "Zone",
+            "Drift",
+            "Gate",
+            "Veil",
+            "Core",
+            "Peak",
+            "Abyss",
+            "Halo",
+            "Tide",
+            "Storm",
+            "Silence",
         ]
 
     def get_seed(self, ra_avg: float, dec_avg: float, mag_avg: float) -> int:
@@ -179,22 +239,23 @@ class StarNamer:
             if rng.random() > 0.5:
                 part2 = rng.choice(self.syllables_start)
             else:
-                part2 = rng.choice(self.syllables_start) + rng.choice(self.syllables_end)
+                part2 = rng.choice(self.syllables_start) + rng.choice(
+                    self.syllables_end
+                )
 
             return f"{part1} {part2.capitalize()}"
 
-        elif style == 1:
+        if style == 1:
             # English Style: Adjective + Noun
             adj = rng.choice(self.adjectives)
             noun = rng.choice(self.nouns)
             return f"{adj} {noun}"
 
-        else:
-            # Hybrid Style: English Adjective + Alien Noun OR Alien + English Noun
-            if rng.random() > 0.5:
-                return f"{rng.choice(self.adjectives)} {rng.choice(self.syllables_start)}"
-            else:
-                return f"{rng.choice(self.syllables_start)} {rng.choice(self.nouns)}"
+        # Hybrid Style: English Adjective + Alien Noun OR Alien + English Noun
+        if rng.random() > 0.5:
+            return f"{rng.choice(self.adjectives)} {rng.choice(self.syllables_start)}"
+
+        return f"{rng.choice(self.syllables_start)} {rng.choice(self.nouns)}"
 
 
 class SkyScanner:
