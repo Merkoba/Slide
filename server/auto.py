@@ -141,7 +141,7 @@ def get_status() -> Response:
 def stop_auto() -> None:
     stop()
     astro.stop()
-    print("Auto Stopped.")
+    utils.echo("Auto Stopped.")
 
 
 def get_director_instruction(intensity: str = "medium") -> str:

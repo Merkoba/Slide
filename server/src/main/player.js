@@ -300,11 +300,11 @@ App.copy_play = async () => {
     // this line triggers the browser permission prompt if needed
     let clipboard_text = await navigator.clipboard.readText()
 
-    if ((clipboard_text) && (clipboard_text.length > 0)) {
+    if (clipboard_text && (clipboard_text.length > 0)) {
       App.play_action(clipboard_text, {fresh: true})
     }
-
-  } catch (error) {
+  }
+  catch (error) {
     // handles if user denied permission or if api is unsupported
     console.error(`Clipboard access denied or failed: ${error}`)
   }

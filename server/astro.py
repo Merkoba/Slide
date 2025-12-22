@@ -383,7 +383,7 @@ def start() -> None:
     # from starting in the reloader (watcher) process.
     # It will only start in the actual worker process.
     if is_running_from_reloader():
-        return None  # type: ignore
+        return
 
     SCANNER = SkyScanner()
     SCANNER.start()
