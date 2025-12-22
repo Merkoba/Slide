@@ -20,6 +20,9 @@ DRIFT_AMOUNT = 2.0
 WAVEFORMS = [
     "sine",
     "triangle",
+    "sawtooth",
+    "square",
+    "pwm",
 ]
 
 DRUM_BANKS = [
@@ -133,12 +136,49 @@ class SkyScanner:
     def get_option_by_data(self, value_0_to_1: float, options_list: Any) -> Any:
         """Maps a 0.0-1.0 value to an index in the list."""
         if not options_list:
-            return "sine"  # Fallback
+            return "sine"
 
         index = int(value_0_to_1 * len(options_list))
         index = max(0, min(index, len(options_list) - 1))
 
         return options_list[index]
+
+    def get_beat_pattern(self, vol: float, tone: float) -> str:
+        """Generates a 4-bar mini-notation string based on star data."""
+        # Base Kick (always present to anchor the beat)
+        kick = "bd"
+
+        # Snare complexity depends on Tone (brighter stars = busier snares)
+        if tone < 0.3:
+            snare = "sd"
+        elif tone < 0.7:
+            snare = "[sd, cp]"
+        else:
+            snare = "sd(3,8)"
+
+        # Hats density depends on Volume (brighter stars = faster hats)
+        if vol < 0.3:
+            hats = "hh"
+        elif vol < 0.6:
+            hats = "hh*2"
+        else:
+            hats = "hh*4"
+
+        # Percussion fills (Euclidean rhythms for texture)
+        perc = f"lt({int(tone * 5) + 1},8)"
+
+        # Constructing a 4-part structure (A - B - A - C)
+        # Part A: Standard Beat
+        part_a = f"[{kick} {hats}, ~ {snare}]"
+
+        # Part B: Add Percussion
+        part_b = f"[{kick} {hats}, {perc} {snare}]"
+
+        # Part C: Breakdown / Fill
+        part_c = f"[{kick}*2 {hats}, {snare}*2 {perc}]"
+
+        # Combine into a longer cycle
+        return f"<{part_a} {part_b} {part_a} {part_c}>"
 
     def generate_strudel_code(self, stars: Any) -> str:
         if not stars:
@@ -148,61 +188,66 @@ class SkyScanner:
         avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
         vol = lead_star["music_vol"]
 
-        # --- DYNAMIC ENVELOPE CALCULATION ---
-        # Attack range: 0.2s (fastest) to 1.7s (slowest)
-        attack_val = 0.2 + ((1.0 - vol) * 1.5)
-
-        # Release range: 0.8s (shortest) to 3.8s (longest)
-        release_val = 0.8 + ((1.0 - vol) * 3.0)
-
-        attack_val = round(attack_val, 2)
-        release_val = round(release_val, 2)
+        # --- DYNAMIC ENVELOPE ---
+        attack_val = round(0.2 + ((1.0 - vol) * 1.5), 2)
+        release_val = round(0.8 + ((1.0 - vol) * 3.0), 2)
 
         # --- SELECTION ---
         selected_waveform = self.get_option_by_data(avg_tone, WAVEFORMS)
         selected_bank = self.get_option_by_data(vol, DRUM_BANKS)
 
         cpm_val = 60 + int(vol * 80)
-
         cutoff_val = 100 + int(avg_tone * 600)
         drum_cutoff = cutoff_val * 4
 
-        # --- PANNING ---
-        # Map avg_tone (0-1) to Pan range (0.2-0.8)
-        # Formula: 0.2 + (value * 0.6)
-        drone_pan = 0.2 + (avg_tone * 0.6)
-        drone_pan = round(drone_pan, 2)
+        # --- DRONE (Center-ish but moving) ---
+        drone_layer = (
+            f'  note("c2").s("{selected_waveform}")'
+            f".lpf({cutoff_val}).attack({attack_val}).release({release_val})"
+            f".gain(0.2).slow(2).pan(sine.range(0.4, 0.6).slow(4))"
+        )
 
-        drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack({attack_val}).release({release_val}).gain(0.25).slow(2).pan({drone_pan})'
+        # --- BEAT (Center, Longer Pattern) ---
+        beat_pattern = self.get_beat_pattern(vol, avg_tone)
+        beat_layer = (
+            f'  s("{beat_pattern}").bank("{selected_bank}")'
+            f".lpf({drum_cutoff}).gain(0.55).pan(0.5)"
+        )
 
-        if vol < 0.3:
-            beat_pattern = "bd(3,8)"
-        elif vol < 0.7:
-            beat_pattern = "bd hh"
-        else:
-            beat_pattern = "bd [sd, hh] bd hh"
-
-        beat_layer = f'  s("{beat_pattern}").bank("{selected_bank}").lpf({drum_cutoff}).gain(0.6).pan(0.5)'
-
+        # --- MELODY (Hard Panning) ---
         scale_degrees = [0, 3, 5, 7, 10, 12]
         melody_notes = []
         melody_pans = []
 
-        for s in stars[:4]:
+        # Limit to 4 stars for the arpeggio
+        active_stars = stars[:4]
+
+        for s in active_stars:
             scale_idx = int(s["music_tone"] * (len(scale_degrees) - 1))
             degree = scale_degrees[scale_idx]
             melody_notes.append(str(degree))
 
-            # Calculate pan per note based on star's specific tone
-            note_pan = 0.2 + (s["music_tone"] * 0.6)
-            melody_pans.append(str(round(note_pan, 2)))
+            # FIX: Force panning away from center to avoid clash
+            # < 0.5 goes Left (0.0-0.3), > 0.5 goes Right (0.7-1.0)
+            raw_tone = s["music_tone"]
+            if raw_tone < 0.5:
+                p_val = raw_tone * 0.6  # Map 0.0-0.5 -> 0.0-0.3
+            else:
+                p_val = 0.7 + ((raw_tone - 0.5) * 0.6)  # Map 0.5-1.0 -> 0.7-1.0
 
+            melody_pans.append(str(round(p_val, 2)))
+
+        # Construct space-separated strings for Strudel mini-notation
         seq_str = " ".join(melody_notes)
         pan_str = " ".join(melody_pans)
 
+        # We use 'struct' to ensure the pan pattern locks exactly to the note rhythm
         effect = ".jux(rev)" if (avg_tone > 0.6) else ""
 
-        melody_layer = f'  note("{seq_str}").scale("c3 minor").s("sine").delay(0.5).gain(0.5).pan("{pan_str}"){effect}'
+        melody_layer = (
+            f'  note("{seq_str}").scale("c3 minor").s("sine")'
+            f'.gain(0.5).pan("{pan_str}"){effect}'
+        )
 
         strudel_code = f"""
 cpm({cpm_val})
