@@ -13,8 +13,7 @@ from werkzeug.serving import is_running_from_reloader  # type: ignore
 import utils
 import data
 
-FETCH_INTERVAL = 45  # seconds
-DRIFT_AMOUNT = 2.0
+SECONDS = 45
 STARS_PATH = "data/stars.json"
 
 # A width of 2.0 means we capture a strip 4 degrees wide total
@@ -276,7 +275,15 @@ class SkyScanner:
         self.thread = None
         self.is_running = False
         self.initialized = True
-        self.current_ra = random.uniform(0.0, 360.0)
+
+        # RA is 0-360 (full circle)
+        self.current_ra = random.uniform(0, 360)
+
+        # DEC is -90 (South Pole) to +90 (North Pole)
+        self.current_dec = random.uniform(-90, 90)
+
+        self.ra_step = 2.0        # Move 2 degrees right per tick
+        self.dec_step = 15.0      # Move 15 degrees up after full circle
         self.namer = StarNamer()
         self.read_file()
 
@@ -311,44 +318,69 @@ class SkyScanner:
     def name(self, star: Any) -> str:
         return utils.remove_multiple_spaces(star["name"])
 
-    def get_star_data(self, ra: float) -> Any:
-        found_stars = []
+    def get_star_data(self, limit: int = 10) -> Any:
+        # A. FETCH DATA (Using the "Nearest Neighbor" fix from before)
+        # -----------------------------------------------------------
+        found_stars = self.find_nearest_stars(self.current_ra, self.current_dec, limit)
+
+        # B. UPDATE STATE (Prepare coordinates for the NEXT call)
+        # -----------------------------------------------------------
+        self.current_ra += self.ra_step
+
+        # Check if we completed a full horizontal circle
+        if self.current_ra >= 360:
+            self.current_ra = 0       # Reset RA to start
+            self.current_dec += self.dec_step  # Move Camera Up vertically
+
+            # Check if we hit the North Pole (End of Universe)
+            if self.current_dec > 90:
+                # OPTION 1: Loop back to South Pole (Infinite Loop)
+                self.current_dec = -90
+
+                # OPTION 2: Bounce back down? (Requires adding a 'direction' state)
+                # OPTION 3: Stop?
+
+        return {
+            "center_ra": self.current_ra, # Return where we are looking
+            "center_dec": self.current_dec,
+            "stars": found_stars
+        }
+
+    def find_nearest_stars(self, target_ra, target_dec, limit):
+        # ... (The logic from the previous answer goes here) ...
+        # Remember: calculate distance using BOTH ra_diff and dec_diff
+        candidates = []
 
         for star in self.stars:
-            # 1. Calculate RA difference (Horizontal distance only)
-            raw_ra_diff = abs(star["ra"] - ra)
+            ra_diff = abs(star["ra"] - target_ra)
+            if ra_diff > 180: ra_diff = 360 - ra_diff
 
-            # Handle 360-degree wrap-around
-            if raw_ra_diff > 180:
-                raw_ra_diff = 360 - raw_ra_diff
+            dec_diff = abs(star["dec"] - target_dec)
 
-            # 2. Check if the star is within our vertical scan bar
-            # We REMOVED the declination check and the cosine adjustment here.
-            # We want everything in this RA slice, regardless of how high/low it is.
-            if raw_ra_diff <= SCAN_WIDTH_DEG:
-                found_stars.append(star)
+            # Simple score (Lower is better)
+            score = ra_diff + dec_diff
+            candidates.append((score, star))
 
-        return found_stars
+        candidates.sort(key=lambda x: x[0])
+        return [item[1] for item in candidates[:limit]]
 
     def run_loop(self) -> None:
         utils.echo("--- Sky Scanner Initialized (Ambient Mode) ---")
-        utils.echo(f"Waiting {FETCH_INTERVAL}s before first scan...")
+        utils.echo(f"Waiting {SECONDS}s before first scan...")
 
         while not self.stop_event.is_set():
-            if self.stop_event.wait(FETCH_INTERVAL):
+            if self.stop_event.wait(SECONDS):
                 break
 
             try:
                 utils.echo(f"\nScanning RA: {self.current_ra:.2f}...")
-                stars = self.get_star_data(self.current_ra)
-                self.make_sound(stars)
+                star_data = self.get_star_data(self.current_ra)
+                self.make_sound(star_data)
                 data.persist_status()
                 utils.echo("Astro Updated.")
 
             except Exception as e:
                 utils.echo(f"Critical Loop Error: {e}")
-
-            self.current_ra = (self.current_ra + DRIFT_AMOUNT) % 360.0
 
         utils.echo("--- Sky Scanner Stopped ---")
 
@@ -454,9 +486,11 @@ class SkyScanner:
             "brightest_star": brightest_star,
         }
 
-    def make_sound(self, stars: Any) -> None:
+    def make_sound(self, star_data: Any) -> None:
         if not stars:
             return
+
+        stars = star_data["stars"]
 
         ra_values = [s["ra"] for s in stars]
         ra_avg = self.get_ra_average(ra_values)
