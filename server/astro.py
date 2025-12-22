@@ -311,6 +311,7 @@ class SkyScanner:
 
             for _ in range(chain_len):
                 type_idx = rng_3.randint(0, 5)
+                val: int | float
 
                 if type_idx == 0:
                     val = rng_1.randint(200, 3000)
@@ -328,7 +329,7 @@ class SkyScanner:
                     val = round(rng_1.uniform(0.1, 0.9), 1)
                     chain.append(f".shape({val})")
                 elif type_idx == 5:
-                    char = rng_3.choice(['a', 'e', 'i', 'o', 'u'])
+                    char = rng_3.choice(["a", "e", "i", "o", "u"])
                     chain.append(f".vowel('{char}')")
 
             return "".join(chain)
