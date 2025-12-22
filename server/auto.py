@@ -143,6 +143,7 @@ def get_status() -> Response:
 def stop_auto() -> None:
     stop()
     astro.stop()
+    AUTO_REQUESTED = False
     utils.echo("Auto Stopped.")
 
 
