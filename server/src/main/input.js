@@ -136,7 +136,7 @@ App.set_input = (code, to_top = true) => {
       from: 0,
       to: current_length,
       insert: code,
-    }
+    },
   })
 
   if (to_top) {
