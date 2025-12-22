@@ -422,3 +422,9 @@ def shutdown_worker() -> None:
 
     if WORKER_THREAD:
         WORKER_THREAD.join(timeout=2)
+
+
+def start() -> None:
+    load_api_key()
+    load_instructions()
+    start_worker_if_needed()

@@ -9,12 +9,17 @@ from typing import Any
 from flask import Response, send_from_directory, render_template, request  # type: ignore
 
 import auto
+import astro
 import utils
 from app import app
 
 PORT = 4242
 SONG_LIST_LIMIT = 100
-ENABLE_AI_INTERVAL = False
+ENABLE_AUTO = True
+
+AUTO_METHOD = "astro"  # either 'auto' or 'astro'
+# auto uses ai to evolve the music
+# astro uses astronomic data to create sounds
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -102,10 +107,11 @@ def main() -> None:
     utils.load_creds()
     app.secret_key = utils.CREDS["secret_key"]
 
-    if ENABLE_AI_INTERVAL:
-        auto.load_api_key()
-        auto.load_instructions()
-        auto.start_worker_if_needed()
+    if ENABLE_AUTO:
+        if AUTO_METHOD == "ai":
+            auto.start()
+        elif AUTO_METHOD == "astro":
+            astro.start()
     else:
         logging.info("AI interval disabled; worker not started")
 
