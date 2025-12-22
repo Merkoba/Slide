@@ -282,8 +282,8 @@ class SkyScanner:
         # DEC is -90 (South Pole) to +90 (North Pole)
         self.current_dec = random.uniform(-90, 90)
 
-        self.ra_step = 2.0        # Move 2 degrees right per tick
-        self.dec_step = 15.0      # Move 15 degrees up after full circle
+        self.ra_step = 2.0  # Move 2 degrees right per tick
+        self.dec_step = 15.0  # Move 15 degrees up after full circle
         self.namer = StarNamer()
         self.read_file()
 
@@ -329,7 +329,7 @@ class SkyScanner:
 
         # Check if we completed a full horizontal circle
         if self.current_ra >= 360:
-            self.current_ra = 0       # Reset RA to start
+            self.current_ra = 0  # Reset RA to start
             self.current_dec += self.dec_step  # Move Camera Up vertically
 
             # Check if we hit the North Pole (End of Universe)
@@ -341,19 +341,22 @@ class SkyScanner:
                 # OPTION 3: Stop?
 
         return {
-            "center_ra": self.current_ra, # Return where we are looking
+            "center_ra": self.current_ra,  # Return where we are looking
             "center_dec": self.current_dec,
             "stars": found_stars,
         }
 
-    def find_nearest_stars(self, target_ra, target_dec, limit):
+    def find_nearest_stars(
+        self, target_ra: float, target_dec: float, limit: int
+    ) -> list[Any]:
         # ... (The logic from the previous answer goes here) ...
         # Remember: calculate distance using BOTH ra_diff and dec_diff
         candidates = []
 
         for star in self.stars:
             ra_diff = abs(star["ra"] - target_ra)
-            if ra_diff > 180: ra_diff = 360 - ra_diff
+            if ra_diff > 180:
+                ra_diff = 360 - ra_diff
 
             dec_diff = abs(star["dec"] - target_dec)
 
