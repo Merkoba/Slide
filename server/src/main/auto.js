@@ -126,6 +126,7 @@ App.start_auto = async (endpoint) => {
     return
   }
 
+  App.first_auto = true
   App.auto_endpoint = endpoint.trim()
   App.stor_save_auto_endpoint()
   DOM.el(`#btn-auto`).classList.add(`active`)
@@ -178,7 +179,9 @@ App.fetch_status = () => {
         return
       }
 
-      await App.play_action(code)
+      let first = App.first_auto
+      App.first_auto = false
+      await App.play_action(code, first)
     }
     catch (err) {
       console.error(`Failed to update Strudel status`, err)
