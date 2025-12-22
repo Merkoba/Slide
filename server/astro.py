@@ -28,7 +28,7 @@ WAVEFORMS = [
 DRUM_BANKS = [
   "RolandTR909",
   "YamahaRY30",
-  "linndrum",
+  "Linn9000",
   "RolandTR808"
   "CasioRZ1",
   "KorgM1",
@@ -159,9 +159,9 @@ class SkyScanner:
     selected_bank = self.get_option_by_data(lead_star["music_vol"], DRUM_BANKS)
 
     cpm_val = 50 + int(lead_star["music_vol"] * 100)
-    cutoff_val = 200 + int(avg_tone * 3800)
+    cutoff_val = max(200 + int(avg_tone * 3800), 600)
 
-    drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).gain(0.4).slow(2)'
+    drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack(0.4).release(1).gain(0.4).slow(2)'
 
     if lead_star["music_vol"] < 0.3:
       beat_pattern = "bd(3,8)"
