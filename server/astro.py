@@ -34,41 +34,28 @@ class SkyScanner:
         self.current_ra = START_RA
         self.is_running = False
 
-    def normalize_value(self, value: float, min_val: float, max_val: float) -> float:
-        if math.isnan(value):
-            return 0.5
+    def get_ra_average(self, ra_values):
+        # Convert degrees to radians
+        ra_rad = np.deg2rad(ra_values)
 
-        norm = (value - min_val) / (max_val - min_val)
-        return max(0.0, min(1.0, norm))
+        # Convert to unit vectors (x, y)
+        x = np.cos(ra_rad)
+        y = np.sin(ra_rad)
 
-    def get_safe_float(self, row: Any, col_name: str) -> float:
-        if col_name not in row.colnames:
-            return float("nan")
+        # Average the vectors
+        avg_x = np.mean(x)
+        avg_y = np.mean(y)
 
-        val = row[col_name]
+        # Convert back to angle in degrees
+        avg_ra_rad = np.arctan2(avg_y, avg_x)
+        avg_ra_deg = np.rad2deg(avg_ra_rad) % 360
 
-        if np.ma.is_masked(val):
-            return float("nan")
-        try:
-            return float(val)
-        except (ValueError, TypeError):
-            return float("nan")
+        return avg_ra_deg
 
-    def get_star_name(self, row: Any) -> str:
-        candidates = ["MAIN_ID", "ID", "main_id", "id", "TYC", "HIP", "HD"]
+    def get_dec_average(self, dec_values):
+        return np.mean(dec_values)
 
-        for c in candidates:
-            if c in row.colnames:
-                val = row[c]
-
-                if isinstance(val, bytes):
-                    return val.decode("utf-8")
-
-                return str(val)
-
-        return str(row[0])
-
-    def get_normalized_star_data(self, ra: float) -> list[dict[str, Any]]:
+    def get_star_data(self, ra: float) -> list[dict[str, Any]]:
         custom_simbad = Simbad()
         custom_simbad.add_votable_fields("ids", "V", "B")
         coord = SkyCoord(ra=ra, dec=START_DEC, unit=(u.deg, u.deg), frame="icrs")
@@ -79,53 +66,29 @@ class SkyScanner:
             if table is None:
                 return []
 
-            processed_stars = []
+            ra_list = []
+            dec_list = []
 
             for row in table:
-                v_mag = self.get_safe_float(row, "FLUX_V")
+                ra_list.append({
+                    row["ra"]
+                })
 
-                if math.isnan(v_mag):
-                    v_mag = self.get_safe_float(row, "V")
+                dec_list.append({
+                    row["dec"]
+                })
 
-                b_mag = self.get_safe_float(row, "FLUX_B")
-
-                if math.isnan(b_mag):
-                    b_mag = self.get_safe_float(row, "B")
-
-                if math.isnan(v_mag):
-                    continue
-
-                if not math.isnan(b_mag):
-                    color_index = b_mag - v_mag
-                    norm_tone = 1.0 - self.normalize_value(color_index, -0.5, 2.0)
-                else:
-                    norm_tone = 0.5
-
-                processed_stars.append(
-                    {
-                        "name": self.get_star_name(row),
-                        "tone": round(norm_tone, 3),
-                    }
-                )
-
-            return processed_stars
+            return {
+                "ra": self.get_ra_average(ra_list),
+                "dec": self.get_dec_average(dec_list),
+            }
 
         except Exception as e:
             utils.echo(f"Simbad Query Error: {e}")
             return []
 
-    def generate_strudel_code(self, stars: Any) -> str:
-        if not stars:
-            return "// Nothing yet"
-
-        for star in stars:
-            print(star["name"])
-            print(star["tone"])
-
-
-        SDSS J120236.04+290858.0
-        0.0
-        0.728
+    def generate_strudel_code(self, data: list[Any]) -> str:
+        print(data["ra"], data["dec"])
 
 
     def run_loop(self) -> None:
@@ -138,7 +101,7 @@ class SkyScanner:
 
             try:
                 utils.echo(f"\nScanning RA: {self.current_ra:.2f}...")
-                stars = self.get_normalized_star_data(self.current_ra)
+                stars = self.get_star_data(self.current_ra)
 
                 if stars:
                     utils.echo(f"  > Found {len(stars)} stars.")
