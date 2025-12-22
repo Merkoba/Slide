@@ -263,41 +263,59 @@ class SkyScanner:
 
         self.is_running = False
 
-    def calculate_star_awards(self, stars: Any, ra_avg: float, dec_avg: float) -> Any:
-        # Initialize winners
+    def calculate_star_awards(self, stars: list[Any], ra_avg: float, dec_avg: float) -> Any:
         north_star = stars[0]
         center_star = stars[0]
         loner_star = stars[0]
 
-        # Tracking variables
         min_dist_to_center = float("inf")
         max_isolation_dist = -1.0
 
+        # Pre-calculate cos(dec) for the average to correct the RA scale
+        # (Use the average dec of the cluster for the center calculation)
+        cos_dec_avg = math.cos(math.radians(dec_avg))
+
         for i, star in enumerate(stars):
-            # 1. North Star Award (Highest Declination)
+            # 1. North Star (Valid)
             if star["dec"] > north_star["dec"]:
                 north_star = star
 
-            # 2. Center Star Award (Closest to RA/DEC Average)
-            # Using Euclidean distance for simplicity
-            ra_diff = star["ra"] - ra_avg
+            # 2. Center Star (Fixing the distance)
+            # Handle RA wrap-around: min(diff, 360 - diff)
+            raw_ra_diff = abs(star["ra"] - ra_avg)
+
+            if raw_ra_diff > 180:
+                raw_ra_diff = 360 - raw_ra_diff
+
+            # Scale RA difference by cosine of declination
+            adjusted_ra_diff = raw_ra_diff * cos_dec_avg
             dec_diff = star["dec"] - dec_avg
-            dist_to_avg = math.sqrt((ra_diff**2) + (dec_diff**2))
+
+            dist_to_avg = math.sqrt((adjusted_ra_diff**2) + (dec_diff**2))
 
             if dist_to_avg < min_dist_to_center:
                 min_dist_to_center = dist_to_avg
                 center_star = star
 
-            # 3. The Loner Award (Furthest from its nearest neighbor)
-            # We must compare this star against every other star to find its closest friend
+            # 3. Loner Award
             nearest_neighbor_dist = float("inf")
 
             for j, other_star in enumerate(stars):
                 if i == j:
                     continue
 
-                d_ra = star["ra"] - other_star["ra"]
+                # Local cosine correction (average of the two stars' dec)
+                local_dec_rad = math.radians((star["dec"] + other_star["dec"]) / 2)
+                local_cos = math.cos(local_dec_rad)
+
+                raw_d_ra = abs(star["ra"] - other_star["ra"])
+
+                if raw_d_ra > 180:
+                    raw_d_ra = 360 - raw_d_ra
+
+                d_ra = raw_d_ra * local_cos
                 d_dec = star["dec"] - other_star["dec"]
+
                 distance = math.sqrt((d_ra**2) + (d_dec**2))
 
                 if distance < nearest_neighbor_dist:
