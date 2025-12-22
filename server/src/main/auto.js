@@ -178,7 +178,7 @@ App.fetch_status = () => {
         return
       }
 
-      await App.play_action(code, true)
+      await App.play_action(code)
     }
     catch (err) {
       console.error(`Failed to update Strudel status`, err)
