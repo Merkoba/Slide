@@ -55,7 +55,19 @@ class SkyScanner:
     def get_dec_average(self, dec_values):
         return np.mean(dec_values)
 
-    def get_star_data(self, ra: float) -> list[dict[str, Any]]:
+    def get_value(self, c) -> float:
+        # 1. Handle masked values or None safely
+        if c is None:
+            return 0.5
+
+        # 2. Only decode if it is actually bytes
+        if isinstance(c, bytes):
+            return float(c.decode("utf-8"))
+
+        # 3. Return the float (don't just calculate it)
+        return float(c)
+
+    def get_star_data(self, ra: float) -> dict[str, float]: # Updated return hint
         custom_simbad = Simbad()
         custom_simbad.add_votable_fields("ids", "V", "B")
         coord = SkyCoord(ra=ra, dec=START_DEC, unit=(u.deg, u.deg), frame="icrs")
@@ -64,31 +76,34 @@ class SkyScanner:
             table = custom_simbad.query_region(coord, radius=SEARCH_RADIUS_DEG * u.deg)
 
             if table is None:
-                return []
+                return {}
 
-            ra_list = []
-            dec_list = []
+            stars = []
 
             for row in table:
-                ra_list.append({
-                    row["ra"]
-                })
+                star = {
+                    "ra": float(row["ra"]),
+                    "dec": float(row["dec"]),
+                }
 
-                dec_list.append({
-                    row["dec"]
-                })
+                stars.append(star)
 
-            return {
-                "ra": self.get_ra_average(ra_list),
-                "dec": self.get_dec_average(dec_list),
-            }
-
+            return stars
         except Exception as e:
             utils.echo(f"Simbad Query Error: {e}")
-            return []
+            return {}
 
-    def generate_strudel_code(self, data: list[Any]) -> str:
-        print(data["ra"], data["dec"])
+    def generate_strudel_code(self, stars: list[Any]) -> str:
+        if not stars:
+            return ""
+
+        ra_values = [s["ra"] for s in stars]
+        avg_ra = self.get_ra_average(ra_values)
+
+        dec_values = [s["dec"] for s in stars]
+        avg_dec = self.get_dec_average(dec_values)
+
+        return ""
 
 
     def run_loop(self) -> None:
@@ -102,17 +117,11 @@ class SkyScanner:
             try:
                 utils.echo(f"\nScanning RA: {self.current_ra:.2f}...")
                 stars = self.get_star_data(self.current_ra)
-
-                if stars:
-                    utils.echo(f"  > Found {len(stars)} stars.")
-                    lead = stars[0]
-                    avg_tone = sum(s["tone"] for s in stars) / len(stars)
-                    utils.echo(f"  > Lead: {lead['name']} | Tone: {avg_tone:.2f}")
-
                 code = self.generate_strudel_code(stars)
 
-                with Path(OUTPUT_FILE).open("w", encoding="UTF-8") as f:
-                    f.write(code)
+                if code:
+                    with Path(OUTPUT_FILE).open("w", encoding="UTF-8") as f:
+                        f.write(code)
 
             except Exception as e:
                 utils.echo(f"Critical Loop Error: {e}")
