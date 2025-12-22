@@ -39,7 +39,7 @@ INSTRUCTIONS_FILE = os.getenv("INSTRUCTIONS_FILE", "instructions.txt")
 ENABLE_AUTO = True
 AUTO_REQUESTED = False
 AUTO_STOP_TIMER = None
-AUTO_STOP_DELAY = 1  # minutes
+AUTO_STOP_DELAY = 30  # minutes
 
 AUTO_METHOD = "astro"  # either 'auto' or 'astro'
 # auto uses ai to evolve the music
