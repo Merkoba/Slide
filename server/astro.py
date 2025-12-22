@@ -142,24 +142,19 @@ class SkyScanner:
 
     def generate_strudel_code(self, stars: Any) -> str:
         if not stars:
-            return f'stack(note("c2").s("{WAVEFORMS[0]}").lpf(600).gain(0.25).slow(4)).room(2)'
+            return f'stack(note("c2").s("{WAVEFORMS[0]}").lpf(600).gain(0.25).slow(4).pan(0.5)).room(2)'
 
         lead_star = stars[0]
         avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
         vol = lead_star["music_vol"]
 
         # --- DYNAMIC ENVELOPE CALCULATION ---
-        # Invert Volume: 1.0 (bright) becomes 0.0, 0.0 (dim) becomes 1.0
-        # This means dimmer stars get LONGER (slower) attack/release times
-
         # Attack range: 0.2s (fastest) to 1.7s (slowest)
-        # We keep min 0.2 to avoid the "clicky" start you dislike
         attack_val = 0.2 + ((1.0 - vol) * 1.5)
 
         # Release range: 0.8s (shortest) to 3.8s (longest)
         release_val = 0.8 + ((1.0 - vol) * 3.0)
 
-        # Round for clean code output
         attack_val = round(attack_val, 2)
         release_val = round(release_val, 2)
 
@@ -169,11 +164,16 @@ class SkyScanner:
 
         cpm_val = 60 + int(vol * 80)
 
-        # Gentle Cutoff: 400Hz base + up to 800Hz variance
         cutoff_val = 100 + int(avg_tone * 600)
         drum_cutoff = cutoff_val * 4
 
-        drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack({attack_val}).release({release_val}).gain(0.25).slow(2)'
+        # --- PANNING ---
+        # Map avg_tone (0-1) to Pan range (0.2-0.8)
+        # Formula: 0.2 + (value * 0.6)
+        drone_pan = 0.2 + (avg_tone * 0.6)
+        drone_pan = round(drone_pan, 2)
+
+        drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack({attack_val}).release({release_val}).gain(0.25).slow(2).pan({drone_pan})'
 
         if vol < 0.3:
             beat_pattern = "bd(3,8)"
@@ -182,20 +182,27 @@ class SkyScanner:
         else:
             beat_pattern = "bd [sd, hh] bd hh"
 
-        beat_layer = f'  s("{beat_pattern}").bank("{selected_bank}").lpf({drum_cutoff}).gain(0.6)'
+        beat_layer = f'  s("{beat_pattern}").bank("{selected_bank}").lpf({drum_cutoff}).gain(0.6).pan(0.5)'
 
         scale_degrees = [0, 3, 5, 7, 10, 12]
         melody_notes = []
+        melody_pans = []
 
         for s in stars[:4]:
             scale_idx = int(s["music_tone"] * (len(scale_degrees) - 1))
             degree = scale_degrees[scale_idx]
             melody_notes.append(str(degree))
 
+            # Calculate pan per note based on star's specific tone
+            note_pan = 0.2 + (s["music_tone"] * 0.6)
+            melody_pans.append(str(round(note_pan, 2)))
+
         seq_str = " ".join(melody_notes)
+        pan_str = " ".join(melody_pans)
+
         effect = ".jux(rev)" if (avg_tone > 0.6) else ""
 
-        melody_layer = f'  note("{seq_str}").scale("c3 minor").s("sine").delay(0.5).gain(0.5){effect}'
+        melody_layer = f'  note("{seq_str}").scale("c3 minor").s("sine").delay(0.5).gain(0.5).pan("{pan_str}"){effect}'
 
         strudel_code = f"""
 cpm({cpm_val})
@@ -231,8 +238,6 @@ stack(
                 else:
                     utils.echo("  > Deep Space")
 
-                # You can now tweak attack/release here if you want to
-                # vary them based on data (e.g. brighter = faster attack)
                 code = self.generate_strudel_code(stars)
 
                 with Path(OUTPUT_FILE).open("w", encoding="UTF-8") as f:
