@@ -17,7 +17,6 @@ OUTPUT_FILE = "status.txt"
 DRIFT_AMOUNT = 2.0
 
 # EXPANDABLE LISTS
-# Add as many options as you want here. The code automatically scales to the list size.
 WAVEFORMS = [
   "sine",
   "sawtooth",
@@ -29,7 +28,7 @@ DRUM_BANKS = [
   "RolandTR909",
   "YamahaRY30",
   "Linn9000",
-  "RolandTR808"
+  "RolandTR808",
   "CasioRZ1",
   "KorgM1",
   "AlesisSR16",
@@ -135,42 +134,54 @@ class SkyScanner:
     if not options_list:
       return "sine" # Fallback
 
-    # Scale value to list length (e.g., 0.99 * 4 = 3.96 -> int 3)
     index = int(value_0_to_1 * len(options_list))
-
-    # Clamp to ensure we don't go out of bounds (handle 1.0 case)
     index = max(0, min(index, len(options_list) - 1))
 
     return options_list[index]
 
   def generate_strudel_code(self, stars):
     if not stars:
-      # Default fallback
-      return f'stack(note("c2").s("{WAVEFORMS[0]}").lpf(200).gain(0.3).slow(4)).room(2)'
+      return f'stack(note("c2").s("{WAVEFORMS[0]}").lpf(600).gain(0.25).slow(4)).room(2)'
 
     lead_star = stars[0]
     avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
+    vol = lead_star["music_vol"]
 
-    # --- DYNAMIC SELECTION ---
-    # Map Tone (Color) -> Waveform
+    # --- DYNAMIC ENVELOPE CALCULATION ---
+    # Invert Volume: 1.0 (bright) becomes 0.0, 0.0 (dim) becomes 1.0
+    # This means dimmer stars get LONGER (slower) attack/release times
+
+    # Attack range: 0.2s (fastest) to 1.7s (slowest)
+    # We keep min 0.2 to avoid the "clicky" start you dislike
+    attack_val = 0.2 + ((1.0 - vol) * 1.5)
+
+    # Release range: 0.8s (shortest) to 3.8s (longest)
+    release_val = 0.8 + ((1.0 - vol) * 3.0)
+
+    # Round for clean code output
+    attack_val = round(attack_val, 2)
+    release_val = round(release_val, 2)
+
+    # --- SELECTION ---
     selected_waveform = self.get_option_by_data(avg_tone, WAVEFORMS)
+    selected_bank = self.get_option_by_data(vol, DRUM_BANKS)
 
-    # Map Volume (Brightness) -> Drum Bank
-    selected_bank = self.get_option_by_data(lead_star["music_vol"], DRUM_BANKS)
+    cpm_val = 60 + int(vol * 80)
 
-    cpm_val = 50 + int(lead_star["music_vol"] * 100)
-    cutoff_val = max(200 + int(avg_tone * 3800), 600)
+    # Gentle Cutoff: 400Hz base + up to 800Hz variance
+    cutoff_val = 400 + int(avg_tone * 800)
+    drum_cutoff = cutoff_val * 4
 
-    drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack(0.4).release(1).gain(0.4).slow(2)'
+    drone_layer = f'  note("c2").s("{selected_waveform}").lpf({cutoff_val}).attack({attack_val}).release({release_val}).gain(0.25).slow(2)'
 
-    if lead_star["music_vol"] < 0.3:
+    if vol < 0.3:
       beat_pattern = "bd(3,8)"
-    elif lead_star["music_vol"] < 0.7:
+    elif vol < 0.7:
       beat_pattern = "bd hh"
     else:
       beat_pattern = "bd [sd, hh] bd hh"
 
-    beat_layer = f'  s("{beat_pattern}").bank("{selected_bank}").lpf({cutoff_val * 2}).gain(0.6)'
+    beat_layer = f'  s("{beat_pattern}").bank("{selected_bank}").lpf({drum_cutoff}).gain(0.6)'
 
     scale_degrees = [0, 3, 5, 7, 10, 12]
     melody_notes = []
@@ -183,7 +194,6 @@ class SkyScanner:
     seq_str = " ".join(melody_notes)
     effect = ".jux(rev)" if (avg_tone > 0.6) else ""
 
-    # Melody always uses sine for contrast against the drone
     melody_layer = f'  note("{seq_str}").scale("c3 minor").s("sine").delay(0.5).gain(0.5){effect}'
 
     strudel_code = f"""
@@ -199,8 +209,6 @@ stack(
 
   def run_loop(self):
     print(f"--- Sky Scanner Initialized ---")
-    print(f"Waveforms available: {WAVEFORMS}")
-    print(f"Banks available: {DRUM_BANKS}")
     print(f"Waiting {FETCH_INTERVAL}s before first scan...")
 
     while not self.stop_event.is_set():
@@ -214,25 +222,21 @@ stack(
         if stars:
           print(f"  > Found {len(stars)} stars.")
           lead = stars[0]
-
-          # Calculate what was selected just for logging visibility
           avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
           curr_wave = self.get_option_by_data(avg_tone, WAVEFORMS)
-          curr_bank = self.get_option_by_data(lead["music_vol"], DRUM_BANKS)
-
-          print(f"  > Lead: {lead['name']}")
-          print(f"  > Selected: {curr_wave} (via Tone {avg_tone:.2f}) | {curr_bank} (via Vol {lead['music_vol']:.2f})")
+          print(f"  > Lead: {lead['name']} | Wave: {curr_wave} | Tone: {avg_tone:.2f}")
         else:
-          print("  > Deep Space (Silence or Network Timeout)")
+          print("  > Deep Space")
 
-        code = self.generate_strudel_code(stars)
+        # You can now tweak attack/release here if you want to
+        # vary them based on data (e.g. brighter = faster attack)
+        code = self.generate_strudel_code(stars, attack=0.4, release=1.0)
 
         with open(OUTPUT_FILE, "w") as f:
           f.write(code)
 
       except Exception as e:
         print(f"Critical Loop Error: {e}")
-        print("Continuing to next iteration...")
 
       self.current_ra = (self.current_ra + DRIFT_AMOUNT) % 360.0
 
@@ -240,9 +244,7 @@ stack(
 
   def start(self):
     if self.is_running:
-      print("Scanner is already running.")
       return
-
     self.stop_event.clear()
     self.is_running = True
     self.thread = threading.Thread(target=self.run_loop, daemon=True)
@@ -251,8 +253,6 @@ stack(
   def stop(self):
     if not self.is_running:
       return
-
-    print("Stopping scanner...")
     self.stop_event.set()
     self.thread.join()
     self.is_running = False
