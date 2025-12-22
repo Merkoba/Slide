@@ -17,9 +17,9 @@ OUTPUT_FILE = "status.txt"
 DRIFT_AMOUNT = 2.0
 
 class SkyScanner:
-    def __init__(self):
-        self._stop_event = threading.Event()
-        self._thread = None
+    def _init__(self):
+        self.stop_event = threading.Event()
+        self.thread = None
         self.current_ra = START_RA
         self.is_running = False
 
@@ -37,7 +37,6 @@ class SkyScanner:
 
         val = row[col_name]
 
-        # Check if the specific value is masked (missing)
         if np.ma.is_masked(val):
             return float("nan")
 
@@ -66,6 +65,7 @@ class SkyScanner:
         custom_simbad.add_votable_fields("ids", "V", "B")
         coord = SkyCoord(ra=ra, dec=START_DEC, unit=(u.deg, u.deg), frame="icrs")
 
+        # Inner try-except specifically for the external API call
         try:
             table = custom_simbad.query_region(coord, radius=SEARCH_RADIUS_DEG * u.deg)
 
@@ -106,7 +106,7 @@ class SkyScanner:
             return processed_stars
 
         except Exception as e:
-            print(f"Query Logic Error: {e}")
+            print(f"Simbad Query Error: {e}")
             return []
 
     def generate_strudel_code(self, stars):
@@ -139,7 +139,7 @@ class SkyScanner:
             melody_notes.append(str(degree))
 
         seq_str = " ".join(melody_notes)
-        effect = ".jux(rev)" if avg_tone > 0.6 else ""
+        effect = ".jux(rev)" if (avg_tone > 0.6) else ""
 
         melody_layer = f'  note("{seq_str}").scale("c3 minor").s("sine").delay(0.5).gain(0.5){effect}'
 
@@ -154,53 +154,60 @@ stack(
 """
         return strudel_code.strip()
 
-    def _run_loop(self):
+    def run_loop(self):
         """Internal method that runs in the thread."""
-        print(f"--- Sky Scanner Active (Writing to {OUTPUT_FILE}) ---")
+        print(f"--- Sky Scanner Initialized ---")
+        print(f"Waiting {FETCH_INTERVAL}s before first scan...")
 
-        while not self._stop_event.is_set():
-            print(f"\nScanning RA: {self.current_ra:.2f}...")
-            stars = self.get_normalized_star_data(self.current_ra)
-
-            if stars:
-                print(f"  > Found {len(stars)} stars.")
-                lead = stars[0]
-                print(f"  > Lead: {lead['name']} (Vol: {lead['music_vol']}, Tone: {lead['music_tone']})")
-            else:
-                print("  > Deep Space (Silence)")
-
-            code = self.generate_strudel_code(stars)
-
-            with open(OUTPUT_FILE, "w") as f:
-                f.write(code)
-
-            self.current_ra = (self.current_ra + DRIFT_AMOUNT) % 360.0
-
-            # Wait for FETCH_INTERVAL, but return immediately if stop is called
-            if self._stop_event.wait(FETCH_INTERVAL):
+        while not self.stop_event.is_set():
+            # Wait at the start of the loop to ensure initial delay
+            # If stop() is called, .wait() returns True immediately
+            if self.stop_event.wait(FETCH_INTERVAL):
                 break
+
+            try:
+                print(f"\nScanning RA: {self.current_ra:.2f}...")
+                stars = self.get_normalized_star_data(self.current_ra)
+
+                if stars:
+                    print(f"  > Found {len(stars)} stars.")
+                    lead = stars[0]
+                    print(f"  > Lead: {lead['name']} (Vol: {lead['music_vol']}, Tone: {lead['music_tone']})")
+                else:
+                    print("  > Deep Space (Silence or Network Timeout)")
+
+                code = self.generate_strudel_code(stars)
+
+                with open(OUTPUT_FILE, "w") as f:
+                    f.write(code)
+
+            except Exception as e:
+                # Catch-all for unexpected IO errors or processing glitches
+                print(f"Critical Loop Error: {e}")
+                print("Continuing to next iteration...")
+
+            # Always increment RA, even if the request failed, to keep the drift moving
+            self.current_ra = (self.current_ra + DRIFT_AMOUNT) % 360.0
 
         print("--- Sky Scanner Stopped ---")
 
     def start(self):
-        """Starts the scanning thread if not already running."""
         if self.is_running:
             print("Scanner is already running.")
             return
 
-        self._stop_event.clear()
+        self.stop_event.clear()
         self.is_running = True
-        self._thread = threading.Thread(target=self._run_loop, daemon=True)
-        self._thread.start()
+        self.thread = threading.Thread(target=self.run_loop, daemon=True)
+        self.thread.start()
 
     def stop(self):
-        """Stops the scanning thread."""
         if not self.is_running:
             return
 
         print("Stopping scanner...")
-        self._stop_event.set()
-        self._thread.join()
+        self.stop_event.set()
+        self.thread.join()
         self.is_running = False
 
 def start() -> SkyScanner:
