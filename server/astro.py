@@ -3,10 +3,7 @@ import threading
 import gc
 import math
 import numpy as np  # type: ignore
-import astropy.units as u  # type: ignore
 from typing import Any
-from astroquery.simbad import Simbad  # type: ignore
-from astropy.coordinates import SkyCoord  # type: ignore
 
 # Only needed if you run this inside flask to prevent double-execution
 from werkzeug.serving import is_running_from_reloader  # type: ignore
@@ -20,6 +17,7 @@ SEARCH_RADIUS_DEG = 2.0
 FETCH_INTERVAL = 45  # seconds
 OUTPUT_FILE = "status.txt"
 DRIFT_AMOUNT = 2.0
+STARS_PATH = "data/stars.json"
 
 SOUNDS = [
     "sine",
@@ -133,6 +131,7 @@ class SkyScanner:
     def __new__(cls) -> "SkyScanner":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+
         return cls._instance
 
     def __init__(self) -> None:
@@ -142,20 +141,13 @@ class SkyScanner:
 
         self.stop_event = threading.Event()
         self.thread = None
-        self.current_ra = float(random.randint(0, 360))
         self.is_running = False
-
-        # Init Simbad ONCE
-        self.simbad = Simbad()
-        self.simbad.add_votable_fields("ids", "V", "B")
-
-        # Disable caching to prevent memory bloat over time
-        # Type checkers often miss these dynamic attributes in astroquery
-        # pyright: ignore[reportAttributeAccessIssue]
-        self.simbad.cache_location = None  # pyright: ignore
-        self.simbad.TIMEOUT = 30  # pyright: ignore
-
         self.initialized = True
+        self.read_file()
+
+    def read_file(self) -> None:
+        with open(STARS_PATH, "r") as file:
+            self.stars = json.load(file)
 
     def get_ra_average(self, ra_values: list[Any]) -> float:
         # Convert degrees to radians
