@@ -2,6 +2,7 @@ import random
 import threading
 import math
 import json
+import hashlib
 import numpy as np  # type: ignore
 from pathlib import Path
 from typing import Any
@@ -120,10 +121,75 @@ NOTES = [
     "g0",
 ]
 
-NOISE = [
-    "pink",
-    "brown",
-]
+class StarNamer:
+    def __init__(self):
+        # 1. "Alien" Syllables for sci-fi feel
+        self.syllables_start = [
+            "Grib", "Plok", "Zox", "Vyr", "Kla", "Thrum", "Xyl", "Quor",
+            "Bli", "Drah", "Flux", "Jinx", "Mox", "Nix", "Pry", "Sphynx"
+        ]
+        self.syllables_end = [
+            "tor", "nar", "xis", "wen", "zar", "kith", "lun", "rax",
+            "morn", "vex", "cryn", "zod", "hark", "vull", "qish"
+        ]
+
+        # 2. English words (Adjectives & Nouns)
+        # You can expand these or load from /usr/share/dict/words if you want
+        self.adjectives = [
+            "Silent", "Drifting", "Iron", "Neon", "Frozen", "Burning",
+            "Hidden", "Lost", "Azure", "Crimson", "Jagged", "Smooth",
+            "Echoing", "Hollow", "Solar", "Lunar", "Stellar", "Void"
+        ]
+        self.nouns = [
+            "Dream", "Signal", "Dust", "Shard", "Wave", "Pulse", "Sector",
+            "Region", "Cluster", "Zone", "Drift", "Gate", "Veil", "Core",
+            "Peak", "Abyss", "Halo", "Tide", "Storm", "Silence"
+        ]
+
+    def get_seed(self, ra_avg: float, dec_avg: float, mag_avg: float) -> int:
+        # Create a unique string based on the segment's stats
+        # Rounding ensures slight floating point wobbles don't change the name
+        unique_str = f"{ra_avg:.4f}_{dec_avg:.4f}_{mag_avg:.2f}"
+
+        # Turn string into a stable integer seed
+        hash_obj = hashlib.md5(unique_str.encode())
+        return int(hash_obj.hexdigest(), 16)
+
+    def generate_name(self, ra_avg: float, dec_avg: float, mag_avg: float) -> str:
+        # Seed the random generator so this specific spot always gets this name
+        seed = self.get_seed(ra_avg, dec_avg, mag_avg)
+        rng = random.Random(seed)
+
+        # Decide on a "Style" for this segment
+        # 0 = Alien (Grib Plok)
+        # 1 = English (Silent Dust)
+        # 2 = Hybrid (Neon Zox)
+        style = rng.randint(0, 2)
+
+        if style == 0:
+            # Alien Style: Two random syllables/words
+            part1 = rng.choice(self.syllables_start)
+
+            # 50% chance to be a simple syllable, 50% to be a complex constructed word
+            if rng.random() > 0.5:
+                part2 = rng.choice(self.syllables_start)
+            else:
+                part2 = rng.choice(self.syllables_start) + rng.choice(self.syllables_end)
+
+            return f"{part1} {part2.capitalize()}"
+
+        elif style == 1:
+            # English Style: Adjective + Noun
+            adj = rng.choice(self.adjectives)
+            noun = rng.choice(self.nouns)
+            return f"{adj} {noun}"
+
+        else:
+            # Hybrid Style: English Adjective + Alien Noun OR Alien + English Noun
+            if rng.random() > 0.5:
+                return f"{rng.choice(self.adjectives)} {rng.choice(self.syllables_start)}"
+            else:
+                return f"{rng.choice(self.syllables_start)} {rng.choice(self.nouns)}"
 
 
 class SkyScanner:
@@ -145,6 +211,7 @@ class SkyScanner:
         self.is_running = False
         self.initialized = True
         self.current_ra = random.uniform(0.0, 360.0)
+        self.namer = StarNamer()
         self.read_file()
 
     def read_file(self) -> None:
@@ -417,7 +484,8 @@ class SkyScanner:
         ]
 
         perc = rng_1.choice(percs)
-        data.beat_title = self.name(awards["brightest_star"])
+        name = self.namer.generate_name(ra_avg, dec_avg, mag_avg)
+        data.beat_title = name
         data.beat_code = f"""/* Astro 🌌 Star Data
 
 RA: {ra_avg}
