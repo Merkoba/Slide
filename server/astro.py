@@ -26,8 +26,7 @@ WAVEFORMS = [
 
 # Using lighter, glitchier drum banks
 DRUM_BANKS = [
-    "RolandTR808",  # Soft kicks
-    "CasioRZ1",  # Lo-fi crunch
+    "RhodesPolaris",  # Soft kicks
     "AlesisSR16",
 ]
 
@@ -49,7 +48,9 @@ class SkyScanner:
     def get_safe_float(self, row: Any, col_name: str) -> float:
         if col_name not in row.colnames:
             return float("nan")
+
         val = row[col_name]
+
         if np.ma.is_masked(val):
             return float("nan")
         try:
@@ -59,12 +60,16 @@ class SkyScanner:
 
     def get_star_name(self, row: Any) -> str:
         candidates = ["MAIN_ID", "ID", "main_id", "id", "TYC", "HIP", "HD"]
+
         for c in candidates:
             if c in row.colnames:
                 val = row[c]
+
                 if isinstance(val, bytes):
                     return val.decode("utf-8")
+
                 return str(val)
+
         return str(row[0])
 
     def get_normalized_star_data(self, ra: float) -> list[dict[str, Any]]:
@@ -74,16 +79,20 @@ class SkyScanner:
 
         try:
             table = custom_simbad.query_region(coord, radius=SEARCH_RADIUS_DEG * u.deg)
+
             if table is None:
                 return []
 
             processed_stars = []
+
             for row in table:
                 v_mag = self.get_safe_float(row, "FLUX_V")
+
                 if math.isnan(v_mag):
                     v_mag = self.get_safe_float(row, "V")
 
                 b_mag = self.get_safe_float(row, "FLUX_B")
+
                 if math.isnan(b_mag):
                     b_mag = self.get_safe_float(row, "B")
 
@@ -113,119 +122,10 @@ class SkyScanner:
             utils.echo(f"Simbad Query Error: {e}")
             return []
 
-    def get_option_by_data(self, value_0_to_1: float, options_list: Any) -> Any:
-        if not options_list:
-            return "sine"
-        index = int(value_0_to_1 * len(options_list))
-        index = max(0, min(index, len(options_list) - 1))
-        return options_list[index]
-
-    def get_ambient_beat(self, vol: float, tone: float) -> str:
-        """
-        Generates a sparse, textural beat pattern.
-        Instead of driving the song, this provides 'clicks and cuts'.
-        """
-        # Use lighter sounds for ambient
-        kick = "bd" if vol > 0.8 else "lt"
-        snare = "rm"  # Rimshot is softer than snare
-        hat = "hh"
-
-        # Use Euclidean rhythms for spacing (e.g., 3 hits in 16 steps)
-        # The lower the volume, the sparser the hits.
-        density = int(vol * 5) + 1  # 1 to 6 hits
-
-        if tone < 0.4:
-            # Dark ambient: slow, spacious
-            pattern = f"<{kick}({density},16) {snare}({density},16,2)>"
-        elif tone < 0.7:
-            # Neutral: standard polymeter
-            pattern = f"[{kick}({density},16), {hat}({density + 2},16)]"
-        else:
-            # Bright: faster, glitchier ticks
-            pattern = f"[{kick}({density},16), {hat}*4]"
-
-        return pattern
-
     def generate_strudel_code(self, stars: Any) -> str:
         if not stars:
-            # Fallback deep space drone
-            return 'note("c2").s("sine").lpf(300).gain(0.4).slow(4).room(3)'
+            return "// Nothing yet"
 
-        lead_star = stars[0]
-        avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
-        vol = lead_star["music_vol"]
-
-        # --- AMBIENT SETTINGS ---
-        # Slower CPM for ambient feel
-        cpm_val = 40 + int(vol * 40)
-
-        # --- DRONE (The "Floor") ---
-        # Low Pass Filter (LPF) ensures this stays in the bass frequencies
-        # Vowel filter adds organic movement
-        drone_wave = self.get_option_by_data(avg_tone, WAVEFORMS)
-        drone_layer = (
-            f'  note("c2").s("{drone_wave}")'
-            f".lpf(300).gain(0.4).slow(4)"
-            f'.vowel("{"a e i o u"[int(avg_tone * 4)]}")'
-            f".pan(sine.range(0.3, 0.7).slow(8))"
-        )
-
-        # --- BEAT (The "Texture") ---
-        # High Pass Filter (HPF) removes sub-bass to avoid clashing with drone
-        # Very high Reverb (room) pushes it to the background
-        beat_pattern = self.get_ambient_beat(vol, avg_tone)
-        beat_bank = self.get_option_by_data(vol, DRUM_BANKS)
-        beat_layer = (
-            f'  s("{beat_pattern}").bank("{beat_bank}")'
-            f".hpf(150).lpf(5000)"
-            f".gain(0.25).room(2).shape(0.4)"
-            f".pan(0.5)"
-        )
-
-        # --- MELODY (The "Stars") ---
-        # High Pass Filter (HPF) ensures this floats ABOVE the drone
-        scale_degrees = [0, 2, 4, 7, 9, 11]  # Lydian/Major pentatonic for wonder
-        melody_notes = []
-        melody_pans = []
-
-        # Take top 4 stars
-        active_stars = stars[:4]
-
-        for s in active_stars:
-            # Map tone to scale
-            scale_idx = int(s["music_tone"] * (len(scale_degrees) - 1))
-            degree = scale_degrees[scale_idx]
-            melody_notes.append(str(degree))
-
-            # Hard Pan Logic (preserved from previous step)
-            raw_tone = s["music_tone"]
-            if raw_tone < 0.5:
-                p_val = raw_tone * 0.4  # Left
-            else:
-                p_val = 0.6 + ((raw_tone - 0.5) * 0.4)  # Right
-            melody_pans.append(str(round(p_val, 2)))
-
-        seq_str = " ".join(melody_notes)
-        pan_str = " ".join(melody_pans)
-
-        # Delay adds space. 'struct' locks the pan to the notes.
-        melody_layer = (
-            f'  note("{seq_str}").scale("Eb3 lydian").s("triangle")'
-            f".hpf(600).attack(0.1).release(1.5)"
-            f".gain(0.5).delay(0.5).decay(0.5)"
-            f'.pan("{pan_str}")'
-        )
-
-        strudel_code = f"""
-cpm({cpm_val})
-
-stack(
-{drone_layer},
-{beat_layer},
-{melody_layer}
-).room(1.8).size(0.8)
-"""
-        return strudel_code.strip()
 
     def run_loop(self) -> None:
         utils.echo("--- Sky Scanner Initialized (Ambient Mode) ---")
@@ -260,6 +160,7 @@ stack(
     def start(self) -> None:
         if self.is_running:
             return
+
         self.stop_event.clear()
         self.is_running = True
         self.thread = threading.Thread(target=self.run_loop, daemon=True)  # type: ignore
@@ -270,9 +171,12 @@ stack(
     def stop(self) -> None:
         if not self.is_running:
             return
+
         self.stop_event.set()
+
         if self.thread:
             self.thread.join()
+
         self.is_running = False
 
 
