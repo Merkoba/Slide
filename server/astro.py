@@ -257,10 +257,10 @@ class StarNamer:
         return f"{rng.choice(self.syllables_start)} {rng.choice(self.nouns)}"
 
 
-class SkyScanner:
+class Astro:
     _instance = None  # Singleton tracker
 
-    def __new__(cls) -> "SkyScanner":
+    def __new__(cls) -> "Astro":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
@@ -368,7 +368,7 @@ class SkyScanner:
         return [item[1] for item in candidates[:limit]]
 
     def run_loop(self) -> None:
-        utils.echo("--- Sky Scanner Initialized (Ambient Mode) ---")
+        utils.echo("--- Astro Initialized (Ambient Mode) ---")
         utils.echo(f"Waiting {SECONDS}s before first scan...")
 
         while not self.stop_event.is_set():
@@ -385,7 +385,7 @@ class SkyScanner:
             except Exception as e:
                 utils.echo(f"Critical Loop Error: {e}")
 
-        utils.echo("--- Sky Scanner Stopped ---")
+        utils.echo("--- Astro Stopped ---")
 
     def start(self) -> None:
         if self.is_running:
@@ -496,13 +496,13 @@ class SkyScanner:
             return
 
         ra_values = [s["ra"] for s in stars]
-        ra_avg = self.get_ra_average(ra_values)
+        ra_avg = int(self.get_ra_average(ra_values))
 
         dec_values = [s["dec"] for s in stars]
-        dec_avg = self.get_dec_average(dec_values)
+        dec_avg = int(self.get_dec_average(dec_values))
 
         mag_values = [s["mag"] for s in stars]
-        mag_avg = self.get_mag_average(mag_values)
+        mag_avg = int(self.get_mag_average(mag_values))
 
         awards = self.calculate_star_awards(stars, ra_avg, dec_avg, mag_values)
         tag = f"{ra_avg}_{dec_avg}_${mag_avg}"
@@ -591,8 +591,7 @@ class SkyScanner:
         data.beat_title = name
         data.beat_code = f"""/* Astro 🌌 Star Data
 
-RA: {ra_avg}
-DEC: {dec_avg}
+RA: {ra_avg} | DEC: {dec_avg} | MAG: {mag_avg}
 
 North Star: {self.name(awards["north_star"])}
 Loner Star: {self.name(awards["loner_star"])}
@@ -637,12 +636,12 @@ $: cat(s1, s2, s3, s4)
 """
 
 
-SCANNER: SkyScanner
+ASTRO: Astro
 
 
 # Modified start function for Flask safety
 def start() -> None:
-    global SCANNER
+    global ASTRO
 
     # IMPORTANT: In Flask dev mode, this prevents the thread
     # from starting in the reloader (watcher) process.
@@ -650,10 +649,10 @@ def start() -> None:
     if is_running_from_reloader():
         return
 
-    SCANNER = SkyScanner()
-    SCANNER.start()
+    ASTRO = Astro()
+    ASTRO.start()
 
 
 def stop() -> None:
-    if SCANNER:
-        SCANNER.stop()
+    if ASTRO:
+        ASTRO.stop()
