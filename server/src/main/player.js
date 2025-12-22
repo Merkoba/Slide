@@ -61,6 +61,7 @@ App.play_action = async (code = ``, force = false, args = {}) => {
     App.update_url()
   }
   catch (e) {
+    App.last_code = ``
     App.set_status(`Error: ${e.message}`)
   }
 
@@ -224,13 +225,14 @@ App.init_player = async () => {
 App.run_eval = async (code) => {
   App.reset_eval_state()
   code = App.filter_code(code)
-  App.last_code = code
   App.set_input(code, false)
 
   try {
     App.pattern = await App.evaluate(code)
 
     if (App.pattern) {
+      App.last_code = code
+
       if (App.is_stopped()) {
         let now = App.scheduler.now()
         let cps = App.scheduler.cps || 1
@@ -240,6 +242,7 @@ App.run_eval = async (code) => {
       App.start_drawer()
     }
     else {
+      App.last_code = ``
       App.seek_offset = 0
       App.stop_action()
     }
