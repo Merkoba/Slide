@@ -12,22 +12,18 @@ import utils
 START_RA = 180.0
 START_DEC = 30.0
 SEARCH_RADIUS_DEG = 2.0
-FETCH_INTERVAL = 60  # seconds
+FETCH_INTERVAL = 10  # seconds
 OUTPUT_FILE = "status.txt"
 DRIFT_AMOUNT = 2.0
 
-# Using softer waveforms for ambient feel
-WAVEFORMS = [
+SOUNDS = [
     "sine",
     "triangle",
-    "superpiano",  # If supported, otherwise falls back smoothly
-    "organ",
+    "piano",
 ]
 
-# Using lighter, glitchier drum banks
-DRUM_BANKS = [
-    "RhodesPolaris",  # Soft kicks
-    "AlesisSR16",
+BANKS = [
+    "RhodesPolaris",
 ]
 
 
@@ -99,8 +95,6 @@ class SkyScanner:
                 if math.isnan(v_mag):
                     continue
 
-                norm_vol = 1.0 - self.normalize_value(v_mag, -1.5, 12.0)
-
                 if not math.isnan(b_mag):
                     color_index = b_mag - v_mag
                     norm_tone = 1.0 - self.normalize_value(color_index, -0.5, 2.0)
@@ -110,12 +104,10 @@ class SkyScanner:
                 processed_stars.append(
                     {
                         "name": self.get_star_name(row),
-                        "music_vol": round(norm_vol, 3),
-                        "music_tone": round(norm_tone, 3),
+                        "tone": round(norm_tone, 3),
                     }
                 )
 
-            processed_stars.sort(key=lambda x: x["music_vol"], reverse=True)  # type: ignore
             return processed_stars
 
         except Exception as e:
@@ -125,6 +117,15 @@ class SkyScanner:
     def generate_strudel_code(self, stars: Any) -> str:
         if not stars:
             return "// Nothing yet"
+
+        for star in stars:
+            print(star["name"])
+            print(star["tone"])
+
+
+        SDSS J120236.04+290858.0
+        0.0
+        0.728
 
 
     def run_loop(self) -> None:
@@ -142,7 +143,7 @@ class SkyScanner:
                 if stars:
                     utils.echo(f"  > Found {len(stars)} stars.")
                     lead = stars[0]
-                    avg_tone = sum(s["music_tone"] for s in stars) / len(stars)
+                    avg_tone = sum(s["tone"] for s in stars) / len(stars)
                     utils.echo(f"  > Lead: {lead['name']} | Tone: {avg_tone:.2f}")
 
                 code = self.generate_strudel_code(stars)
