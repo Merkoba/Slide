@@ -16,6 +16,10 @@ FETCH_INTERVAL = 45  # seconds
 DRIFT_AMOUNT = 2.0
 STARS_PATH = "data/stars.json"
 
+# A width of 2.0 means we capture a strip 4 degrees wide total
+# This is usually plenty for the Bright Star Catalog
+SCAN_WIDTH_DEG = 2.0
+
 SOUNDS = [
     "sine",
     "piano",
@@ -176,10 +180,6 @@ class SkyScanner:
 
     def get_star_data(self, ra: float) -> Any:
         found_stars = []
-
-        # A width of 2.0 means we capture a strip 4 degrees wide total
-        # This is usually plenty for the Bright Star Catalog
-        SCAN_WIDTH_DEG = 2.0
 
         for star in self.stars:
             # 1. Calculate RA difference (Horizontal distance only)
