@@ -368,7 +368,7 @@ class Astro:
         return [item[1] for item in candidates[:limit]]
 
     def run_loop(self) -> None:
-        utils.echo("--- Astro Initialized (Ambient Mode) ---")
+        utils.echo("--- Astro Initialized ---")
         utils.echo(f"Waiting {SECONDS}s before first scan...")
 
         while not self.stop_event.is_set():
