@@ -1,17 +1,15 @@
 App.auto_delay = 5
 App.auto_endpoint = `/status`
 App.fetch_cancelled = false
+App.auto_started = false
 
 App.setup_auto = () => {
   let auto_start = DOM.el(`#auto-start`)
 
   if (auto_start) {
     DOM.ev(auto_start, `click`, () => {
-      let input = DOM.el(`#auto-input`)
-
-      if (input) {
-        App.start_auto(input.value)
-      }
+      App.auto_endpoint = DOM.el(`#auto-input`).value
+      App.start_auto()
     })
   }
 
@@ -27,7 +25,8 @@ App.setup_auto = () => {
 
   if (auto_default) {
     DOM.ev(auto_default, `click`, () => {
-      App.start_auto(`/status`)
+      App.auto_endpoint = `/status`
+      App.start_auto()
     })
   }
 
@@ -37,11 +36,8 @@ App.setup_auto = () => {
     DOM.ev(auto_input, `keydown`, (event) => {
       if (event.key === `Enter`) {
         event.preventDefault()
-        let input = DOM.el(`#auto-input`)
-
-        if (input) {
-          App.start_auto(input.value)
-        }
+        App.auto_endpoint = DOM.el(`#auto-input`).value
+        App.start_auto()
       }
     })
   }
@@ -51,12 +47,8 @@ App.setup_auto = () => {
   if (auto_delay_select) {
     DOM.ev(auto_delay_select, `change`, (event) => {
       App.auto_delay = parseInt(event.target.value, 10)
-      App.stor_save_auto_delay()
-
-      // Restart interval if it's currently running
-      if (App.fetch_timer) {
-        App.fetch_status()
-      }
+      App.stop_auto()
+      App.start_auto()
     })
   }
 }
@@ -115,20 +107,17 @@ App.show_auto = () => {
   }
 }
 
-App.start_auto = async (endpoint) => {
-  App.close_modal(`auto`)
-
-  if (!endpoint || !endpoint.trim()) {
-    App.set_status(`Invalid endpoint`)
+App.start_auto = async () => {
+  if (App.auto_started) {
     return
   }
 
-  App.auto_started = true
+  App.close_modal(`auto`)
   App.first_auto = true
-  App.auto_endpoint = endpoint.trim()
   App.stor_save_auto_endpoint()
-  App.check_auto()
   App.fetch_status()
+  App.auto_started = true
+  App.check_auto()
 }
 
 App.fetch_status_code = async () => {
@@ -204,19 +193,20 @@ App.fetch_status = () => {
 App.stop_auto = (set_cancelled = true) => {
   App.close_modal(`auto`)
 
-  if (!App.fetch_timer) {
+  if (!App.auto_started) {
     return
   }
 
   console.info(`Interval cleared 🖐`)
   clearInterval(App.fetch_timer)
-  App.check_auto()
-  App.auto_started = false
   App.fetch_timer = undefined
 
   if (set_cancelled) {
     App.fetch_cancelled = true
   }
+
+  App.auto_started = false
+  App.check_auto()
 }
 
 App.check_auto = () => {
