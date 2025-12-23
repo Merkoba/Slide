@@ -1025,13 +1025,19 @@ button.active {
 
 .modal-hover {
     position: absolute;
-    top: 0;
-    right: 0;
+    /* Move the top edge to the vertical center of the parent */
+    top: 50%;
+    /* Pull the element up by 50% of its own height to achieve perfect centering */
+    transform: translateY(-50%);
+    /* Set the spacing from the right edge here (instead of padding) */
+    right: 0.25rem;
+
     width: 2rem;
     height: 2rem;
     cursor: pointer;
+    opacity: 0;
 }
 
 .modal-hover:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
 }

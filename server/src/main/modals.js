@@ -114,6 +114,13 @@ App.show_items_modal = async (id, args = {}) => {
       if (args.hover) {
         let hover = DOM.create(`div`, `modal-hover`)
         hover.textContent = `🌊`
+
+        DOM.ev(hover, `click`, (event) => {
+          args.ctrl_action(item, item_div)
+          event.preventDefault()
+          event.stopPropagation()
+        })
+
         item_div.appendChild(hover)
       }
 
