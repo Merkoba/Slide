@@ -559,9 +559,9 @@ class Astro:
 
             if mode == "simple":
                 return f"<{val1} {val2}>"
-            else:
-                val3 = rng_2.choice(options)
-                return f"<{val1} {val2} {val3}>"
+
+            val3 = rng_2.choice(options)
+            return f"<{val1} {val2} {val3}>"
 
         def n() -> str:
             return p(NOTES)
