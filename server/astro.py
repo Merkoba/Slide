@@ -28,7 +28,6 @@ SOUNDS = [
     "marimba",
     "vibraphone",
     "darbuka",
-    "ocarina_small",
     "dantranh",
     "strumstick",
     "kawai",
