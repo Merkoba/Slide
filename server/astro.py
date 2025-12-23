@@ -43,7 +43,6 @@ BANKS = [
     "RolandSystem100",
     "RolandJD990",
     "YamahaRM50",
-    "YamahaRX21",
     "RhodesPolaris",
     "SakataDPM48",
     "DoepferMS404",
