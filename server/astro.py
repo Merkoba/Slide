@@ -34,7 +34,6 @@ SOUNDS = [
     "strumstick",
     "kawai",
     "piano1",
-    "wineglass",
     "belltree",
     "fingercymbal",
     "glockenspiel",
