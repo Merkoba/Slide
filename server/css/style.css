@@ -988,10 +988,6 @@ a.popup:hover {
     gap: var(--buttons-gap);
 }
 
-.effect-btn.active {
-    text-decoration: underline;
-}
-
 .eq_positive {
     color: rgb(255, 171, 64) !important;
 }
