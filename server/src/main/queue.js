@@ -2,6 +2,8 @@ App.queue = []
 App.queue_delay = 45 * 1000
 
 App.start_queue = () => {
+  clearTimeout(App.queue_timeout)
+
   App.queue_timeout = setTimeout(() => {
     App.check_queue()
   }, App.queue_delay)
