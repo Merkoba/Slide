@@ -49,6 +49,7 @@ App.show_items_modal = async (id, args = {}) => {
     capitalize: true,
     icons: true,
     hover: false,
+    hover_title: ``
   }
 
   App.def_args(def_args, args)
@@ -113,6 +114,7 @@ App.show_items_modal = async (id, args = {}) => {
 
       if (args.hover) {
         let hover = DOM.create(`div`, `modal-hover`)
+        hover.title = args.hover_title
         hover.textContent = `🌊`
 
         DOM.ev(hover, `click`, (event) => {
@@ -121,6 +123,7 @@ App.show_items_modal = async (id, args = {}) => {
           event.stopPropagation()
         })
 
+        App.register_tooltip(hover)
         item_div.appendChild(hover)
       }
 

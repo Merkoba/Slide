@@ -269,6 +269,7 @@ App.show_snapshots = async () => {
       App.flash(el)
     },
     hover: true,
+    hover_title: `Queue Snapshot`,
   })
 }
 

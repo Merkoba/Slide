@@ -89,6 +89,7 @@ App.show_songs = async () => {
       App.flash(el)
     },
     hover: true,
+    hover_title: `Queue Song`,
   })
 }
 
