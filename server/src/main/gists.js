@@ -5,7 +5,7 @@ App.github_login = () => {
   let left = (window.innerWidth - width) / 2
   let top = (window.innerHeight - height) / 2
 
-  let popup = window.open(
+  window.open(
     `/github/login`,
     `GitHub Auth`,
     `width=${width},height=${height},top=${top},left=${left}`,
@@ -62,5 +62,6 @@ App.save_gist = async (content, filename) => {
 
 App.show_gist_url = (url) => {
   let location = window.location.origin
-  App.show_alert(`${location}?url=${url}`)
+  let title = App.beat_title ? `&title=${App.beat_title}` : ``
+  App.show_alert(`${location}?url=${url}${title}`)
 }

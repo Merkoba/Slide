@@ -1,6 +1,6 @@
 App.code_query_key = `code`
 App.song_query_key = `song`
-App.beat_query_key = `beat`
+App.beat_query_key = `title`
 App.url_query_key = `url`
 
 App.update_url = (song_name = ``) => {
