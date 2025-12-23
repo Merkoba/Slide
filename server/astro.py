@@ -568,6 +568,23 @@ class Astro:
                 elif type_idx == 5:
                     char = rng_3.choice(["a", "e", "i", "o", "u"])
                     chain.append(f".vowel('{char}')")
+                elif type_idx == 6:
+                    # Room: Reverb mix. Low values (0.1-0.5) add depth without washing it out.
+                    val = round(rng_2.uniform(0.1, 0.5), 2)
+                    chain.append(f".room({val})")
+                elif type_idx == 7:
+                    # BPF: Band Pass Filter. "Thins" the sound by isolating a freq range.
+                    val = rng_1.randint(400, 2000)
+                    chain.append(f".bpf({val})")
+                elif type_idx == 8:
+                    # Phaser: Creates a swirling, psychedelic texture.
+                    # Higher values increase the speed/cycles of the sweep.
+                    val = round(rng_2.uniform(0.5, 4.0), 1)
+                    chain.append(f".phaser({val})")
+                elif type_idx == 9:
+                    # Panning: 0 is left, 1 is right. keeping it fairly centered (0.2-0.8)
+                    val = round(rng_2.uniform(0.2, 0.8), 2)
+                    chain.append(f".pan({val})")
 
             return "".join(chain)
 
@@ -577,11 +594,15 @@ class Astro:
             f'$: sound("bd hh sd hh").bank("{b()}"){e()}',
             f'$: sound("bd sd bd sd").bank("{b()}"){e()}',
             f'$: sound("bd hh hh [sd sd]").bank("{b()}"){e()}',
+            f'$: sound("bd [hh hh] sd hh").bank("{b()}"){e()}',
+            f'$: sound("bd sd [bd bd] sd").bank("{b()}"){e()}',
             # Without effects
             f'$: sound("bd hh hh hh").bank("{b()}")',
             f'$: sound("bd hh sd hh").bank("{b()}")',
             f'$: sound("bd sd bd sd").bank("{b()}")',
             f'$: sound("bd hh hh [sd sd]").bank("{b()}")',
+            f'$: sound("bd [hh hh] sd hh").bank("{b()}")',
+            f'$: sound("bd sd [bd bd] sd").bank("{b()}")',
             # Silent
             '$: sound("~ ~ ~ ~")',
         ]
