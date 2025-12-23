@@ -641,7 +641,7 @@ class Astro:
             'sound("~ ~ ~ ~")',
         ]
 
-        def perc():
+        def perc() -> str:
             return rng_1.choice(percs)
 
         name = self.namer.generate_name(ra_avg, dec_avg, mag_avg)
