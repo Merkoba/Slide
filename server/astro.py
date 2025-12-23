@@ -29,7 +29,6 @@ SOUNDS = [
     "vibraphone",
     "darbuka",
     "ocarina_small",
-    "trainwhistle",
     "dantranh",
     "strumstick",
     "kawai",
