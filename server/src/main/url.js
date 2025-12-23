@@ -5,32 +5,49 @@ App.url_query_key = `url`
 
 App.update_url = (song_name = ``) => {
   let next_url = new URL(window.location.href)
-  let input_code = App.get_input_value().trim()
-  let current_song = song_name
+  let code = App.get_input_value().trim()
+  let allowed_params = [`code`, `song`, `title`, `url`]
 
-  if (!current_song) {
-    current_song = App.get_song_name()
+  // Remove any parameter not present in the allowed list
+  let current_params = [...next_url.searchParams.keys()]
+
+  current_params.forEach((key) => {
+    if (!allowed_params.includes(key)) {
+      next_url.searchParams.delete(key)
+    }
+  })
+
+  if (!song_name) {
+    song_name = App.get_song_name()
   }
 
-  // Clear all existing parameters to ensure only related ones are kept
-  next_url.search = ``
-
-  if (current_song) {
-    next_url.searchParams.set(App.song_query_key, current_song)
+  if (song_name) {
+    next_url.searchParams.set(App.song_query_key, song_name)
+  }
+  else {
+    next_url.searchParams.delete(App.song_query_key)
   }
 
-  if (!current_song && App.beat_url) {
+  if (!song_name && App.beat_url) {
     next_url.searchParams.set(App.url_query_key, App.beat_url)
   }
+  else {
+    next_url.searchParams.delete(App.url_query_key)
+  }
 
-  if ((input_code && !current_song) && (!App.beat_url && (input_code.length <= App.code_url_max))) {
-    let compressed_code = App.compress_string(input_code)
-
+  if (((code && !song_name) && !App.beat_url) && (code.length <= App.code_url_max)) {
+    let compressed_code = App.compress_string(code)
     next_url.searchParams.set(App.code_query_key, compressed_code)
+  }
+  else {
+    next_url.searchParams.delete(App.code_query_key)
   }
 
   if (App.beat_title) {
     next_url.searchParams.set(App.title_query_key, App.beat_title)
+  }
+  else {
+    next_url.searchParams.delete(App.title_query_key)
   }
 
   window.history.replaceState({}, document.title, `${next_url.pathname}${next_url.search}${next_url.hash}`)
