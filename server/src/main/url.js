@@ -19,11 +19,11 @@ App.update_url = (song_name = ``) => {
     next_url.searchParams.set(App.song_query_key, current_song)
   }
 
-  if ((!current_song) && App.beat_url) {
+  if (!current_song && App.beat_url) {
     next_url.searchParams.set(App.url_query_key, App.beat_url)
   }
 
-  if ((input_code && (!current_song)) && ((!App.beat_url) && (input_code.length <= App.code_url_max))) {
+  if ((input_code && !current_song) && (!App.beat_url && (input_code.length <= App.code_url_max))) {
     let compressed_code = App.compress_string(input_code)
 
     next_url.searchParams.set(App.code_query_key, compressed_code)
