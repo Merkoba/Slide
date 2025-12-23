@@ -106,7 +106,6 @@ App.load_song = async (song_name) => {
       App.defer_code_scroll(App.code_scroll_song_pause_ms)
     }
 
-    App.reset_effects()
     App.check_effects()
     await App.play_action(content, {fresh: true})
     App.set_song_context(song_name)
