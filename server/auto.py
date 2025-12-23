@@ -42,7 +42,7 @@ AUTO_REQUESTED = False
 AUTO_STOP_TIMER = None
 AUTO_STOP_DELAY = 30  # minutes
 
-AUTO_METHOD = "ai"  # either 'ai' or 'astro'
+AUTO_METHOD = "astro"  # either 'ai' or 'astro'
 # auto uses ai to evolve the music
 # astro uses astronomic data to create sounds
 
