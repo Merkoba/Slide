@@ -1012,7 +1012,7 @@ a.popup:hover {
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-#btn-auto.active {
+button.active {
     border-color: rgb(78, 114, 198);
     box-shadow: 0 0 8px rgba(78, 114, 198, 0.6);
 }

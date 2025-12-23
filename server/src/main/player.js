@@ -61,7 +61,7 @@ App.play_action = async (code = ``, args = {}) => {
     // Only set state to playing if the update actually succeeded
     if (success) {
       await App.resume_audio()
-      App.play_state = `playing`
+      App.set_playing(`playing`)
       App.update_effects()
       App.update_url()
     }
@@ -78,7 +78,7 @@ App.play_action = async (code = ``, args = {}) => {
 
 App.stop_action = () => {
   console.info(`🔮 Stop Action`)
-  App.play_state = `stopped`
+  App.set_playing(`stopped`)
   App.stop_strudel()
   App.stop_code_scroll()
   App.stop_auto()
@@ -109,8 +109,12 @@ App.stop_strudel = async () => {
 }
 
 App.pause_action = () => {
+  if (!App.is_playing()) {
+    return
+  }
+
   console.info(`🔮 Pause Action`)
-  App.play_state = `paused`
+  App.set_playing(`paused`)
   App.pause_strudel()
   App.stop_code_scroll()
 }
@@ -311,5 +315,26 @@ App.copy_play = async () => {
   }
   catch (error) {
     console.error(`Clipboard access denied or failed: ${error}`)
+  }
+}
+
+App.set_playing = (what) => {
+  App.play_state = what
+  let btn = DOM.el(`#btn-play`)
+
+  if (App.is_playing()) {
+    btn.classList.add(`active`)
+  }
+  else {
+    btn.classList.remove(`active`)
+  }
+
+  btn = DOM.el(`#btn-pause`)
+
+  if (App.is_paused()) {
+    btn.classList.add(`active`)
+  }
+  else {
+    btn.classList.remove(`active`)
   }
 }
