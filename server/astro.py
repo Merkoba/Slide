@@ -543,14 +543,34 @@ class Astro:
         g1 = 0.6
         g2 = 0.5
 
+        # Helper to potentially wrap values in < > for alternation
+        def p(options: list[str]) -> str:
+            # 50% chance to just pick one static value
+            if rng_1.random() < 0.5:
+                return rng_2.choice(options)
+
+            # Otherwise create an alternation sequence
+            # Mode A: Simple alternation <a b>
+            # Mode B: Complex alternation <a b c>
+            mode = rng_1.choice(["simple", "complex"])
+
+            val1 = rng_2.choice(options)
+            val2 = rng_2.choice(options)
+
+            if mode == "simple":
+                return f"<{val1} {val2}>"
+            else:
+                val3 = rng_2.choice(options)
+                return f"<{val1} {val2} {val3}>"
+
         def n() -> str:
-            return rng_2.choice(NOTES)
+            return p(NOTES)
 
         def s() -> str:
-            return rng_3.choice(SOUNDS)
+            return p(SOUNDS)
 
         def o() -> str:
-            return rng_1.choice(NOISE)
+            return p(NOISE)
 
         def v() -> str:
             n1 = rng_1.choice(points)
@@ -559,7 +579,7 @@ class Astro:
             return f"<{n1} {n2} {n3}>"
 
         def b() -> str:
-            return rng_2.choice(BANKS)
+            return p(BANKS)
 
         def e() -> str:
             # 30% chance for no effect
@@ -589,20 +609,15 @@ class Astro:
                     char = rng_3.choice(["a", "e", "i", "o", "u"])
                     chain.append(f".vowel('{char}')")
                 elif type_idx == 6:
-                    # Room: Reverb mix. Low values (0.1-0.5) add depth without washing it out.
                     val = round(rng_2.uniform(0.1, 0.5), 2)
                     chain.append(f".room({val})")
                 elif type_idx == 7:
-                    # BPF: Band Pass Filter. "Thins" the sound by isolating a freq range.
                     val = rng_1.randint(400, 2000)
                     chain.append(f".bpf({val})")
                 elif type_idx == 8:
-                    # Phaser: Creates a swirling, psychedelic texture.
-                    # Higher values increase the speed/cycles of the sweep.
                     val = round(rng_2.uniform(0.5, 4.0), 1)
                     chain.append(f".phaser({val})")
                 elif type_idx == 9:
-                    # Panning: 0 is left, 1 is right. keeping it fairly centered (0.2-0.8)
                     val = round(rng_2.uniform(0.2, 0.8), 2)
                     chain.append(f".pan({val})")
 

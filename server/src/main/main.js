@@ -269,8 +269,14 @@ App.start_events = async () => {
     App.get_beat_url()
   })
 
-  DOM.ev(`#btn-auto`, `click`, () => {
+  let btn_auto = DOM.el(`#btn-auto`)
+
+  DOM.ev(btn_auto, `click`, () => {
     App.show_auto()
+  })
+
+  App.middle_click(btn_auto, () => {
+    App.toggle_auto()
   })
 
   let btn_queue = DOM.el(`#btn-queue`)

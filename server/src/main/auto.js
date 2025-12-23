@@ -219,3 +219,12 @@ App.check_auto = () => {
     btn.classList.remove(`active`)
   }
 }
+
+App.toggle_auto = () => {
+  if (App.auto_started) {
+    App.stop_auto()
+  }
+  else {
+    App.start_auto()
+  }
+}
