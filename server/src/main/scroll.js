@@ -182,16 +182,5 @@ App.set_input_scroll = (v_amount) => {
     return
   }
 
-  // 1. Update position
   el.scrollTop = v_amount
-
-  // 2. Do not dispatch 'new Event' manually if you can avoid it.
-  // CodeMirror observes scroll automatically.
-  // However, if your loop is too fast, the manual measure is safer.
-  // We keep your logic but add a safety check for the editor instance.
-
-  if (App.editor) {
-    // requestMeasure is enough to trigger the viewport update
-    App.editor.requestMeasure()
-  }
 }
