@@ -273,6 +273,16 @@ App.start_events = async () => {
     App.show_auto()
   })
 
+  let btn_queue = DOM.el(`#btn-queue`)
+
+  DOM.ev(btn_queue, `click`, () => {
+    App.next_in_queue()
+  })
+
+  App.middle_click(btn_queue, () => {
+    App.clear_queue()
+  })
+
   DOM.ev(`#btn-pause`, `click`, () => {
     App.pause_action()
   })

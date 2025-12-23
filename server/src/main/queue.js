@@ -11,11 +11,37 @@ App.stop_queue = () => {
   clearTimeout(App.queue_timeout)
 }
 
-App.check_queue = async () => {
+App.check_queue = () => {
   if (App.queue.length === 0) {
     return
   }
 
+  App.next_in_queue()
+  App.start_queue()
+}
+
+App.queue_snapshot = (snapshot) => {
+  App.queue.push({
+    id: `snapshot_${snapshot.id}`,
+    type: `snapshot`,
+    item_id: snapshot.id,
+  })
+
+  App.check_queue_button()
+}
+
+App.check_queue_button = () => {
+  let btn = DOM.el(`#btn-queue`)
+
+  if (App.queue.length > 0) {
+    DOM.show(btn)
+  }
+  else {
+    DOM.hide(btn)
+  }
+}
+
+App.next_in_queue = async () => {
   let first = App.queue.shift()
 
   if (first.type === `snapshot`) {
@@ -26,13 +52,11 @@ App.check_queue = async () => {
     }
   }
 
-  App.start_queue()
+  App.check_queue_button()
 }
 
-App.queue_snapshot = (snapshot) => {
-  App.queue.push({
-    id: `snapshot_${snapshot.id}`,
-    type: `snapshot`,
-    item_id: snapshot.id,
-  })
+App.clear_queue = () => {
+  clearTimeout(App.queue_timeout)
+  App.queue = []
+  App.check_queue_button()
 }
