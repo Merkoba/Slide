@@ -1,3 +1,4 @@
+App.effects_enabled = true
 App.eq_range_min = -12
 App.eq_range_max = 12
 
