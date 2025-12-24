@@ -48,7 +48,22 @@ App.show_tooltip = (e) => {
     return
   }
 
-  let text = e.target.getAttribute(`data-tooltip-text`)
+  let target = e.target
+
+  // Fix 1: Check if the element is still part of the document
+  if (!target.isConnected) {
+    return
+  }
+
+  // Fix 2: Check if the element is actually visible (has size)
+  // getBoundingClientRect returns 0 width/height for hidden elements
+  let rect = target.getBoundingClientRect()
+
+  if ((rect.width === 0) && (rect.height === 0)) {
+    return
+  }
+
+  let text = target.getAttribute(`data-tooltip-text`)
 
   if (!text) {
     return
@@ -58,7 +73,7 @@ App.show_tooltip = (e) => {
   App.tooltip_el.textContent = text
   App.tooltip_el.style.display = `block`
 
-  let {top, left} = App.get_tooltip_position(e.target)
+  let {top, left} = App.get_tooltip_position(target)
 
   App.tooltip_el.style.top = `${top}px`
   App.tooltip_el.style.left = `${left}px`
@@ -103,4 +118,8 @@ App.init_tooltips = () => {
   targets.forEach(el => {
     App.register_tooltip(el)
   })
+
+  // Hide tooltips immediately on any scroll event
+  // Use {capture: true} to detect scrolling on nested elements (like divs), not just the window
+  DOM.ev(document, `scroll`, App.hide_tooltip, {capture: true})
 }

@@ -7,18 +7,18 @@ App.create_collections_modal = () => {
 App.show_collections = async () => {
   let items = [
     {
-      text: `Songs`,
-      action: () => {
-        App.show_songs()
-      },
-      title: `View the songs collection`,
-    },
-    {
       text: `Snapshots`,
       action: () => {
         App.show_snapshots()
       },
       title: `View the snapshots collection`,
+    },
+    {
+      text: `Songs`,
+      action: () => {
+        App.show_songs()
+      },
+      title: `View the songs collection`,
     },
   ]
 

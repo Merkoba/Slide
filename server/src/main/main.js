@@ -307,6 +307,10 @@ App.start_events = async () => {
     App.show_collections()
   })
 
+  App.middle_click(collections, () => {
+    App.show_snapshots()
+  })
+
   let snapshot = DOM.el(`#btn-snapshot`)
 
   DOM.ev(snapshot, `click`, () => {
