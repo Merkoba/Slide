@@ -657,7 +657,8 @@ class Astro:
 
         name = self.namer.generate_name(ra_avg, dec_avg, mag_avg)
         data.beat_title = name
-        data.beat_code = f"""RA: {ra_avg} | DEC: {dec_avg} | MAG: {mag_avg}
+        data.beat_code = f"""/*<<<<< o >>>>>
+RA: {ra_avg} | DEC: {dec_avg} | MAG: {mag_avg}
 North Star: {self.name(awards["north_star"])}
 Loner Star: {self.name(awards["loner_star"])}
 Center Star: {self.name(awards["center_star"])}
