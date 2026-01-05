@@ -80,6 +80,12 @@ App.play_action = async (code = ``, args = {}) => {
 
 App.stop_action = () => {
   console.info(`🔮 Stop Action`)
+
+  if (App.is_stopped()) {
+    App.stop_auto()
+    return
+  }
+
   App.set_playing(`stopped`)
   App.stop_strudel()
   App.stop_code_scroll()
