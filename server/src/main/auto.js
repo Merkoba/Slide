@@ -115,7 +115,14 @@ App.start_auto = async () => {
   App.close_modal(`auto`)
   App.first_auto = true
   App.stor_save_auto_endpoint()
-  App.fetch_status()
+
+  try {
+    await App.fetch_status()
+  }
+  catch (err) {
+    // Enable auto anyway
+  }
+
   App.auto_started = true
   App.check_auto()
 }
@@ -132,7 +139,7 @@ App.fetch_status_code = async () => {
   return res.code
 }
 
-App.fetch_status = () => {
+App.fetch_status = async () => {
   if (!App.auto_delay || (App.auto_delay <= 0)) {
     console.error(`Provide a fetch interval in seconds greater than zero`)
     return
@@ -181,7 +188,7 @@ App.fetch_status = () => {
   }
 
   App.stop_auto(false) // Don't set cancelled flag for restart
-  fetch_status()
+  await fetch_status()
 
   App.fetch_timer = setInterval(() => {
     fetch_status()
