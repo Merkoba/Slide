@@ -497,34 +497,7 @@ App.draw_scope_frame = () => {
 
     let x = App.scope_title_padding_top || 10
     let y = App.scope_title_padding_top || 10
-    let line_height = App.scope_title_font_size * 1.5
-
     ctx.fillText(String(App.status), x, y)
-    y += line_height
-
-    if (App.scheduler && App.is_playing()) {
-      let cps = App.scheduler.cps || 0
-      ctx.fillText(`CPS: ${cps.toFixed(2)}`, x, y)
-      y += line_height
-
-      let cycle = App.scheduler.now()
-      ctx.fillText(`Cycle: ${cycle.toFixed(2)}`, x, y)
-      y += line_height
-    }
-
-    if (waveform && App.is_playing()) {
-      let sum = 0
-
-      for (let i = 0; i < waveform.length; i++) {
-        let val = (waveform[i] - 128) / 128
-        sum += val * val
-      }
-
-      let rms = Math.sqrt(sum / waveform.length)
-      ctx.fillText(`Amp: ${rms.toFixed(3)}`, x, y)
-      y += line_height
-    }
-
     ctx.restore()
   }
 
