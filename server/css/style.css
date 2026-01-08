@@ -3,7 +3,7 @@
     --input-width: 90%;
     --input-width-update: 90%;
     --input-max-width: 90%;
-    --input-min-width: 200px;
+    --input-min-width: 500px;
     --input-min-height: 200px;
     --alpha-background: #111111da;
     --input-text-shadow: 0 0 0.2rem currentcolor;
@@ -138,6 +138,7 @@ body, html {
     display: flex;
     width: var(--input-width-update);
     max-width: var(--input-width);
+    min-width: var(--input-min-width);
     flex-direction: row;
     border-top: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
