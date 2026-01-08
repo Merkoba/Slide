@@ -25,6 +25,11 @@ App.show_settings = () => {
 
   let items = [
     {
+      text: `Change Title`,
+      action: () => {App.ask_for_title()},
+      title: `Change the beat title`,
+    },
+    {
       text: `${select} Theme`,
       action: () => {App.show_theme_modal()},
       title: `${select} the theme color`,

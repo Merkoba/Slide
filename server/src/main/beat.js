@@ -14,6 +14,8 @@ App.new_beat = () => {
 }
 
 App.ask_for_title = () => {
+  App.close_modal(`settings`)
+
   App.show_prompt({
     title: `Beat Title`,
     placeholder: `Title of the beat`,
