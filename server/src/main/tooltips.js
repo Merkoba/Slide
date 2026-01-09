@@ -1,7 +1,7 @@
 App.tooltip_el = null
 App.tooltips_offset = 8
 App.tooltips_enabled = true
-App.tooltip_delay = 800
+App.tooltip_delay = 500
 
 App.create_tooltip_element = () => {
   if (App.tooltip_el) {
@@ -101,13 +101,22 @@ App.register_tooltip = (element) => {
 
   element.dataset.hasCustomTooltip = `true`
 
-  DOM.ev(element, `mouseenter`, (event) => {
-    App.tooltip_debouncer.call(event)
-  })
+  // FIX: Create a reusable trigger that passes the CORRECT element.
+  // We pass { target: element } to mimic an event object, ensuring
+  // App.show_tooltip reads attributes from the container, not a child node.
+  let trigger_tooltip = () => {
+    App.tooltip_debouncer.call({ target: element })
+  }
+
+  // Bind mouseenter (standard)
+  DOM.ev(element, `mouseenter`, trigger_tooltip)
+
+  // FIX: Bind mousemove (recovery)
+  // This restarts the timer if it was cancelled by a scroll event
+  // while the mouse is still hovering.
+  DOM.ev(element, `mousemove`, trigger_tooltip)
 
   DOM.ev(element, `mouseleave`, App.hide_tooltip)
-
-  // Hide if element is clicked (optional UX improvement)
   DOM.ev(element, `mousedown`, App.hide_tooltip)
 }
 

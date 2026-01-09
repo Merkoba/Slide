@@ -40,6 +40,11 @@ App.show_settings = () => {
       title: `${select} the background animation`,
     },
     {
+      text: `${toggle} Controls`,
+      action: () => {App.toggle_controls()},
+      title: `${show_or_hide} the top controls`,
+    },
+    {
       text: `${toggle} Scope`,
       action: () => {App.toggle_scope()},
       title: `${show_or_hide} the scope visualizer`,

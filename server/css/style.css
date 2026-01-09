@@ -107,7 +107,7 @@ body, html {
     /* Spacing */
     gap: 0.5rem 0.5rem;
     /* Adds consistent breathing room between the Volume, Tempo, and Time groups */
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 1rem;
     /* Combined padding and margin logic */
 
     /* Remove negative margins unless absolutely necessary for overlapping */

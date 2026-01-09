@@ -346,6 +346,7 @@ App.start_events = async () => {
   App.setup_scope()
   App.setup_theme()
   App.setup_effects()
+  App.setup_controls()
   App.setup_custom_numbers()
   App.init_volume_controls()
   App.init_tempo_controls()
