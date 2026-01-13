@@ -47,8 +47,6 @@ App.setup_auto = () => {
   if (auto_delay_select) {
     DOM.ev(auto_delay_select, `change`, (event) => {
       App.auto_delay = parseInt(event.target.value, 10)
-      App.stop_auto()
-      App.start_auto()
     })
   }
 }

@@ -400,7 +400,7 @@ class Astro:
         rng_2 = random.Random(f"{tag}_2")
         rng_3 = random.Random(f"{tag}_3")
 
-        min_cpm, max_cpm = 20, 30
+        min_cpm, max_cpm = 18, 48
         cpm = list(range(min_cpm, max_cpm + 1))
 
         min_p, max_p, step = 0, 1, 0.1
