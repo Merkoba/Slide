@@ -233,6 +233,12 @@ App.middle_click = (el, action) => {
       event.preventDefault()
     }
   })
+
+  DOM.ev(el, `mousedown`, (event) => {
+    if (event.button === 1) {
+      event.preventDefault()
+    }
+  })
 }
 
 App.cond = (branches) => {

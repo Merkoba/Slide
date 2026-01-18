@@ -84,14 +84,11 @@ App.setup_eq = () => {
       App.after_effect()
     })
 
-    DOM.ev(container, `mousedown`, (event) => {
-      if (event.button === 1) {
-        el.value = 0
-        App.check_eq_color(el)
-        apply_eq()
-        el.blur()
-        event.preventDefault()
-      }
+    App.middle_click(container, () => {
+      el.value = 0
+      App.check_eq_color(el)
+      apply_eq()
+      el.blur()
     })
 
     DOM.ev(container, `wheel`, (event) => {
