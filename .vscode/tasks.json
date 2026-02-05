@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "astro",
+			"path": "strudel/website",
+			"problemMatcher": [],
+			"label": "npm: astro - strudel/website",
+			"detail": "astro"
+		}
+	]
+}

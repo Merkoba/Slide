@@ -57,7 +57,7 @@ App.show_settings = () => {
     {
       text: `${toggle} Effects`,
       action: () => {App.toggle_effects()},
-      title: `${show_or_hide} the effects controls`,
+      title: `${show_or_hide} the effect controls`,
     },
     {
       text: `${toggle} Lines`,
