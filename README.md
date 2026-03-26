@@ -48,7 +48,7 @@ PORT = The application port -> http://localhost:4242
 
 ---
 
-### This for Auto mode
+### Settings For Auto mode
 
 MINUTES = Is the interval delay for pattern regeneration.
 
